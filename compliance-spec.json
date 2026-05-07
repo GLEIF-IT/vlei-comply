@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "compatibility": "EVM",
+  "assetStandard": "ERC20",
+  "assetDecimals": 18,
+  "vaspMediation": "ENTITY_TO_ENTITY",
+  "identityFramework": "ChainlinkCCI",
+  "attestationServices": [
+    {
+      "name": "GLEIF",
+      "status": "ACTIVE"
+    }
+  ],
+  "contracts": {
+    "policyWrapper": "wvLEI.sol",
+    "policyManager": "PolicyManager.sol",
+    "identityManager": "IdentityRegistry.sol",
+    "asset": "vLEI.sol",
+    "adminControls": "AdminControls.sol",
+    "attestationVerifier": "PlaceholderAttestationVerifier.sol"
+  },
+  "policies": [
+    {
+      "name": "vLEI_kyc_and_sanctions",
+      "description": "vLEI LE, OOR, and ECR credential checks must pass for KYC and sanctions checks",
+      "contractName": "vLEI_kyc_and_sanctions",
+      "constructorArgs": [
+        1,
+        "%%IDENTITY_REGISTRY%%",
+        "%%ATTESTATION_VERIFIER%%",
+        "%%ATTESTATION_VERIFIER%%"
+      ]
+    }
+  ],
+  "adminRoles": {
+    "owner": "constructor_param",
+    "complianceAdmin": "constructor_param"
+  },
+  "adminCapabilities": {
+    "globalPause": true,
+    "wrapperPause": true,
+    "allowlistControl": true,
+    "policyFreeze": false
+  },
+  "identityFeatures": [
+    {
+      "key": "kycMode",
+      "fieldName": "kycVerification",
+      "label": "KYC Verification",
+      "category": "CREDENTIAL",
+      "mode": "PROOF"
+    },
+    {
+      "key": "enableKycLevels",
+      "fieldName": "kycLevel",
+      "label": "KYC Level",
+      "category": "NUMERICAL",
+      "mode": "ENABLED"
+    },
+    {
+      "key": "sanctionsMode",
+      "fieldName": "sanctionsScreening",
+      "label": "Sanctions Screening",
+      "category": "CREDENTIAL",
+      "mode": "PROOF"
+    },
+    {
+      "key": "hasVASPLicense",
+      "fieldName": "hasVASPLicense",
+      "label": "VASP License",
+      "category": "CREDENTIAL",
+      "mode": "DISABLED"
+    }
+  ]
+}

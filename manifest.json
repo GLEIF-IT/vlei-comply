@@ -1,0 +1,219 @@
+{
+  "version": "2.0.0",
+  "generated": "2026-05-06T16:48:52.598Z",
+  "generator": "GL1 Compliance Wizard (React SPA)",
+  "project": {
+    "name": "vLEI Compliance Integration",
+    "package": "vlei-comply",
+    "network": "EVM",
+    "solidityVersion": "0.8.24",
+    "license": "Apache-2.0"
+  },
+  "architecture": {
+    "asset": {
+      "name": "vLEI",
+      "standard": "ERC20",
+      "symbol": "VLEI"
+    },
+    "wrapper": {
+      "name": "wvLEI",
+      "enforcementMode": "transfers_only"
+    },
+    "identityFramework": "CHAINLINK_CCID",
+    "evaluationStrategy": "AND",
+    "policyCount": 1,
+    "policies": [
+      {
+        "name": "vLEI_kyc_and_sanctions",
+        "description": "vLEI LE, OOR, and ECR credential checks must pass for KYC and sanctions checks",
+        "branchCount": 1,
+        "branches": [
+          {
+            "kind": "IF",
+            "outcome": "ALLOW",
+            "reasonCode": 1,
+            "groupCount": 1,
+            "conditionCount": 2
+          }
+        ]
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "foundry.toml",
+      "type": "config",
+      "description": "Foundry configuration"
+    },
+    {
+      "path": "README.md",
+      "type": "doc",
+      "description": "Project documentation"
+    },
+    {
+      "path": "test/ComplianceTest.t.sol",
+      "type": "test",
+      "description": "Compliance logic tests"
+    },
+    {
+      "path": "src/interfaces/IPolicy.sol",
+      "type": "interface",
+      "description": "Policy interface"
+    },
+    {
+      "path": "src/interfaces/IPolicyManager.sol",
+      "type": "interface",
+      "description": "Policy manager interface"
+    },
+    {
+      "path": "src/interfaces/IGL1IdentityRegistry.sol",
+      "type": "interface",
+      "description": "Identity registry interface"
+    },
+    {
+      "path": "src/interfaces/IAttestationServiceVerifier.sol",
+      "type": "interface",
+      "description": "Attestation verifier interface"
+    },
+    {
+      "path": "src/interfaces/IAddressListVerifier.sol",
+      "type": "interface",
+      "description": "Address list verifier interface"
+    },
+    {
+      "path": "src/admin/AdminControls.sol",
+      "type": "contract",
+      "description": "Administrative controls"
+    },
+    {
+      "path": "src/policy/PolicyManager.sol",
+      "type": "contract",
+      "description": "Policy orchestrator"
+    },
+    {
+      "path": "src/identity/TrustedIssuerRegistry.sol",
+      "type": "framework",
+      "description": "${config.identity.framework} - Trusted Issuer Registry"
+    },
+    {
+      "path": "src/identity/IdentityRegistry.sol",
+      "type": "framework",
+      "description": "${config.identity.framework} - Identity Registry"
+    },
+    {
+      "path": "src/identity/CredentialRegistry.sol",
+      "type": "framework",
+      "description": "${config.identity.framework} - Credential Registry"
+    },
+    {
+      "path": "src/identity/CredentialRegistryIdentityValidator.sol",
+      "type": "framework",
+      "description": "${config.identity.framework} - Identity Validator"
+    },
+    {
+      "path": "src/identity/interfaces/IIdentityRegistry.sol",
+      "type": "interface",
+      "description": "${config.identity.framework} - IIdentityRegistry"
+    },
+    {
+      "path": "src/identity/interfaces/ICredentialRegistry.sol",
+      "type": "interface",
+      "description": "${config.identity.framework} - ICredentialRegistry"
+    },
+    {
+      "path": "src/identity/interfaces/ICredentialValidator.sol",
+      "type": "interface",
+      "description": "${config.identity.framework} - ICredentialValidator"
+    },
+    {
+      "path": "src/identity/interfaces/ITrustedIssuerRegistry.sol",
+      "type": "interface",
+      "description": "${config.identity.framework} - ITrustedIssuerRegistry"
+    },
+    {
+      "path": "src/identity/interfaces/ICredentialRequirements.sol",
+      "type": "interface",
+      "description": "${config.identity.framework} - ICredentialRequirements"
+    },
+    {
+      "path": "src/identity/interfaces/IIdentityValidator.sol",
+      "type": "interface",
+      "description": "${config.identity.framework} - IIdentityValidator"
+    },
+    {
+      "path": "src/identity/interfaces/ICredentialDataValidator.sol",
+      "type": "interface",
+      "description": "${config.identity.framework} - ICredentialDataValidator"
+    },
+    {
+      "path": "src/identity/IdentityRegistryAdapter.sol",
+      "type": "identity",
+      "description": "Adapter mapping vendor ${config.identity.framework} to GL1 identity features"
+    },
+    {
+      "path": "lib/chainlink-ccid/packages/policy-management/src/core/PolicyProtectedUpgradeable.sol",
+      "type": "framework",
+      "description": "${config.identity.framework} - PolicyProtectedUpgradeable (embedded stub)"
+    },
+    {
+      "path": "lib/chainlink-ccid/packages/policy-management/src/interfaces/IPolicyEngine.sol",
+      "type": "framework",
+      "description": "${config.identity.framework} - IPolicyEngine (embedded stub)"
+    },
+    {
+      "path": "lib/chainlink-ccid/packages/policy-management/src/interfaces/IPolicyProtected.sol",
+      "type": "framework",
+      "description": "${config.identity.framework} - IPolicyProtected (embedded stub)"
+    },
+    {
+      "path": "setup.sh",
+      "type": "config",
+      "description": "Dependency setup script"
+    },
+    {
+      "path": "src/attestation/PlaceholderAttestationVerifier.sol",
+      "type": "contract",
+      "description": "Placeholder attestation verifier"
+    },
+    {
+      "path": "src/attestation/GLEIFAdapter.sol",
+      "type": "contract",
+      "description": "GLEIF LEI external attestation adapter"
+    },
+    {
+      "path": "src/assets/vLEI.sol",
+      "type": "contract",
+      "description": "Generated ERC20 token"
+    },
+    {
+      "path": "src/wrappers/wvLEI.sol",
+      "type": "contract",
+      "description": "Generated policy wrapper"
+    },
+    {
+      "path": "src/policies/vLEI_kyc_and_sanctions.sol",
+      "type": "contract",
+      "description": "Generated policy: vLEI LE, OOR, and ECR credential checks must pass for KYC and sanctions checks "
+    },
+    {
+      "path": "script/DeployAll.s.sol",
+      "type": "script",
+      "description": "Deployment script"
+    },
+    {
+      "path": "compliance-spec.json",
+      "type": "config",
+      "description": "Compliance specification for Testing Studio"
+    },
+    {
+      "path": ".gitmodules",
+      "type": "config",
+      "description": "Git submodules configuration"
+    },
+    {
+      "path": ".gitignore",
+      "type": "config",
+      "description": "Git ignore file"
+    }
+  ]
+}
