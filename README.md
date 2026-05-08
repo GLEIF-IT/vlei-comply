@@ -30,11 +30,11 @@ graph TB
     end
     
     subgraph ComplianceRulesEngine["Compliance Rules Engine"]
-        Policy0["vLEI_kyc_and_sanctions"]
+        Policy_vLEI["vLEI_kyc_and_sanctions policy"]
     end
     
     subgraph ExternalServices["External Services"]
-        Svc_gleif["GLEIF"]
+        Service_GLEIF["GLEIF vLEI Attestation Service"]
     end
     
     %% Main Flow
@@ -44,8 +44,8 @@ graph TB
     
     %% Orchestration
     PM -->|"Retrieve identity"| IdFramework
-    PM -->|"Query"| ExternalServices
-    PM -->|"Query"| ComplianceRulesEngine
+    PM -->|"Query"| Service_GLEIF
+    PM -->|"Query"| Policy_vLEI
     
     %% Styles
     style PM fill:#0d47a1,color:#fff,stroke:#fff,shape:rect,rx:20,ry:20
