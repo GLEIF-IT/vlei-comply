@@ -59,14 +59,14 @@ graph TB
 
 ### Component Roles
 
-| Component | Responsibility |
-|-----------|----------------|
-| **Policy Wrapper** | Intercepts transfers, builds initial `TransactionEnvelope` with minimal context |
-| **Policy Manager** | **Orchestration Layer**: Performs dynamic identity enrichment on all parties before policy evaluation |
-| **Identity Registry** | **Single Source of Truth**: Provides enriched identity data (KYC, jurisdiction, credentials) |
-| **Compliance Rules Engine** | Evaluates policies against the **fully enriched** `TransactionEnvelope` |
-| **External Services** | Perform specialized validation using complete enriched `PartyPacket` context |
-| **Administrative Controls** | Global system management, role-based access, and emergency pause |
+| Component                   | Responsibility                                                                                        |
+|-----------------------------|-------------------------------------------------------------------------------------------------------|
+| **Policy Wrapper**          | Intercepts transfers, builds initial `TransactionEnvelope` with minimal context                       |
+| **Policy Manager**          | **Orchestration Layer**: Performs dynamic identity enrichment on all parties before policy evaluation |
+| **Identity Registry**       | **Single Source of Truth**: Provides enriched identity data (KYC, jurisdiction, credentials)          |
+| **Compliance Rules Engine** | Evaluates policies against the **fully enriched** `TransactionEnvelope`                               |
+| **External Services**       | Perform specialized validation using complete enriched `PartyPacket` context                          |
+| **Administrative Controls** | Global system management, role-based access, and emergency pause                                      |
 
 ### Dynamic Identity Enrichment Flow
 
@@ -207,15 +207,15 @@ This project includes a `compliance-spec.json` file that is **required** by the 
 
 This file describes the compliance architecture metadata for your project. It includes:
 
-| Field | Description |
-|-------|-------------|
-| `version` | Specification version (currently `1.0`) |
-| `compatibility` | Target VM compatibility (`EVM`) |
-| `assetStandard` | Token standard (`ERC20`, `ERC721`, or `ERC1155`) |
-| `identityFramework` | Identity framework used (e.g., `ChainlinkCCI`) |
-| `attestationServices` | List of attestation services with status |
-| `contracts` | Map of contract roles to filenames |
-| `adminRoles` | Admin role assignment method |
+| Field                 | Description                                      |
+|-----------------------|--------------------------------------------------|
+| `version`             | Specification version (currently `1.0`)          |
+| `compatibility`       | Target VM compatibility (`EVM`)                  |
+| `assetStandard`       | Token standard (`ERC20`, `ERC721`, or `ERC1155`) |
+| `identityFramework`   | Identity framework used (e.g., `ChainlinkCCI`)   |
+| `attestationServices` | List of attestation services with status         |
+| `contracts`           | Map of contract roles to filenames               |
+| `adminRoles`          | Admin role assignment method                     |
 
 > **⚠️ Warning**: The Compliance Testing Studio will **reject** any ZIP that does not contain this file.
 
@@ -260,12 +260,12 @@ anvil
 
 ## Dependencies
 
-| Package | Source | Included |
-|---------|--------|----------|
-| `forge-std` | `foundry-rs/forge-std` | via `setup.sh` / `forge install` |
-| `openzeppelin-contracts` | `OpenZeppelin/openzeppelin-contracts` | via `setup.sh` / `forge install` |
+| Package                              | Source                                            | Included                         |
+|--------------------------------------|---------------------------------------------------|----------------------------------|
+| `forge-std`                          | `foundry-rs/forge-std`                            | via `setup.sh` / `forge install` |
+| `openzeppelin-contracts`             | `OpenZeppelin/openzeppelin-contracts`             | via `setup.sh` / `forge install` |
 | `openzeppelin-contracts-upgradeable` | `OpenZeppelin/openzeppelin-contracts-upgradeable` | via `setup.sh` / `forge install` |
-| `chainlink-ccid` (policy-management) | Pre-embedded stub | ✅ Included in `lib/` |
+| `chainlink-ccid` (policy-management) | Pre-embedded stub                                 | ✅ Included in `lib/`             |
 
 ## License
 
