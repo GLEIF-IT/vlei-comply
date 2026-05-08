@@ -29,13 +29,12 @@ graph TB
         IdFramework["Chainlink CCID<br/>(Identity Framework)"]
     end
     
-    subgraph "Compliance Rules Engine"
+    subgraph ComplianceRulesEngine["Compliance Rules Engine"]
         Policy0["vLEI_kyc_and_sanctions"]
     end
     
-    subgraph "External Services"
+    subgraph ExternalServices["External Services"]
         Svc_gleif["GLEIF"]
-
     end
     
     %% Main Flow
@@ -45,8 +44,8 @@ graph TB
     
     %% Orchestration
     PM -->|"Retrieve identity"| IdFramework
-    PM -->|"Query"| External Services
-    PM -->|"Query"| Compliance Rules Engine
+    PM -->|"Query"| ExternalServices
+    PM -->|"Query"| ComplianceRulesEngine
     
     %% Styles
     style PM fill:#0d47a1,color:#fff,stroke:#fff,shape:rect,rx:20,ry:20
@@ -54,8 +53,8 @@ graph TB
     style Wrapper fill:#e3f2fd,stroke:#0d47a1,stroke-dasharray: 5 5
     style Asset fill:#1565c0,color:#fff
     style IdFramework fill:#fff,stroke:#333,stroke-dasharray: 5 5
-    style Compliance Rules Engine fill:#fff,stroke:#333,stroke-dasharray: 5 5
-    style External Services fill:#fff,stroke:#333,stroke-dasharray: 5 5
+    style ComplianceRulesEngine fill:#fff,stroke:#333,stroke-dasharray: 5 5
+    style ExternalServices fill:#fff,stroke:#333,stroke-dasharray: 5 5
 ```
 
 ### Component Roles
