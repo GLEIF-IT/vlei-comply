@@ -19,11 +19,13 @@ contract vLEI_kyc_and_sanctions is IPolicy {
     
     IGL1IdentityRegistry public immutable identityRegistry;
     IAttestationServiceVerifier public immutable gleifVerifier;
+    IAttestationServiceVerifier public immutable sanctionsVerifier;
     
-    constructor(uint64 version_, address _identityRegistry, address _gleifVerifier) {
+    constructor(uint64 version_, address _identityRegistry, address _gleifVerifier, address _sanctionsVerifier) {
         _policyVersion = version_;
         identityRegistry = IGL1IdentityRegistry(_identityRegistry);
         gleifVerifier = IAttestationServiceVerifier(_gleifVerifier);
+        sanctionsVerifier = IAttestationServiceVerifier(_sanctionsVerifier);
     }
     
     /**
@@ -58,7 +60,7 @@ contract vLEI_kyc_and_sanctions is IPolicy {
         if (amount > 0) {}
         
         bool cond_0_0_0 = gleifVerifier.validate(envelope.parties[0]);
-        bool cond_0_0_1 = gleifVerifier.validate(envelope.parties[0]);
+        bool cond_0_0_1 = sanctionsVerifier.validate(envelope.parties[0]);
 
         if ((cond_0_0_0 && cond_0_0_1)) {
             return (IPolicy.PolicyStatus.Pass, abi.encode(uint8(1)));

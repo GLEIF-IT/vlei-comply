@@ -100,7 +100,8 @@ contract ComplianceTest is Test {
         // Deploy and add actual policies (commented out for unit testing; uncomment for integration tests or ensure proper identity setup)
         /*
         
-        vlei_kyc_and_sanctions = new vLEI_kyc_and_sanctions(1, address(identityRegistry), address(new GLEIFAdapter(address(vendorIdentityRegistry), address(credentialRegistry))));
+        address gleifAdapter = address(new GLEIFAdapter(address(vendorIdentityRegistry), address(credentialRegistry)));
+        vlei_kyc_and_sanctions = new vLEI_kyc_and_sanctions(1, address(identityRegistry), gleifAdapter, gleifAdapter);
         admin.grantRole(admin.COMPLIANCE_ADMIN_ROLE(), address(this));
         manager.addPolicy(address(vlei_kyc_and_sanctions));
         

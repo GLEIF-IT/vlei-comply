@@ -137,16 +137,16 @@ contract DeployAll is Script {
         // 5. Deploy Generated Policies
         // ========================================
         // Deploy vLEI_kyc_and_sanctions
-        vLEI_kyc_and_sanctions vLEI_kyc_and_sanctions = new vLEI_kyc_and_sanctions(
+        vLEI_kyc_and_sanctions vleiPolicy = new vLEI_kyc_and_sanctions(
             1,
             address(identityRegistry),
             address(gleifAdapter) /* GLEIF verifier */,
             address(gleifAdapter) /* GLEIF verifier */
         );
-        console.log("vLEI_kyc_and_sanctions deployed to:", address(vLEI_kyc_and_sanctions));
+        console.log("vLEI_kyc_and_sanctions deployed to:", address(vleiPolicy));
         
         // Register policies with PolicyManager
-        policyManager.addPolicy(address(vLEI_kyc_and_sanctions));
+        policyManager.addPolicy(address(vleiPolicy));
         
         // ========================================
         // 6. Deploy Base Asset
