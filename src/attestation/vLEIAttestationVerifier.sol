@@ -9,7 +9,7 @@ import "../interfaces/IAttestationServiceVerifier.sol";
  * @notice Placeholder for WIP attestation services
  * @dev TODO: Replace with actual service integrations before production
  */
-contract PlaceholderAttestationVerifier is IAttestationServiceVerifier {
+contract vLEIAttestationVerifier is IAttestationServiceVerifier {
     /**
      * @notice Placeholder validation that always returns true
      * @dev Used for testing when actual attestation service is not deployed.

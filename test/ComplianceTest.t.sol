@@ -14,7 +14,7 @@ import "../src/assets/vLEI.sol";
 import "../src/wrappers/wvLEI.sol";
 import "../src/interfaces/IPolicy.sol";
 import "../src/policies/vLEI_kyc_and_sanctions.sol";
-import {PlaceholderAttestationVerifier} from "../src/attestation/PlaceholderAttestationVerifier.sol";
+import {vLEIAttestationVerifier} from "../src/attestation/vLEIAttestationVerifier.sol";
 
 import {GLEIFAdapter} from "../src/attestation/GLEIFAdapter.sol";
 
