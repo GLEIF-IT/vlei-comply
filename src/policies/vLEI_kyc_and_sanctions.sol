@@ -59,10 +59,10 @@ contract vLEI_kyc_and_sanctions is IPolicy {
         // Suppress unused variable warning if no amount checks exist
         if (amount > 0) {}
         
-        bool cond_0_0_0 = gleifVerifier.validate(envelope.parties[0]);
-        bool cond_0_0_1 = sanctionsVerifier.validate(envelope.parties[0]);
+        bool gleifValid = gleifVerifier.validate(envelope.parties[0]);
+        bool sanctionsValid = sanctionsVerifier.validate(envelope.parties[0]);
 
-        if ((cond_0_0_0 && cond_0_0_1)) {
+        if ((gleifValid && sanctionsValid)) {
             return (IPolicy.PolicyStatus.Pass, abi.encode(uint8(1)));
         }
         // Default: DENY (no ELSE branch defined)

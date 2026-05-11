@@ -116,13 +116,9 @@ contract ComplianceTest is Test {
         vm.prank(alice);
         asset.approve(address(wrapper), 1000 * UNIT);
         
-        
-        
 
-        
         admin.setAllowed(alice, true);
         admin.setAllowed(bob, true);
-        
     }
 
     // Event definitions for expectEmit matching

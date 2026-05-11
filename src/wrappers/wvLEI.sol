@@ -33,9 +33,21 @@ contract wvLEI {
     uint256 public pendingNonce;
     mapping(uint256 => PendingTransaction) public pendingTransactions;
     
-    event ComplianceCheckFailed(address indexed from, address indexed to, uint256 amount, bytes32 policyId, uint8 reasonCode);
-    event TransactionPending(uint256 indexed pendingId, address indexed from, address indexed to, uint256 amount, bytes32 envelopeHash);
-    event TransactionResolved(uint256 indexed pendingId, bool approved);
+    event ComplianceCheckFailed(
+        address indexed from,
+        address indexed to,
+        uint256 amount,
+        bytes32 policyId,
+        uint8 reasonCode);
+    event TransactionPending(
+        uint256 indexed pendingId,
+        address indexed from,
+        address indexed to,
+        uint256 amount,
+        bytes32 envelopeHash);
+    event TransactionResolved(
+        uint256 indexed pendingId,
+        bool approved);
     
     constructor(
         address _asset,
@@ -64,15 +76,25 @@ contract wvLEI {
         // Originator (Sender)
         parties[0] = IPolicy.PartyPacket({
             role: IPolicy.PartyRole.OriginatorCustomer,
-            wallet: msg.sender
-            , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+            wallet: msg.sender,
+            identityRef: bytes32(0),
+            kycHash: bytes32(0),
+            accountRef: bytes32(0),
+            jurisdiction: bytes32(0),
+            kycLevel: 0,
+            hasVASPLicense: false
         });
         
         // Beneficiary (Receiver)
         parties[1] = IPolicy.PartyPacket({
             role: IPolicy.PartyRole.BeneficiaryCustomer,
-            wallet: to
-            , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+            wallet: to,
+            identityRef: bytes32(0),
+            kycHash: bytes32(0),
+            accountRef: bytes32(0),
+            jurisdiction: bytes32(0),
+            kycLevel: 0,
+            hasVASPLicense: false
         });
 
         IPolicy.TransactionEnvelope memory envelope = IPolicy.TransactionEnvelope({
@@ -87,8 +109,19 @@ contract wvLEI {
         
         if (attestation.overallStatus == IPolicy.PolicyStatus.Pending) {
             pendingNonce++;
-            pendingTransactions[pendingNonce] = PendingTransaction(msg.sender, to, amount, attestation.envelopeHash, false, false);
-            emit TransactionPending(pendingNonce, msg.sender, to, amount, attestation.envelopeHash);
+            pendingTransactions[pendingNonce] = PendingTransaction(
+                msg.sender,
+                to,
+                amount,
+                attestation.envelopeHash,
+                false,
+                false);
+            emit TransactionPending(
+                pendingNonce,
+                msg.sender,
+                to,
+                amount,
+                attestation.envelopeHash);
             return false;
         }
         
@@ -100,7 +133,12 @@ contract wvLEI {
                     break;
                 }
             }
-            emit ComplianceCheckFailed(msg.sender, to, amount, failingPolicyId, uint8(attestation.overallStatus));
+            emit ComplianceCheckFailed(
+                msg.sender,
+                to,
+                amount,
+                failingPolicyId,
+                uint8(attestation.overallStatus));
             return false;
         }
         
@@ -113,14 +151,24 @@ contract wvLEI {
         
         parties[0] = IPolicy.PartyPacket({
             role: IPolicy.PartyRole.OriginatorCustomer,
-            wallet: from
-            , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+            wallet: from,
+            identityRef: bytes32(0),
+            kycHash: bytes32(0),
+            accountRef: bytes32(0),
+            jurisdiction: bytes32(0),
+            kycLevel: 0,
+            hasVASPLicense: false
         });
         
         parties[1] = IPolicy.PartyPacket({
             role: IPolicy.PartyRole.BeneficiaryCustomer,
-            wallet: to
-            , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+            wallet: to,
+            identityRef: bytes32(0),
+            kycHash: bytes32(0),
+            accountRef: bytes32(0),
+            jurisdiction: bytes32(0),
+            kycLevel: 0,
+            hasVASPLicense: false
         });
 
         IPolicy.TransactionEnvelope memory envelope = IPolicy.TransactionEnvelope({
@@ -135,8 +183,19 @@ contract wvLEI {
         
         if (attestation.overallStatus == IPolicy.PolicyStatus.Pending) {
             pendingNonce++;
-            pendingTransactions[pendingNonce] = PendingTransaction(from, to, amount, attestation.envelopeHash, false, false);
-            emit TransactionPending(pendingNonce, from, to, amount, attestation.envelopeHash);
+            pendingTransactions[pendingNonce] = PendingTransaction(
+                from,
+                to,
+                amount,
+                attestation.envelopeHash,
+                false,
+                false);
+            emit TransactionPending(
+                pendingNonce,
+                from,
+                to,
+                amount,
+                attestation.envelopeHash);
             return false;
         }
         
@@ -148,7 +207,12 @@ contract wvLEI {
                     break;
                 }
             }
-            emit ComplianceCheckFailed(from, to, amount, failingPolicyId, uint8(attestation.overallStatus));
+            emit ComplianceCheckFailed(
+                from,
+                to,
+                amount,
+                failingPolicyId,
+                uint8(attestation.overallStatus));
             return false;
         }
         
@@ -192,20 +256,35 @@ contract wvLEI {
             // msg.sender is the VASP, originatorId is the customer behind them
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.OriginatingVASP,
-                wallet: msg.sender
-                , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: msg.sender,
+                identityRef: bytes32(0),
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.OriginatorCustomer,
-                wallet: address(0)
-                , identityRef: originatorId, kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: address(0),
+                identityRef: originatorId,
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
         } else {
             // msg.sender IS the originator entity directly
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.OriginatorCustomer,
-                wallet: msg.sender
-                , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: msg.sender,
+                identityRef: bytes32(0),
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
         }
         
@@ -214,20 +293,35 @@ contract wvLEI {
             // "to" is the VASP, beneficiaryId is the customer behind them
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.BeneficiaryVASP,
-                wallet: to
-                , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: to,
+                identityRef: bytes32(0),
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.BeneficiaryCustomer,
-                wallet: address(0)
-                , identityRef: beneficiaryId, kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: address(0),
+                identityRef: beneficiaryId,
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
         } else {
             // "to" IS the beneficiary entity directly
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.BeneficiaryCustomer,
-                wallet: to
-                , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: to,
+                identityRef: bytes32(0),
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
         }
 
@@ -298,19 +392,33 @@ contract wvLEI {
         if (hasOriginator) {
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.OriginatingVASP,
-                wallet: from
-                , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: from,
+                identityRef: bytes32(0),
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.OriginatorCustomer,
-                wallet: address(0)
-                , identityRef: originatorId, kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: address(0),
+                identityRef: originatorId,
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
         } else {
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.OriginatorCustomer,
-                wallet: from
-                , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: from,
+                identityRef: bytes32(0),
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0, hasVASPLicense: false
             });
         }
         
@@ -318,19 +426,34 @@ contract wvLEI {
         if (hasBeneficiary) {
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.BeneficiaryVASP,
-                wallet: to
-                , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: to,
+                identityRef: bytes32(0),
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.BeneficiaryCustomer,
-                wallet: address(0)
-                , identityRef: beneficiaryId, kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: address(0),
+                identityRef: beneficiaryId,
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
         } else {
             parties[idx++] = IPolicy.PartyPacket({
                 role: IPolicy.PartyRole.BeneficiaryCustomer,
-                wallet: to
-                , identityRef: bytes32(0), kycHash: bytes32(0), accountRef: bytes32(0), jurisdiction: bytes32(0), kycLevel: 0, hasVASPLicense: false
+                wallet: to,
+                identityRef: bytes32(0),
+                kycHash: bytes32(0),
+                accountRef: bytes32(0),
+                jurisdiction: bytes32(0),
+                kycLevel: 0,
+                hasVASPLicense: false
             });
         }
 
