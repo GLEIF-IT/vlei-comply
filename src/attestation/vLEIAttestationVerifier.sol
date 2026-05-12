@@ -2,29 +2,51 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IPolicy.sol";
-import "../interfaces/IAttestationServiceVerifier.sol";
+import "../interfaces/IvLEIVerifier.sol";
+import "./vLEIOracleRegistry.sol";
 
 /**
- * @title PlaceholderAttestationVerifier
- * @notice Placeholder for WIP attestation services
- * @dev TODO: Replace with actual service integrations before production
+ * @title vLEIAttestationVerifier
+ * @notice Verifies first-pass vLEI Legal Entity status against an on-chain oracle registry.
+ * @dev This verifier expects `party.identityRef` to already be enriched to the AID-derived
+ * Chainlink CCID. It performs no wallet lookup itself and fails closed when the identity ref is zero.
+ * @custom:prototype The verifier validates only Legal Entity AID, LEI match, ACDC presence,
+ * allowlist, expiry, and revocation. OOR and authority-specific checks belong in a future layer.
  */
-contract vLEIAttestationVerifier is IAttestationServiceVerifier {
-    /**
-     * @notice Placeholder validation that always returns true
-     * @dev Used for testing when actual attestation service is not deployed.
-     *      
-     *      The PartyPacket contains:
-     *      - role: The role of the party in the transaction (OriginatorCustomer, BeneficiaryCustomer, etc.)
-     *      - wallet: The on-chain address of the party (if known)
-     *      - Dynamically enriched fields: identityRef, kycHash, jurisdiction, accountRef, etc.
-     *        (These are populated by the PolicyManager via IGL1IdentityRegistry before calling validate)
-     *
-     * @param party The full enriched party data to validate
-     * @return true Always returns true
-     */
-    function validate(IPolicy.PartyPacket calldata party) external pure override returns (bool) {
-        if (party.wallet == address(0)) {}
-        return true;
+contract vLEIAttestationVerifier is IvLEIVerifier {
+    /// @notice Oracle/admin-posted evidence registry used for Legal Entity checks.
+    vLEIOracleRegistry public immutable oracleRegistry;
+
+    /// @notice Creates the verifier.
+    /// @param _oracleRegistry Address of the `vLEIOracleRegistry` instance.
+    constructor(address _oracleRegistry) {
+        require(_oracleRegistry != address(0), "Invalid oracle registry");
+        oracleRegistry = vLEIOracleRegistry(_oracleRegistry);
+    }
+
+    /// @notice Validates whether a party has valid first-pass vLEI Legal Entity evidence.
+    /// @dev Implements the generic verifier interface used by generated policies.
+    /// @param party Enriched party whose `identityRef` should be an AID-derived CCID.
+    /// @return True when the party's AID CCID has a valid oracle registry record.
+    function validate(IPolicy.PartyPacket calldata party) external view override returns (bool) {
+        return _validateLegalEntity(party);
+    }
+
+    /// @notice Validates Legal Entity status for a party.
+    /// @param party Enriched party whose `identityRef` should be an AID-derived CCID.
+    /// @return True when the party's AID CCID has a valid oracle registry record.
+    function validateLegalEntity(IPolicy.PartyPacket calldata party) external view override returns (bool) {
+        return _validateLegalEntity(party);
+    }
+
+    /// @notice Shared validation implementation for the generic and vLEI-specific entry points.
+    /// @param party Enriched party whose identity reference is checked.
+    /// @return True when the oracle registry accepts the party's identity reference.
+    function _validateLegalEntity(IPolicy.PartyPacket calldata party) internal view returns (bool) {
+        if (party.identityRef == bytes32(0)) {
+            return false;
+        }
+
+        return oracleRegistry.isLegalEntityValid(party.identityRef);
     }
 }

@@ -8,15 +8,32 @@ import {IIdentityRegistry} from "./interfaces/IIdentityRegistry.sol";
 import {ICredentialRegistry} from "./interfaces/ICredentialRegistry.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
+/**
+ * @title CredentialRegistryIdentityValidator
+ * @notice Validates accounts against configurable credential requirements across credential sources.
+ * @dev This Chainlink-style validator resolves an account to a CCID through configured identity
+ * registries, checks credential presence/expiry in credential registries, and optionally validates
+ * credential payload bytes through data validators. The vLEI first-pass policy does not currently
+ * depend on this validator for Legal Entity pass/fail decisions.
+ */
 contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialRequirements, IIdentityValidator {
+  /// @notice Maximum number of configured credential requirements.
   uint256 private constant MAX_REQUIREMENTS = 8;
+
+  /// @notice Maximum number of credential sources per credential type.
   uint256 private constant MAX_REQUIREMENT_SOURCES = 8;
+
+  /// @notice Maximum credential type ids accepted by a single requirement.
   uint256 private constant MAX_CREDENTIAL_TYPES_PER_REQUIREMENT = 32;
 
+  /// @notice ERC-7201 storage bucket for validator requirements and sources.
   /// @custom:storage-location erc7201:chainlink.ace.CredentialRegistryIdentityValidator
   struct CredentialRegistryIdentityValidatorStorage {
+    /// @notice Configured requirement ids.
     bytes32[] requirements;
+    /// @notice Requirement configuration by id.
     mapping(bytes32 requirementId => CredentialRequirement credentialRequirement) credentialRequirementMap;
+    /// @notice Credential sources by credential type id.
     mapping(bytes32 credential => CredentialSource[] sources) credentialSources;
   }
 
@@ -26,6 +43,8 @@ contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialR
   bytes32 private constant credentialRegistryIdentityValidatorStorageLocation =
     0xd345ab5a3e8073283824dcc06e7ac0c586290818c864e9d2ee66361ecca47600;
 
+  /// @notice Returns the ERC-7201 storage bucket.
+  /// @return $ Storage pointer for validator state.
   function _credentialRegistryIdentityValidatorStorage()
     private
     pure
@@ -37,13 +56,15 @@ contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialR
     }
   }
 
+  /// @notice Disables initialization on the implementation contract.
   constructor() {
     // disabling initializers on the implementation contract itself
     _disableInitializers();
   }
 
   /**
-   * @dev Initializes the credential validator and sets the initial credential sources and requirements.
+   * @notice Initializes the credential validator and sets initial credential sources and requirements.
+   * @dev The initializer owns the validator with `msg.sender`.
    * @param credentialSourceInputs The credential sources to add.
    * @param credentialRequirementInputs The credential requirements to add.
    */
@@ -58,6 +79,9 @@ contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialR
     __CredentialRegistryIdentitityValidator_init(credentialSourceInputs, credentialRequirementInputs);
   }
 
+  /// @notice Internal initializer for inherited ownership and validator state.
+  /// @param credentialSourceInputs Initial credential source configurations.
+  /// @param credentialRequirementInputs Initial credential requirement configurations.
   function __CredentialRegistryIdentitityValidator_init(
     CredentialSourceInput[] memory credentialSourceInputs,
     CredentialRequirementInput[] memory credentialRequirementInputs
@@ -69,6 +93,9 @@ contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialR
     __CredentialRegistryIdentitityValidator_init_unchained(credentialSourceInputs, credentialRequirementInputs);
   }
 
+  /// @notice Internal unchained initializer that writes initial sources and requirements.
+  /// @param credentialSourceInputs Initial credential source configurations.
+  /// @param credentialRequirementInputs Initial credential requirement configurations.
   function __CredentialRegistryIdentitityValidator_init_unchained(
     CredentialSourceInput[] memory credentialSourceInputs,
     CredentialRequirementInput[] memory credentialRequirementInputs
@@ -86,6 +113,8 @@ contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialR
     }
   }
 
+  /// @notice Adds one credential requirement after enforcing implementation limits.
+  /// @param input Requirement configuration to add.
   function _addCredentialRequirement(CredentialRequirementInput memory input) internal {
     uint256 minValidations = input.minValidations;
     if (minValidations == 0) {
@@ -156,6 +185,8 @@ contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialR
     return _credentialRegistryIdentityValidatorStorage().requirements;
   }
 
+  /// @notice Adds one credential source after enforcing implementation limits.
+  /// @param input Credential source configuration to add.
   function _addCredentialSource(CredentialSourceInput memory input) internal {
     address identityRegistry = input.identityRegistry;
     address credentialRegistry = input.credentialRegistry;
@@ -237,6 +268,11 @@ contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialR
     return true;
   }
 
+  /// @notice Validates one configured requirement for an account.
+  /// @param account Account to validate.
+  /// @param requirementId Requirement id to evaluate.
+  /// @param context Additional validation context passed through to registries and data validators.
+  /// @return True when the requirement is satisfied.
   function _validateRequirement(
     address account,
     bytes32 requirementId,
@@ -261,6 +297,14 @@ contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialR
     return false;
   }
 
+  /// @notice Counts valid sources for one credential type until the requirement threshold is met.
+  /// @param account Account to validate.
+  /// @param credentialTypeId Credential type identifier being evaluated.
+  /// @param currentValidations Number of validations already counted.
+  /// @param minValidations Threshold needed to satisfy the enclosing requirement.
+  /// @param invert True when absence of the credential should count as valid.
+  /// @param context Additional validation context.
+  /// @return Number of validations counted after checking configured sources.
   function _validateCredential(
     address account,
     bytes32 credentialTypeId,
@@ -298,6 +342,16 @@ contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialR
     return validations;
   }
 
+  /// @notice Validates one credential against one registry/source pair.
+  /// @dev Registry and data-validator reverts are treated as validation failure.
+  /// @param ccid Cross-chain identity resolved for the account.
+  /// @param account Account being validated.
+  /// @param credentialRegistry Credential registry source.
+  /// @param dataValidator Optional payload validator.
+  /// @param credential Credential type identifier.
+  /// @param invert True when absence of the credential should be accepted.
+  /// @param context Additional validation context.
+  /// @return True when the credential source satisfies the requirement condition.
   function _validateCredentialWithRegistry(
     bytes32 ccid,
     address account,

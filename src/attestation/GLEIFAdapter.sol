@@ -9,18 +9,35 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title GLEIFAdapter
- * @notice Adapter for GLEIF (Global Legal Entity Identifier Foundation) attestation service
- * @dev Handles provisioning of identities and credentials based on GLEIF LEI validation
+ * @notice Legacy/generated adapter for a future GLEIF attestation service.
+ * @dev This contract is retained for compatibility with the generated GL1 surface. It is not the
+ * active vLEI verifier path. Current transfer policy uses `vLEIAttestationVerifier` backed by
+ * `vLEIOracleRegistry`; this adapter still fails closed from `validate`.
+ * @custom:prototype Do not wire this contract as the production verifier without replacing the
+ * placeholder validation and defining oracle authorization, proof format, and revocation behavior.
  */
 contract GLEIFAdapter is IAttestationServiceVerifier, Ownable {
+    /// @notice Chainlink-style identity registry used by the legacy provisioning helpers.
     IIdentityRegistry public immutable identityRegistry;
+
+    /// @notice Chainlink-style credential registry used by the legacy provisioning helpers.
     ICredentialRegistry public immutable credentialRegistry;
 
-    // TODO: Define GLEIF oracle / verifier endpoints here
+    // Legacy placeholder: active oracle evidence is stored in vLEIOracleRegistry.
 
+    /// @notice Emitted when the owner provisions a wallet to identity mapping through this adapter.
+    /// @param wallet Wallet address associated with the identity.
+    /// @param identityId Identity id registered for the wallet.
     event IdentityProvisioned(address indexed wallet, bytes32 indexed identityId);
+
+    /// @notice Emitted when the owner provisions a credential through this adapter.
+    /// @param identityId Identity id receiving the credential.
+    /// @param credentialType Credential type identifier registered.
     event CredentialProvisioned(bytes32 indexed identityId, bytes32 indexed credentialType);
 
+    /// @notice Creates the legacy adapter.
+    /// @param _identityRegistry Chainlink-style identity registry address.
+    /// @param _credentialRegistry Chainlink-style credential registry address.
     constructor(address _identityRegistry, address _credentialRegistry) Ownable(msg.sender) {
         require(_identityRegistry != address(0), "Invalid identity registry");
         require(_credentialRegistry != address(0), "Invalid credential registry");
@@ -30,14 +47,13 @@ contract GLEIFAdapter is IAttestationServiceVerifier, Ownable {
 
     /**
      * @notice Provisions a new identity in the Identity Registry.
-     * @dev Connect externally to retrieve LEI profiles from GLEIF.
-     *      Only callable by an authorized GLEIF relayer or owner.
+     * @dev Placeholder owner-only helper. Production use would need an authenticated oracle/relayer
+     * and should not rely on this method as written.
      * @param wallet The address to associate with the identity.
      * @param identityId The unique identifier for this identity (e.g., LEI hash).
      */
     function addIdentity(address wallet, bytes32 identityId) external onlyOwner {
-        // TODO: Implement external retrieval of LEI profiles from GLEIF
-        // Example: verify signature/proof from GLEIF relayer
+        // Legacy provisioning path; no external GLEIF proof is verified here.
         
         address[] memory accounts = new address[](1);
         accounts[0] = wallet;
@@ -47,41 +63,28 @@ contract GLEIFAdapter is IAttestationServiceVerifier, Ownable {
 
     /**
      * @notice Adds a verifiable credential to an identity.
-     * @dev Retrieves GLEIF validation results and adds to the CredentialRegistry.
+     * @dev Placeholder owner-only helper that writes opaque credential data with a one-year expiry.
+     * Production use requires externally verified GLEIF/vLEI proof material and revocation semantics.
      * @param identityId The unique identifier for the identity.
      * @param credentialType The type of credential to add (e.g., LEI status, entity type).
      * @param data The credential payload/data.
      */
     function addVerificationToIdentity(bytes32 identityId, bytes32 credentialType, bytes calldata data) external onlyOwner {
-        // TODO: Validate credential packet against GLEIF (e.g., via oracle or API relay)
-        // Set appropriate expiry
+        // Legacy provisioning path; credential payloads are trusted owner input.
         uint40 expiresAt = uint40(block.timestamp + 365 days);
         credentialRegistry.registerCredential(identityId, credentialType, expiresAt, data, "");
         emit CredentialProvisioned(identityId, credentialType);
     }
 
     /**
-     * @notice Validates a given party against GLEIF LEI registry.
-     * @dev Implements IAttestationServiceVerifier validate function.
-     *      
-     *      Leverage the enriched PartyPacket for validation logic:
-     *      - party.role: Determine if this is an Originator vs Beneficiary
-     *      - party.wallet: Check against GLEIF's known address list
-     *      - party.identityRef: Use this unique ID to verify LEI status
-     *      - party.kycHash: Verify the KYC status of the entity
-     *      - party.jurisdiction: Enforce geographic compliance rules based on LEI jurisdiction
-     *
+     * @notice Fails closed for generated compatibility.
+     * @dev This placeholder intentionally returns false until a real GLEIF/vLEI proof verifier is
+     * implemented. Use `vLEIAttestationVerifier` for the current oracle-registry path.
      * @param party The full enriched party packet from the transaction envelope.
-     * @return true if valid against GLEIF's LEI verification mechanism.
+     * @return Always false in this compatibility implementation.
      */
     function validate(IPolicy.PartyPacket calldata party) external view override returns (bool) {
-        // Use enriched identity data for validation
-        // Example: verify that party.identityRef maps to a valid LEI in the credential registry
-        
-        // TODO: Implement GLEIF LEI proof validation mechanism
-        // e.g., verify on-chain LEI status, check entity type, or query oracle
-        
-        // Placeholder implementation (fails closed)
+        // Compatibility implementation intentionally fails closed.
         if (party.wallet == address(0)) {}
         return false;
     }

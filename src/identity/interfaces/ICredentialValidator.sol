@@ -3,7 +3,9 @@ pragma solidity ^0.8.20;
 
 /**
  * @title ICredentialValidator
- * @dev Interface for validating a ccid has a credential.
+ * @notice Interface for checking whether a CCID holds valid credentials.
+ * @dev Implementations should return false for missing, expired, malformed, or otherwise invalid
+ * credentials and should avoid reverting for ordinary validation failures.
  */
 interface ICredentialValidator {
   /**

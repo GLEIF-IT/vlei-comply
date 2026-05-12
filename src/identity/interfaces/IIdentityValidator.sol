@@ -3,7 +3,9 @@ pragma solidity ^0.8.20;
 
 /**
  * @title IIdentityValidator
- * @dev Interface for validating the account identity.
+ * @notice Interface for validating whether an account satisfies identity requirements.
+ * @dev Credential-backed implementations should resolve the account to an identity first and
+ * return false for missing identity, missing credential, expired credential, or invalid data.
  */
 interface IIdentityValidator {
   /**

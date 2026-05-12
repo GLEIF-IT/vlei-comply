@@ -3,7 +3,9 @@ pragma solidity ^0.8.20;
 
 /**
  * @title ICredentialDataValidator
- * @dev Interface for validating the data associated with a credential.
+ * @notice Interface for validating opaque credential payload bytes.
+ * @dev Implementations are called by credential-based identity validators after a credential
+ * exists and has not expired. They should fail closed by returning false for invalid data.
  */
 interface ICredentialDataValidator {
   /**

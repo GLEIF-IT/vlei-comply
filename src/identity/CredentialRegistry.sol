@@ -5,12 +5,22 @@ import {ICredentialRegistry} from "./interfaces/ICredentialRegistry.sol";
 import {ICredentialValidator} from "./interfaces/ICredentialValidator.sol";
 import {PolicyProtectedUpgradeable} from "@chainlink/policy-management/core/PolicyProtectedUpgradeable.sol";
 
+/**
+ * @title CredentialRegistry
+ * @notice Chainlink-style registry for credentials attached to CCIDs.
+ * @dev This component is deployed for compatibility and future credential expansion. The current
+ * vLEI Legal Entity transfer gate is enforced by `vLEIOracleRegistry`, not this registry.
+ */
 contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
+  /// @notice Registry type and semantic version.
   string public constant override typeAndVersion = "CredentialRegistry 1.0.0";
 
+  /// @notice ERC-7201 storage bucket for CCID credential records.
   /// @custom:storage-location erc7201:chainlink.ace.CredentialRegistry
   struct CredentialRegistryStorage {
+    /// @notice Credential type ids registered for each CCID.
     mapping(bytes32 ccid => bytes32[] credentialTypeIds) credentialTypeIdsByCCID;
+    /// @notice Credential record by CCID and credential type id.
     mapping(bytes32 ccid => mapping(bytes32 credentialTypeId => Credential credentials)) credentials;
   }
 
@@ -20,6 +30,8 @@ contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
   bytes32 private constant credentialRegistryStorageLocation =
     0xa402d759ab0c43f5f6ba3a2cdc5bb0f98c15af3daf1f94f873714cacbe789800;
 
+  /// @notice Returns the ERC-7201 storage bucket.
+  /// @return $ Storage pointer for credential registry state.
   function _credentialRegistryStorage() private pure returns (CredentialRegistryStorage storage $) {
     // solhint-disable-next-line no-inline-assembly
     assembly {
@@ -28,7 +40,8 @@ contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
   }
 
   /**
-   * @dev Initializes the credential registry and sets the policy engine.
+   * @notice Initializes the credential registry and sets the policy engine.
+   * @dev Must be called through the ERC1967 proxy deployment path.
    * @param policyEngine The address of the policy engine contract.
    * @param initialOwner The address that will own the newly created registry contract.
    */
@@ -36,11 +49,15 @@ contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
     __CredentialRegistry_init(policyEngine, initialOwner);
   }
 
+  /// @notice Internal initializer for inherited storage.
+  /// @param policyEngine Policy engine address.
+  /// @param initialOwner Initial registry owner.
   function __CredentialRegistry_init(address policyEngine, address initialOwner) internal onlyInitializing {
     __CredentialRegistry_init_unchained();
     __PolicyProtected_init(initialOwner, policyEngine);
   }
 
+  /// @notice Internal unchained initializer reserved for future storage initialization.
   // solhint-disable-next-line no-empty-blocks
   function __CredentialRegistry_init_unchained() internal onlyInitializing {}
 
@@ -141,6 +158,10 @@ contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
     revert CredentialNotFound(ccid, credentialTypeId);
   }
 
+  /// @notice Returns whether a registered credential is expired.
+  /// @param ccid Cross-chain identity to check.
+  /// @param credentialTypeId Credential type identifier to check.
+  /// @return True when the credential has a nonzero expiration at or before the current block timestamp.
   function isCredentialExpired(bytes32 ccid, bytes32 credentialTypeId) public view returns (bool) {
     return _credentialRegistryStorage().credentials[ccid][credentialTypeId].expiresAt > 0
       && _credentialRegistryStorage().credentials[ccid][credentialTypeId].expiresAt <= block.timestamp;
@@ -213,6 +234,10 @@ contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
     return true;
   }
 
+  /// @notice Internal credential validation implementation.
+  /// @param ccid Cross-chain identity to validate.
+  /// @param credentialTypeId Credential type identifier to validate.
+  /// @return True when the credential exists and is not expired.
   function _validate(bytes32 ccid, bytes32 credentialTypeId, bytes calldata /*context*/ ) internal view returns (bool) {
     uint256 length = _credentialRegistryStorage().credentialTypeIdsByCCID[ccid].length;
     for (uint256 i = 0; i < length; i++) {
@@ -226,6 +251,11 @@ contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
     return false;
   }
 
+  /// @notice Internal credential registration implementation.
+  /// @param ccid Cross-chain identity receiving the credential.
+  /// @param credentialTypeId Credential type identifier.
+  /// @param expiresAt Expiration timestamp, or zero for no expiration.
+  /// @param credentialData Opaque credential payload.
   function _registerCredential(
     bytes32 ccid,
     bytes32 credentialTypeId,

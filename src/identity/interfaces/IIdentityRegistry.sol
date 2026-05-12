@@ -7,13 +7,20 @@ pragma solidity ^0.8.20;
  * the Cross-Chain ID (CCID), in which credentials and other information can be associated with. Multiple local
  * blockchain accounts can be associated with a single CCID, but each account can only be associated with one CCID
  * within this registry.
+ * @dev The vLEI prototype interprets CCID values as AID-derived identifiers when used through
+ * `IdentityRegistryAdapter`.
  */
 interface IIdentityRegistry {
   /// @notice Error emitted when an identity is already registered.
+  /// @param ccid Cross-chain identity involved in the duplicate registration.
+  /// @param account Local account already registered.
   error IdentityAlreadyRegistered(bytes32 ccid, address account);
   /// @notice Error emitted when an identity is not found.
+  /// @param ccid Cross-chain identity expected by the operation.
+  /// @param account Local account expected by the operation.
   error IdentityNotFound(bytes32 ccid, address account);
   /// @notice Error emitted when an invalid identity configuration was attempted.
+  /// @param errorReason Encoded configuration failure reason.
   error InvalidIdentityConfiguration(bytes errorReason);
 
   /**

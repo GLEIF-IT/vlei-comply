@@ -5,27 +5,32 @@ import "./IPolicy.sol";
 
 /**
  * @title IPolicyManager
- * @notice Interface for the PolicyManager orchestration layer
- * @dev Defines the contract between PolicyWrapper and PolicyManager
+ * @notice Interface for the policy orchestration layer used by wrapper contracts.
+ * @dev `wvLEI` calls this interface with minimally populated party packets. The manager is
+ * responsible for identity enrichment and aggregate policy status calculation.
  */
 interface IPolicyManager {
-    /// @notice Lightweight transaction context from caller (e.g., PolicyWrapper)
-    /// @dev Minimal data packet sent by wrapper - PolicyManager will enrich
+    /// @notice Lightweight transaction context from a wrapper.
+    /// @dev Retained for generated-wrapper compatibility. The active wrapper path currently
+    /// constructs full `IPolicy.TransactionEnvelope` values directly.
     struct TxContext {
-        address token;      // Underlying asset token address
-        address from;       // Source wallet (may be VASP)
-        address to;         // Destination wallet (may be VASP)
-        uint256 amount;     // Transfer amount
-        bytes extraData;    // Optional payload (beneficiary IDs, IVMS101, etc.)
+        /// @notice Underlying asset token address.
+        address token;
+        /// @notice Source wallet, which may be a VASP wallet.
+        address from;
+        /// @notice Destination wallet, which may be a VASP wallet.
+        address to;
+        /// @notice Transfer amount in token base units.
+        uint256 amount;
+        /// @notice Optional payload for beneficiary IDs, IVMS101, or policy-specific context.
+        bytes extraData;
     }
     
-    /// @notice Run all registered policies on a given Transaction Envelope
-    /// @dev Implementation expected to:
-    ///      1. Enrich identity via IdentityRegistry for all parties
-    ///      2. Evaluate all policies
-    ///      3. Aggregate results into ComplianceAttestation
-    /// @param envelope Transaction envelope with party packets (partially filled)
-    /// @return attestation Aggregated compliance attestation (Pass/Fail/Pending)
+    /// @notice Runs every registered policy against a transaction envelope.
+    /// @dev Implementations should enrich identity data before evaluation and aggregate results
+    /// into one status. This function may emit operational logs and is not necessarily `view`.
+    /// @param envelope Transaction envelope with party packets supplied by the wrapper.
+    /// @return attestation Aggregated compliance attestation.
     function runPolicies(IPolicy.TransactionEnvelope calldata envelope) 
         external returns (IPolicy.ComplianceAttestation memory attestation);
 }

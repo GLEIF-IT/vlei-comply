@@ -4,14 +4,24 @@ pragma solidity ^0.8.20;
 import {IIdentityRegistry} from "./interfaces/IIdentityRegistry.sol";
 import {PolicyProtectedUpgradeable} from "@chainlink/policy-management/core/PolicyProtectedUpgradeable.sol";
 
+/**
+ * @title IdentityRegistry
+ * @notice Chainlink-style registry mapping local wallet accounts to CCIDs.
+ * @dev This is proxy-initialized in deployment and protected by the configured policy engine.
+ * In the vLEI demo, the CCID is interpreted as `keccak256(bytes(canonicalAidString))`.
+ */
 contract IdentityRegistry is PolicyProtectedUpgradeable, IIdentityRegistry {
+  /// @notice Registry type and semantic version.
   string public constant override typeAndVersion = "IdentityRegistry 1.0.0";
 
+  /// @notice ERC-7201 storage bucket for account-to-CCID mappings.
   /// @custom:storage-location erc7201:chainlink.ace.IdentityRegistry
   struct IdentityRegistryStorage {
+    /// @notice Maps a local account to its registered CCID.
     mapping(address account => bytes32 ccid) accountToCcid;
+    /// @notice Lists all accounts registered to a CCID.
     mapping(bytes32 ccid => address[] accounts) ccidToAccounts;
-    // Maps ccid => account => index in ccidToAccounts array (index + 1, 0 means not found)
+    /// @notice Maps ccid/account to index + 1 in `ccidToAccounts`; zero means not registered.
     mapping(bytes32 ccid => mapping(address account => uint256 index)) accountIndex;
   }
 
@@ -21,6 +31,8 @@ contract IdentityRegistry is PolicyProtectedUpgradeable, IIdentityRegistry {
   bytes32 private constant identityRegistryStorageLocation =
     0x31dacf4de1329b533dc7ad419a7ae424eacaaf799ae802e5d062dea412180200;
 
+  /// @notice Returns the ERC-7201 storage bucket.
+  /// @return $ Storage pointer for identity registry state.
   function _identityRegistryStorage() private pure returns (IdentityRegistryStorage storage $) {
     // solhint-disable-next-line no-inline-assembly
     assembly {
@@ -29,7 +41,8 @@ contract IdentityRegistry is PolicyProtectedUpgradeable, IIdentityRegistry {
   }
 
   /**
-   * @dev Initializes the identity registry and sets the policy engine.
+   * @notice Initializes the identity registry and sets the policy engine.
+   * @dev Must be called through the ERC1967 proxy deployment path.
    * @param policyEngine The address of the policy engine contract.
    * @param initialOwner The address that will own the newly created registry contract.
    */
@@ -37,11 +50,15 @@ contract IdentityRegistry is PolicyProtectedUpgradeable, IIdentityRegistry {
     __IdentityRegistry_init(policyEngine, initialOwner);
   }
 
+  /// @notice Internal initializer for inherited storage.
+  /// @param policyEngine Policy engine address.
+  /// @param initialOwner Initial registry owner.
   function __IdentityRegistry_init(address policyEngine, address initialOwner) internal onlyInitializing {
     __IdentityRegistry_init_unchained();
     __PolicyProtected_init(initialOwner, policyEngine);
   }
 
+  /// @notice Internal unchained initializer reserved for future storage initialization.
   // solhint-disable-next-line no-empty-blocks
   function __IdentityRegistry_init_unchained() internal onlyInitializing {}
 
@@ -78,6 +95,9 @@ contract IdentityRegistry is PolicyProtectedUpgradeable, IIdentityRegistry {
     }
   }
 
+  /// @notice Internal implementation for wallet-to-CCID registration.
+  /// @param ccid Cross-chain identity to register.
+  /// @param account Local wallet account to associate with the CCID.
   function _registerIdentity(bytes32 ccid, address account, bytes calldata /*context*/ ) internal {
     if (ccid == bytes32(0)) {
       revert InvalidIdentityConfiguration("CCID cannot be empty");

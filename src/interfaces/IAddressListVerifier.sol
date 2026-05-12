@@ -9,9 +9,9 @@ pragma solidity ^0.8.24;
  */
 interface IAddressListVerifier {
     /**
-     * @notice Check if an address is in the list
-     * @param addr Address to check
-     * @return inList Whether address is in the list
+     * @notice Checks whether an address appears in the implementing list.
+     * @param addr Address to check.
+     * @return inList True when the address is present in the list.
      */
     function isInList(address addr) external view returns (bool inList);
 }
