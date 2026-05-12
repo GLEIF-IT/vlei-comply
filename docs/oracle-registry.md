@@ -1,6 +1,6 @@
 # vLEI Oracle Registry
 
-`vLEIOracleRegistry` is an on-chain evidence registry. It is not a live GLEIF, Sally, or KERI verifier. A trusted off-chain oracle service validates the vLEI credential chain and posts compact status that Solidity can check deterministically.
+`VLEIOracleRegistry` is an on-chain evidence registry. It is not a live GLEIF, Sally, or KERI verifier. A trusted off-chain oracle service validates the vLEI credential chain and posts compact status that Solidity can check deterministically.
 
 ## Legal Entity Record
 

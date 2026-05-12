@@ -8,7 +8,7 @@ pragma solidity ^0.8.20;
  * blockchain accounts can be associated with a single CCID, but each account can only be associated with one CCID
  * within this registry.
  * @dev The vLEI prototype interprets CCID values as AID-derived identifiers when used through
- * `IdentityRegistryAdapter`.
+ * `ChainlinkCCIDIdentityAdapter`.
  */
 interface IIdentityRegistry {
   /// @notice Error emitted when an identity is already registered.

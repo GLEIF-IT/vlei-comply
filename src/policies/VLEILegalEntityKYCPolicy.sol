@@ -9,15 +9,15 @@ import "../interfaces/IGL1IdentityRegistry.sol";
 import "../interfaces/IAttestationServiceVerifier.sol";
 
 /**
- * @title vLEI_kyc_and_sanctions
+ * @title VLEILegalEntityKYCPolicy
  * @notice Requires both originator and beneficiary customers to pass vLEI Legal Entity verification.
- * @dev This policy is intentionally narrower than the generated policy name suggests. In the current
- * implementation it checks customer Legal Entity status through `vLEIAttestationVerifier` and does
- * not yet enforce OOR/ECR authority, sanctions lists, or VASP-specific requirements.
+ * @dev This policy performs first-pass Legal Entity KYC gating. It checks customer Legal Entity
+ * status through `VLEILegalEntityVerifier` and does not yet enforce OOR/ECR authority, sanctions
+ * lists, or VASP-specific requirements.
  * @custom:prototype Future authority-specific flows should use `extraData` and role-specific parties
  * to express OOR position constraints, credential SAIDs, operation intent, and required authority.
  */
-contract vLEI_kyc_and_sanctions is IPolicy {
+contract VLEILegalEntityKYCPolicy is IPolicy {
     /// @notice ABI-encoded proof reason for a passing policy evaluation.
     uint8 private constant REASON_PASS = 1;
     /// @notice ABI-encoded proof reason when no originator customer party is present.
@@ -37,20 +37,20 @@ contract vLEI_kyc_and_sanctions is IPolicy {
     /// @notice Active vLEI verifier used to validate customer parties.
     IAttestationServiceVerifier public immutable vleiVerifier;
 
-    /// @notice Legacy verifier slot retained for generated constructor compatibility.
+    /// @notice Secondary generated verifier slot retained for constructor compatibility.
     /// @dev This field is not consulted by the current first-pass vLEI policy.
-    IAttestationServiceVerifier public immutable legacySanctionsVerifier;
+    IAttestationServiceVerifier public immutable secondaryVerifier;
     
     /// @notice Creates the policy.
     /// @param version_ Policy version reported by `policyVersion`.
     /// @param _identityRegistry Identity registry adapter retained for compatibility.
     /// @param _vleiVerifier Active vLEI verifier address.
-    /// @param _legacySanctionsVerifier Legacy/generated verifier slot retained for compatibility.
-    constructor(uint64 version_, address _identityRegistry, address _vleiVerifier, address _legacySanctionsVerifier) {
+    /// @param _secondaryVerifier Secondary generated verifier slot retained for compatibility.
+    constructor(uint64 version_, address _identityRegistry, address _vleiVerifier, address _secondaryVerifier) {
         _policyVersion = version_;
         identityRegistry = IGL1IdentityRegistry(_identityRegistry);
         vleiVerifier = IAttestationServiceVerifier(_vleiVerifier);
-        legacySanctionsVerifier = IAttestationServiceVerifier(_legacySanctionsVerifier);
+        secondaryVerifier = IAttestationServiceVerifier(_secondaryVerifier);
     }
     
     /**
@@ -58,7 +58,7 @@ contract vLEI_kyc_and_sanctions is IPolicy {
      * @return Keccak256 hash of the policy name.
      */
     function policyId() external pure override returns (bytes32) {
-        return keccak256("VLEI_KYC_AND_SANCTIONS");
+        return keccak256("VLEI_LEGAL_ENTITY_KYC");
     }
     
     /**

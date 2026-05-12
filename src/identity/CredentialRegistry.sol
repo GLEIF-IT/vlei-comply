@@ -9,7 +9,7 @@ import {PolicyProtectedUpgradeable} from "@chainlink/policy-management/core/Poli
  * @title CredentialRegistry
  * @notice Chainlink-style registry for credentials attached to CCIDs.
  * @dev This component is deployed for compatibility and future credential expansion. The current
- * vLEI Legal Entity transfer gate is enforced by `vLEIOracleRegistry`, not this registry.
+ * vLEI Legal Entity transfer gate is enforced by `VLEIOracleRegistry`, not this registry.
  */
 contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
   /// @notice Registry type and semantic version.

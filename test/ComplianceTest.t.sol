@@ -8,15 +8,11 @@ import "../src/identity/TrustedIssuerRegistry.sol";
 import "../src/identity/IdentityRegistry.sol";
 import "../src/identity/CredentialRegistry.sol";
 import "../src/identity/CredentialRegistryIdentityValidator.sol";
-import "../src/identity/IdentityRegistryAdapter.sol";
+import "../src/identity/ChainlinkCCIDIdentityAdapter.sol";
 import "../src/identity/interfaces/ICredentialRequirements.sol";
 import "../src/assets/vLEI.sol";
 import "../src/wrappers/wvLEI.sol";
 import "../src/interfaces/IPolicy.sol";
-import "../src/policies/vLEI_kyc_and_sanctions.sol";
-import {vLEIAttestationVerifier} from "../src/attestation/vLEIAttestationVerifier.sol";
-
-import {GLEIFAdapter} from "../src/attestation/GLEIFAdapter.sol";
 
 // MockPolicy for infrastructure testing (ensures stable environment for pending/resolution tests)
 contract MockPolicy is IPolicy {
@@ -59,10 +55,6 @@ contract ComplianceTest is Test {
     wvLEI wrapper;
     MockPolicy mockPolicy;
 
-    
-    // Configured policies
-    vLEI_kyc_and_sanctions vlei_kyc_and_sanctions;
-
     address alice = address(0x1);
     address bob = address(0x2);
     uint256 constant UNIT = 10**18;
@@ -80,7 +72,7 @@ contract ComplianceTest is Test {
         credentialRegistryIdentityValidator = new CredentialRegistryIdentityValidator();
 
         
-        identityRegistry = IGL1IdentityRegistry(address(new IdentityRegistryAdapter(address(vendorIdentityRegistry), address(credentialRegistryIdentityValidator))));
+        identityRegistry = IGL1IdentityRegistry(address(new ChainlinkCCIDIdentityAdapter(address(vendorIdentityRegistry), address(credentialRegistryIdentityValidator))));
         
         manager = new PolicyManager(address(admin), address(identityRegistry));
         
@@ -95,17 +87,6 @@ contract ComplianceTest is Test {
         // Add mock policy for infrastructure tests (defaults to Pending)
         mockPolicy = new MockPolicy(IPolicy.PolicyStatus.Pending);
         manager.addPolicy(address(mockPolicy));
-
-        // Note: Actual policies are deployed and registered in script/DeployAll.s.sol for production use.
-        // Deploy and add actual policies (commented out for unit testing; uncomment for integration tests or ensure proper identity setup)
-        /*
-        
-        address gleifAdapter = address(new GLEIFAdapter(address(vendorIdentityRegistry), address(credentialRegistry)));
-        vlei_kyc_and_sanctions = new vLEI_kyc_and_sanctions(1, address(identityRegistry), gleifAdapter, gleifAdapter);
-        admin.grantRole(admin.COMPLIANCE_ADMIN_ROLE(), address(this));
-        manager.addPolicy(address(vlei_kyc_and_sanctions));
-        
-        */
 
         // Grant roles
         admin.grantRole(admin.COMPLIANCE_ADMIN_ROLE(), address(this));

@@ -7,7 +7,7 @@
   "identityFramework": "ChainlinkCCI",
   "attestationServices": [
     {
-      "name": "GLEIF",
+      "name": "vLEI Oracle",
       "status": "ACTIVE"
     }
   ],
@@ -17,13 +17,14 @@
     "identityManager": "IdentityRegistry.sol",
     "asset": "vLEI.sol",
     "adminControls": "AdminControls.sol",
-    "attestationVerifier": "PlaceholderAttestationVerifier.sol"
+    "attestationVerifier": "VLEILegalEntityVerifier.sol",
+    "oracleRegistry": "VLEIOracleRegistry.sol"
   },
   "policies": [
     {
-      "name": "vLEI_kyc_and_sanctions",
-      "description": "vLEI LE, OOR, and ECR credential checks must pass for KYC and sanctions checks",
-      "contractName": "vLEI_kyc_and_sanctions",
+      "name": "VLEILegalEntityKYCPolicy",
+      "description": "First-pass vLEI Legal Entity KYC gate requiring valid originator and beneficiary Legal Entity records",
+      "contractName": "VLEILegalEntityKYCPolicy",
       "constructorArgs": [
         1,
         "%%IDENTITY_REGISTRY%%",

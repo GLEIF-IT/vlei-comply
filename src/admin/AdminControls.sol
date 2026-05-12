@@ -71,7 +71,7 @@ contract AdminControls is AccessControl {
 
     /**
      * @notice Adds or removes a wallet from the wrapper-level allowlist.
-     * @dev This is distinct from the vLEI AID allowlist in `vLEIOracleRegistry`.
+     * @dev This is distinct from the vLEI AID allowlist in `VLEIOracleRegistry`.
      * @param account Wallet address to manage.
      * @param allowed True to allow the wallet to call wrapper transfer functions.
      */

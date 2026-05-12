@@ -19,7 +19,7 @@ Severity definitions:
 - [ ] Implement the production vLEI oracle service.
   The service must verify KERI/vLEI evidence off-chain, including Legal Entity AID legitimacy, LE credential chain, QVI authority, LEI match, revocation state, expiry, proof durability, and canonical AID normalization before posting on-chain.
 
-- [ ] Harden `vLEIOracleRegistry` evidence posting.
+- [ ] Harden `VLEIOracleRegistry` evidence posting.
   Add production-grade authorization and proof semantics such as signed oracle reports, quorum or signer policy, replay protection, stale-evidence limits, versioned proof formats, and durable `proofHash` evidence bundles.
 
 - [ ] Resolve direct `vLEI` transfer bypass.
@@ -33,8 +33,6 @@ Severity definitions:
 
 - [ ] Complete an external security review before mainnet or regulated deployment.
   Scope should include wrapper enforcement, registry governance, oracle posting, policy aggregation, ERC-20 behavior, proxy initialization, role control, and CLI/deployment procedures.
-
-- [ ] Remove legacy GLEIFAdapter contract
 
 ## Medium
 
@@ -55,9 +53,6 @@ Severity definitions:
 
 - [ ] Define timestamp and expiry policy.
   Specify acceptable clock drift, stale oracle evidence windows, expiry grace behavior, revocation precedence, and how block timestamp manipulation risk is bounded.
-
-- [ ] Replace or remove `GLEIFAdapter`.
-  It is legacy/generated compatibility and fails closed. Production should either remove it from deployable paths or replace it with a real, clearly governed verifier component.
 
 - [ ] Harden deployment scripts.
   Separate local Anvil deployment from production deployment, remove dev-only components from production paths, define proxy ownership, verify initializer arguments, and produce machine-readable deployment artifacts.

@@ -45,11 +45,11 @@ graph TB
     end
     
     subgraph ComplianceRulesEngine["Compliance Rules Engine"]
-        Policy_vLEI["vLEI_kyc_and_sanctions policy"]
+        Policy_vLEI["VLEILegalEntityKYCPolicy policy"]
     end
     
     subgraph ExternalServices["Oracle Evidence"]
-        Service_GLEIF["vLEIOracleRegistry<br/>(admin/oracle posted)"]
+        Service_Oracle["VLEIOracleRegistry<br/>(admin/oracle posted)"]
     end
     
     %% Main Flow
@@ -59,7 +59,7 @@ graph TB
     
     %% Orchestration
     PM -->|"Retrieve identity"| IdFramework
-    PM -->|"Policy calls verifier"| Service_GLEIF
+    PM -->|"Policy calls verifier"| Service_Oracle
     PM -->|"Query"| Policy_vLEI
     
     %% Styles
@@ -89,11 +89,11 @@ graph TB
 2. **Orchestration**: The `PolicyManager` receives the envelope and iterates through every party.
 3. **Enrichment**: For each party, the `PolicyManager` queries the `IGL1IdentityRegistry` for all configured identity fields (e.g., `kycHash`, `accountRef`).
 4. **Evaluation**: Policies receive the **enriched** envelope, meaning they can immediately check `party.kycHash` or `party.jurisdiction` without making additional external calls.
-5. **Attestation**: The vLEI policy passes enriched customer `PartyPacket` records to `vLEIAttestationVerifier`, which checks fail-closed Legal Entity status in `vLEIOracleRegistry`.
+5. **Attestation**: The vLEI policy passes enriched customer `PartyPacket` records to `VLEILegalEntityVerifier`, which checks fail-closed Legal Entity status in `VLEIOracleRegistry`.
 
 ## Policies
 
-- **vLEI_kyc_and_sanctions**: first-pass policy requiring both originator and beneficiary customer parties to have valid vLEI Legal Entity oracle records.
+- **VLEILegalEntityKYCPolicy**: first-pass policy requiring both originator and beneficiary customer parties to have valid vLEI Legal Entity oracle records.
 
 ## Project Structure
 
@@ -104,7 +104,7 @@ graph TB
 │   ├── wrappers/
 │   │   └── wvLEI.sol
 │   ├── policies/
-│   │   └── vLEI_kyc_and_sanctions.sol
+│   │   └── VLEILegalEntityKYCPolicy.sol
 │   ├── policy/
 │   │   └── PolicyManager.sol
 │   ├── admin/
@@ -112,8 +112,8 @@ graph TB
 │   ├── identity/
 │   │   └── [Framework contracts]
 │   ├── attestation/
-│   │   ├── vLEIOracleRegistry.sol
-│   │   └── vLEIAttestationVerifier.sol
+│   │   ├── VLEIOracleRegistry.sol
+│   │   └── VLEILegalEntityVerifier.sol
 ├── docs/
 │   └── [Maintainer documentation]
 │   └── interfaces/

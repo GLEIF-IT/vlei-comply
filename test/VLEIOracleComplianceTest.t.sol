@@ -5,13 +5,13 @@ import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "../src/admin/AdminControls.sol";
 import "../src/assets/vLEI.sol";
-import "../src/attestation/vLEIAttestationVerifier.sol";
-import "../src/attestation/vLEIOracleRegistry.sol";
+import "../src/attestation/VLEILegalEntityVerifier.sol";
+import "../src/attestation/VLEIOracleRegistry.sol";
 import "../src/identity/CredentialRegistry.sol";
 import "../src/identity/IdentityRegistry.sol";
-import "../src/identity/IdentityRegistryAdapter.sol";
+import "../src/identity/ChainlinkCCIDIdentityAdapter.sol";
 import "../src/interfaces/IGL1IdentityRegistry.sol";
-import "../src/policies/vLEI_kyc_and_sanctions.sol";
+import "../src/policies/VLEILegalEntityKYCPolicy.sol";
 import "../src/policy/AllowAllPolicyEngine.sol";
 import "../src/policy/PolicyManager.sol";
 import "../src/wrappers/wvLEI.sol";
@@ -22,10 +22,10 @@ contract VLEIOracleComplianceTest is Test {
     IdentityRegistry chainlinkIdentityRegistry;
     CredentialRegistry credentialRegistry;
     IGL1IdentityRegistry identityRegistryAdapter;
-    vLEIOracleRegistry oracleRegistry;
-    vLEIAttestationVerifier verifier;
+    VLEIOracleRegistry oracleRegistry;
+    VLEILegalEntityVerifier verifier;
     PolicyManager manager;
-    vLEI_kyc_and_sanctions policy;
+    VLEILegalEntityKYCPolicy policy;
     vLEI asset;
     wvLEI wrapper;
 
@@ -60,13 +60,13 @@ contract VLEIOracleComplianceTest is Test {
         credentialRegistry = CredentialRegistry(address(credentialProxy));
 
         identityRegistryAdapter = IGL1IdentityRegistry(
-            address(new IdentityRegistryAdapter(address(chainlinkIdentityRegistry), address(credentialRegistry)))
+            address(new ChainlinkCCIDIdentityAdapter(address(chainlinkIdentityRegistry), address(credentialRegistry)))
         );
 
-        oracleRegistry = new vLEIOracleRegistry(address(admin));
-        verifier = new vLEIAttestationVerifier(address(oracleRegistry));
+        oracleRegistry = new VLEIOracleRegistry(address(admin));
+        verifier = new VLEILegalEntityVerifier(address(oracleRegistry));
         manager = new PolicyManager(address(admin), address(identityRegistryAdapter));
-        policy = new vLEI_kyc_and_sanctions(
+        policy = new VLEILegalEntityKYCPolicy(
             1,
             address(identityRegistryAdapter),
             address(verifier),
@@ -90,18 +90,18 @@ contract VLEIOracleComplianceTest is Test {
 
     function testOracleRegistryValidationMatrix() public {
         bytes32 ccid = _postRecord(ALICE_AID, ALICE_LEI, ALICE_LEI, false, false, 0);
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(vLEIOracleRegistry.ValidationCode.NotAllowed));
+        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.NotAllowed));
 
         oracleRegistry.setAidAllowed(ccid, true);
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(vLEIOracleRegistry.ValidationCode.Valid));
+        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.Valid));
 
         oracleRegistry.setCredentialRevoked(ccid, true);
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(vLEIOracleRegistry.ValidationCode.Revoked));
+        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.Revoked));
     }
 
     function testLeiMismatchFailsValidation() public {
         bytes32 ccid = _postRecord(ALICE_AID, ALICE_LEI, BOB_LEI, true, false, 0);
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(vLEIOracleRegistry.ValidationCode.LeiMismatch));
+        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.LeiMismatch));
         assertFalse(oracleRegistry.isLegalEntityValid(ccid));
     }
 
@@ -110,7 +110,7 @@ contract VLEIOracleComplianceTest is Test {
 
         vm.warp(block.timestamp + 2);
 
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(vLEIOracleRegistry.ValidationCode.Expired));
+        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.Expired));
         assertFalse(oracleRegistry.isLegalEntityValid(ccid));
     }
 

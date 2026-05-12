@@ -24,8 +24,8 @@
     "policyCount": 1,
     "policies": [
       {
-        "name": "vLEI_kyc_and_sanctions",
-        "description": "vLEI LE, OOR, and ECR credential checks must pass for KYC and sanctions checks",
+        "name": "VLEILegalEntityKYCPolicy",
+        "description": "First-pass vLEI Legal Entity KYC gate requiring valid originator and beneficiary Legal Entity records",
         "branchCount": 1,
         "branches": [
           {
@@ -79,6 +79,11 @@
       "path": "src/interfaces/IAddressListVerifier.sol",
       "type": "interface",
       "description": "Address list verifier interface"
+    },
+    {
+      "path": "src/interfaces/IVLEILegalEntityVerifier.sol",
+      "type": "interface",
+      "description": "vLEI Legal Entity verifier interface"
     },
     {
       "path": "src/admin/AdminControls.sol",
@@ -146,9 +151,9 @@
       "description": "${config.identity.framework} - ICredentialDataValidator"
     },
     {
-      "path": "src/identity/IdentityRegistryAdapter.sol",
+      "path": "src/identity/ChainlinkCCIDIdentityAdapter.sol",
       "type": "identity",
-      "description": "Adapter mapping vendor ${config.identity.framework} to GL1 identity features"
+      "description": "Adapter mapping Chainlink CCID registries to GL1 identity features"
     },
     {
       "path": "lib/chainlink-ccid/packages/policy-management/src/core/PolicyProtectedUpgradeable.sol",
@@ -171,14 +176,14 @@
       "description": "Dependency setup script"
     },
     {
-      "path": "src/attestation/PlaceholderAttestationVerifier.sol",
+      "path": "src/attestation/VLEIOracleRegistry.sol",
       "type": "contract",
-      "description": "Placeholder attestation verifier"
+      "description": "On-chain vLEI Oracle evidence registry"
     },
     {
-      "path": "src/attestation/GLEIFAdapter.sol",
+      "path": "src/attestation/VLEILegalEntityVerifier.sol",
       "type": "contract",
-      "description": "GLEIF LEI external attestation adapter"
+      "description": "Fail-closed vLEI Legal Entity verifier"
     },
     {
       "path": "src/assets/vLEI.sol",
@@ -191,9 +196,9 @@
       "description": "Generated policy wrapper"
     },
     {
-      "path": "src/policies/vLEI_kyc_and_sanctions.sol",
+      "path": "src/policies/VLEILegalEntityKYCPolicy.sol",
       "type": "contract",
-      "description": "Generated policy: vLEI LE, OOR, and ECR credential checks must pass for KYC and sanctions checks "
+      "description": "First-pass vLEI Legal Entity KYC policy"
     },
     {
       "path": "script/DeployAll.s.sol",

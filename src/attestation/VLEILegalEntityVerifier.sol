@@ -2,26 +2,26 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IPolicy.sol";
-import "../interfaces/IvLEIVerifier.sol";
-import "./vLEIOracleRegistry.sol";
+import "../interfaces/IVLEILegalEntityVerifier.sol";
+import "./VLEIOracleRegistry.sol";
 
 /**
- * @title vLEIAttestationVerifier
+ * @title VLEILegalEntityVerifier
  * @notice Verifies first-pass vLEI Legal Entity status against an on-chain oracle registry.
  * @dev This verifier expects `party.identityRef` to already be enriched to the AID-derived
  * Chainlink CCID. It performs no wallet lookup itself and fails closed when the identity ref is zero.
  * @custom:prototype The verifier validates only Legal Entity AID, LEI match, ACDC presence,
  * allowlist, expiry, and revocation. OOR and authority-specific checks belong in a future layer.
  */
-contract vLEIAttestationVerifier is IvLEIVerifier {
+contract VLEILegalEntityVerifier is IVLEILegalEntityVerifier {
     /// @notice Oracle/admin-posted evidence registry used for Legal Entity checks.
-    vLEIOracleRegistry public immutable oracleRegistry;
+    VLEIOracleRegistry public immutable oracleRegistry;
 
     /// @notice Creates the verifier.
-    /// @param _oracleRegistry Address of the `vLEIOracleRegistry` instance.
+    /// @param _oracleRegistry Address of the `VLEIOracleRegistry` instance.
     constructor(address _oracleRegistry) {
         require(_oracleRegistry != address(0), "Invalid oracle registry");
-        oracleRegistry = vLEIOracleRegistry(_oracleRegistry);
+        oracleRegistry = VLEIOracleRegistry(_oracleRegistry);
     }
 
     /// @notice Validates whether a party has valid first-pass vLEI Legal Entity evidence.

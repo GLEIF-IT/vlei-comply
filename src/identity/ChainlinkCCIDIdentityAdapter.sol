@@ -7,13 +7,13 @@ import "./interfaces/ICredentialRegistry.sol";
 import "./interfaces/ICredentialValidator.sol";
 
 /**
- * @title IdentityRegistryAdapter (CHAINLINK_CCI)
+ * @title ChainlinkCCIDIdentityAdapter (CHAINLINK_CCI)
  * @notice Adapts GL1 policy enrichment calls to Chainlink CCID registries.
  * @dev The first-pass vLEI path treats a Chainlink CCID as the AID-derived identity reference:
  * `ccid = keccak256(bytes(canonicalAidString))`. Credential-based KYC/jurisdiction helpers are
  * compatibility enrichment fields and are not authoritative for Legal Entity pass/fail decisions.
  */
-contract IdentityRegistryAdapter is IGL1IdentityRegistry {
+contract ChainlinkCCIDIdentityAdapter is IGL1IdentityRegistry {
     /// @notice Chainlink-style wallet-to-CCID identity registry.
     IIdentityRegistry public immutable identityRegistry;
 

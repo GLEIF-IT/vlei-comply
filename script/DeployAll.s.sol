@@ -15,17 +15,17 @@ import "../src/identity/TrustedIssuerRegistry.sol";
 import "../src/identity/IdentityRegistry.sol";
 import "../src/identity/CredentialRegistry.sol";
 import "../src/identity/CredentialRegistryIdentityValidator.sol";
-import "../src/identity/IdentityRegistryAdapter.sol";
+import "../src/identity/ChainlinkCCIDIdentityAdapter.sol";
 import "../src/identity/interfaces/ICredentialRequirements.sol";
 
 // Attestation Services
-import "../src/attestation/vLEIOracleRegistry.sol";
-import "../src/attestation/vLEIAttestationVerifier.sol";
+import "../src/attestation/VLEIOracleRegistry.sol";
+import "../src/attestation/VLEILegalEntityVerifier.sol";
 
 // Generated contracts
 import "../src/assets/vLEI.sol";
 import "../src/wrappers/wvLEI.sol";
-import "../src/policies/vLEI_kyc_and_sanctions.sol";
+import "../src/policies/VLEILegalEntityKYCPolicy.sol";
 
 /**
  * @title DeployAll
@@ -144,11 +144,11 @@ contract DeployAll is Script {
         console.log("TrustedIssuerRegistry deployed (proxy) to:", address(trustedIssuerRegistry));
         
         // Deploy Adapter that bridges Wizard interfaces to Vendor registries
-        identityRegistry = IGL1IdentityRegistry(address(new IdentityRegistryAdapter(
+        identityRegistry = IGL1IdentityRegistry(address(new ChainlinkCCIDIdentityAdapter(
             address(vendorIdentityRegistry),
             address(credentialRegistry)
         )));
-        console.log("IdentityRegistryAdapter deployed to:", address(identityRegistry));
+        console.log("ChainlinkCCIDIdentityAdapter deployed to:", address(identityRegistry));
         
         // ========================================
         // 3. Policy Engine
@@ -168,24 +168,24 @@ contract DeployAll is Script {
 
 
 
-        vLEIOracleRegistry oracleRegistry = new vLEIOracleRegistry(address(adminControls));
-        console.log("vLEIOracleRegistry deployed to:", address(oracleRegistry));
+        VLEIOracleRegistry oracleRegistry = new VLEIOracleRegistry(address(adminControls));
+        console.log("VLEIOracleRegistry deployed to:", address(oracleRegistry));
 
-        vLEIAttestationVerifier vleiVerifier = new vLEIAttestationVerifier(address(oracleRegistry));
-        console.log("vLEIAttestationVerifier deployed to:", address(vleiVerifier));
+        VLEILegalEntityVerifier vleiVerifier = new VLEILegalEntityVerifier(address(oracleRegistry));
+        console.log("VLEILegalEntityVerifier deployed to:", address(vleiVerifier));
         
 
         // ========================================
         // 5. Deploy Generated Policies
         // ========================================
-        // Deploy vLEI_kyc_and_sanctions
-        vLEI_kyc_and_sanctions vleiPolicy = new vLEI_kyc_and_sanctions(
+        // Deploy VLEILegalEntityKYCPolicy
+        VLEILegalEntityKYCPolicy vleiPolicy = new VLEILegalEntityKYCPolicy(
             1,
             address(identityRegistry),
             address(vleiVerifier),
             address(vleiVerifier)
         );
-        console.log("vLEI_kyc_and_sanctions deployed to:", address(vleiPolicy));
+        console.log("VLEILegalEntityKYCPolicy deployed to:", address(vleiPolicy));
         
         // Register policies with PolicyManager
         policyManager.addPolicy(address(vleiPolicy));
@@ -231,8 +231,8 @@ contract DeployAll is Script {
         console.log("CredentialRegistryIdentityValidator:", address(credentialRegistryIdentityValidator));
         console.log("PolicyManager:", address(policyManager));
 
-        console.log("vLEIOracleRegistry:", address(oracleRegistry));
-        console.log("vLEIAttestationVerifier:", address(vleiVerifier));
+        console.log("VLEIOracleRegistry:", address(oracleRegistry));
+        console.log("VLEILegalEntityVerifier:", address(vleiVerifier));
         console.log("Asset (vLEI):", address(asset));
         console.log("Wrapper (wvLEI):", address(wrapper));
         console.log("========================================");

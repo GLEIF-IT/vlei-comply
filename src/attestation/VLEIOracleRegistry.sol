@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import "../admin/AdminControls.sol";
 
 /**
- * @title vLEIOracleRegistry
+ * @title VLEIOracleRegistry
  * @notice Admin/oracle-posted registry of vLEI Legal Entity AID and LE ACDC status.
  * @dev The first-pass demo treats `keccak256(bytes(canonicalAidString))` as the Chainlink CCID.
  * This contract stores evidence already verified off-chain by an oracle/admin service. It does
@@ -14,7 +14,7 @@ import "../admin/AdminControls.sol";
  * @custom:prototype Evidence semantics are intentionally narrow: LE AID, entity LEI, credential
  * subject LEI, ACDC SAID hash, proof hash, issuance, expiry, allowlist, and revocation.
  */
-contract vLEIOracleRegistry {
+contract VLEIOracleRegistry {
     /// @notice Machine-readable reason for a Legal Entity validation result.
     enum ValidationCode {
         /// @notice The record exists, is allowlisted, has matching LEI evidence, is unexpired, and is not revoked.

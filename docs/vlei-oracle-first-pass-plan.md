@@ -4,7 +4,7 @@
 
 This first pass makes the generated vLEI compliance wrapper testable from the CLI with a real sender and beneficiary Legal Entity check.
 
-The design keeps `wvLEI` as the enforcement shell, keeps Chainlink CCID identity lookup as the wallet-to-identity path, and adds a small on-chain `vLEIOracleRegistry` for oracle/admin-posted vLEI Legal Entity status.
+The design keeps `wvLEI` as the enforcement shell, keeps Chainlink CCID identity lookup as the wallet-to-identity path, and adds a small on-chain `VLEIOracleRegistry` for oracle/admin-posted vLEI Legal Entity status.
 
 The demo identity key is:
 
@@ -17,10 +17,10 @@ The same `aidCcid` is registered as the Chainlink CCID and used as the `IPolicy.
 ## Contracts
 
 - `AllowAllPolicyEngine`: dev-only Chainlink policy engine that allows local writes to proxy-initialized Chainlink registries.
-- `vLEIOracleRegistry`: stores Legal Entity AID, entity LEI hash, LE credential subject LEI hash, LE ACDC SAID hash, proof hash, expiry, allowlist, and revocation state.
-- `vLEIAttestationVerifier`: checks `party.identityRef` against `vLEIOracleRegistry`.
+- `VLEIOracleRegistry`: stores Legal Entity AID, entity LEI hash, LE credential subject LEI hash, LE ACDC SAID hash, proof hash, expiry, allowlist, and revocation state.
+- `VLEILegalEntityVerifier`: checks `party.identityRef` against `VLEIOracleRegistry`.
 - `PolicyManager`: enriches parties by wallet and by existing `identityRef`, so AID-only `transferWithBeneficiary` parties can be evaluated.
-- `vLEI_kyc_and_sanctions`: requires valid `OriginatorCustomer` and `BeneficiaryCustomer` Legal Entity records.
+- `VLEILegalEntityKYCPolicy`: requires valid `OriginatorCustomer` and `BeneficiaryCustomer` Legal Entity records.
 
 ## CLI Demo Flow
 

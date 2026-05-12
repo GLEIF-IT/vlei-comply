@@ -7,7 +7,7 @@ import {ICredentialValidator} from "./ICredentialValidator.sol";
  * @title ICredentialRegistry
  * @notice Registry interface for credentials attached to Chainlink CCIDs.
  * @dev The vLEI first-pass compliance path deploys this registry for compatibility and
- * future credential-layer expansion; current vLEI pass/fail decisions use `vLEIOracleRegistry`.
+ * future credential-layer expansion; current vLEI pass/fail decisions use `VLEIOracleRegistry`.
  */
 interface ICredentialRegistry is ICredentialValidator {
   /// @notice Error emitted when a credential type identifier is already registered to the ccid.
