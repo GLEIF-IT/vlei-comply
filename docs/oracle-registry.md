@@ -46,4 +46,7 @@ The entity LEI is the LEI this on-chain record expects for the AID. The credenti
 
 ## Production Notes
 
-Production deployments should replace manual/admin posting with an oracle service that verifies KERI/vLEI material, records durable evidence, and emits enough metadata for audit and dispute handling. The on-chain registry should remain compact and fail-closed.
+The local integration uses `vlei-oracle` as the off-chain verifier/poster for
+KERI/vLEI material. Production deployments should harden that service's
+governance, key management, observability, evidence retention, and deployment
+operations while keeping the on-chain registry compact and fail-closed.

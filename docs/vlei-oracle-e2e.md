@@ -1,24 +1,36 @@
 # vLEI Oracle E2E
 
-The full local oracle flow lives in the sibling `vlei-oracle` package:
+The canonical machine-run proof lives in the sibling `vlei-oracle` package:
 
 ```sh
 cd ../vlei-oracle
 ./scripts/e2e/gl1-wallet-transfer-e2e.sh
 ```
 
-The script deploys this repository to Anvil with `script/DeployAll.s.sol`,
-parses the deployed contract addresses, posts oracle-verified Legal Entity
-evidence into `IdentityRegistry`, `CredentialRegistry`, and
-`VLEIOracleRegistry`, then executes a compliant `wvLEI.transfer`.
+That script proves:
 
-The expected service preconditions are:
+```text
+GEDA -> QVI -> LE -> OOR -> GL1 Ethereum Wallet Attestation
+  -> vlei-oracle -> vlei-comply registries -> compliant wvLEI transfer
+```
 
-- `kli witness demo` is reachable on demo witness ports `5642`, `5643`, `5644`.
-- `vLEI-server` is reachable on `7723` and serves the built-in vLEI schemas plus
-  the GL1 Ethereum Wallet Attestation schema.
-- Foundry tools are available through `forge`, `cast`, and `anvil`.
+For a human-operated walkthrough, use
+[GL1 vLEI CLI Execution Guide](gl1-vlei-cli-execution-guide.md). For local
+service startup and troubleshooting, use
+[GL1 vLEI Local Infrastructure Setup](gl1-vlei-local-infra-setup.md).
 
-The GL1 wallet attestation schema uses `NI2I` on both wallet credential edges to
-the LE and OOR credentials. That is intentional: the wallet binding is
-OOR-issued self-attested evidence, not ordinary issuer-to-issuer provenance.
+The human guide uses `scripts/dev/init-local-vlei-fixture.sh`, which calls the
+same e2e machinery with explicit stop-points. `--through source-chain` stops
+after GEDA/QVI/LE/OOR issuance. `--through oracle-posted` stops after wallet
+attestations are verified and posted on chain, leaving admin allowlists,
+minting, approvals, and transfers for the operator.
+
+Important protocol boundaries:
+
+- wallet attestation edges to the LE and OOR credentials use `NI2I`
+- the oracle receives a standard KERIpy IPEX Grant and does not run
+  `kli ipex admit`
+- the Ethereum wallet signature is external to the ACDC and is POSTed to the
+  oracle as CESR-encoded signature evidence
+- admin wallet allowlisting and AID CCID allowlisting remain explicit policy
+  steps after oracle verification

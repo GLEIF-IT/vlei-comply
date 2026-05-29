@@ -50,7 +50,7 @@ import "../src/policies/VLEILegalEntityKYCPolicy.sol";
 contract DeployAll is Script {
     /// @notice Deploys the full local prototype stack and prints contract addresses.
     /// @dev Reads `PRIVATE_KEY` from the environment and broadcasts all deployments from that key.
-    /// The printed addresses are intended for the CLI demo in `docs/cli-demo.md`.
+    /// The printed addresses are intended for the human guide in `docs/gl1-vlei-cli-execution-guide.md`.
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerPrivateKey);
