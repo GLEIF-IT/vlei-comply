@@ -24,16 +24,16 @@ flowchart LR
 
 ## Responsibilities
 
-| Component                 | Responsibility                                                                                                             |
-|---------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| `vLEI`                    | ERC-20 asset. It enforces only global pause and owner minting. Compliance is not enforced on direct token transfers.       |
-| `wvLEI`                   | Transfer-facing enforcement shell. It builds `TransactionEnvelope` values and executes transfers only after policies pass. |
-| `PolicyManager`           | Orchestrates policy evaluation and enriches parties through `IGL1IdentityRegistry`.                                        |
+| Component                      | Responsibility                                                                                                             |
+|--------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `vLEI`                         | ERC-20 asset. It enforces only global pause and owner minting. Compliance is not enforced on direct token transfers.       |
+| `wvLEI`                        | Transfer-facing enforcement shell. It builds `TransactionEnvelope` values and executes transfers only after policies pass. |
+| `PolicyManager`                | Orchestrates policy evaluation and enriches parties through `IGL1IdentityRegistry`.                                        |
 | `ChainlinkCCIDIdentityAdapter` | Bridges GL1 policy fields to Chainlink CCID identity and credential registries.                                            |
-| `VLEILegalEntityKYCPolicy`  | Requires valid originator and beneficiary Legal Entity checks.                                                             |
-| `VLEILegalEntityVerifier` | Reads oracle-posted vLEI evidence and returns a fail-closed boolean.                                                       |
-| `VLEIOracleRegistry`      | Stores admin/oracle-posted AID, LEI, ACDC SAID, expiry, revocation, and allowlist status.                                  |
-| `AllowAllPolicyEngine`    | Dev-only policy engine used so Chainlink-style registries can be initialized and written locally.                          |
+| `VLEILegalEntityKYCPolicy`     | Requires valid originator and beneficiary Legal Entity checks.                                                             |
+| `VLEILegalEntityVerifier`      | Reads oracle-posted vLEI evidence and returns a fail-closed boolean.                                                       |
+| `VLEIOracleRegistry`           | Stores admin/oracle-posted AID, LEI, ACDC SAID, expiry, revocation, and allowlist status.                                  |
+| `AllowAllPolicyEngine`         | Dev-only policy engine used so Chainlink-style registries can be initialized and written locally.                          |
 
 ## Evaluation Semantics
 

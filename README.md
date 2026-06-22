@@ -12,15 +12,15 @@ This repository is a production-preparation prototype. It demonstrates the contr
 
 Maintainer documentation:
 
-| Document                                                   | Purpose                                                              |
-|------------------------------------------------------------|----------------------------------------------------------------------|
-| [Architecture](docs/architecture.md)                       | Contract responsibilities and transfer evaluation flow               |
-| [Identity and vLEI Model](docs/identity-and-vlei-model.md) | Chainlink CCID, AID hashing, wallet mapping, and AID-only flow       |
-| [Oracle Registry](docs/oracle-registry.md)                 | Legal Entity record fields, validation codes, and LEI invariants     |
-| [GL1 vLEI CLI Execution Guide](docs/gl1-vlei-cli-execution-guide.md) | Human-operated local originator-to-beneficiary workflow    |
-| [GL1 vLEI Local Infrastructure Setup](docs/gl1-vlei-local-infra-setup.md) | Local service startup, ports, generated artifacts, and cleanup |
-| [Security Model](docs/security-model.md)                   | Trust boundaries, admin authority, limitations, and production TODOs |
-| [Contracts Reference](docs/contracts-reference.md)         | Concise contract and interface map                                   |
+| Document                                                                  | Purpose                                                              |
+|---------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [Architecture](docs/architecture.md)                                      | Contract responsibilities and transfer evaluation flow               |
+| [Identity and vLEI Model](docs/identity-and-vlei-model.md)                | Chainlink CCID, AID hashing, wallet mapping, and AID-only flow       |
+| [Oracle Registry](docs/oracle-registry.md)                                | Legal Entity record fields, validation codes, and LEI invariants     |
+| [GL1 vLEI CLI Execution Guide](docs/gl1-vlei-cli-execution-guide.md)      | Human-operated local originator-to-beneficiary workflow              |
+| [GL1 vLEI Local Infrastructure Setup](docs/gl1-vlei-local-infra-setup.md) | Local service startup, ports, generated artifacts, and cleanup       |
+| [Security Model](docs/security-model.md)                                  | Trust boundaries, admin authority, limitations, and production TODOs |
+| [Contracts Reference](docs/contracts-reference.md)                        | Concise contract and interface map                                   |
 
 ## Architecture
 
