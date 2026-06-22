@@ -50,7 +50,7 @@ contract AdminControls is AccessControl {
     }
     
     /// @notice Enables the global pause checked by the token and wrapper.
-    /// @dev Pausing blocks `vLEI` token updates and `wvLEI` wrapper transfer calls.
+    /// @dev Pausing blocks `USDC` token updates and `wUSDC` wrapper transfer calls.
     function pause() external onlyEmergency {
         _paused = true;
         emit Paused(msg.sender);

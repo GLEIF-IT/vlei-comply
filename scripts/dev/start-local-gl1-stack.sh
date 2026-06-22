@@ -192,12 +192,12 @@ contracts_have_code() {
 }
 
 write_stack_env() {
-  local admin_controls identity_registry credential_registry oracle_registry vlei_token wrapper
+  local admin_controls identity_registry credential_registry oracle_registry usdc_token wrapper
   admin_controls="$("$JQ" -r .adminControls "$CONTRACTS_JSON")"
   identity_registry="$("$JQ" -r .identityRegistry "$CONTRACTS_JSON")"
   credential_registry="$("$JQ" -r .credentialRegistry "$CONTRACTS_JSON")"
   oracle_registry="$("$JQ" -r .oracleRegistry "$CONTRACTS_JSON")"
-  vlei_token="$("$JQ" -r .vleiToken "$CONTRACTS_JSON")"
+  usdc_token="$("$JQ" -r .usdcToken "$CONTRACTS_JSON")"
   wrapper="$("$JQ" -r .wrapper "$CONTRACTS_JSON")"
 
   cat >"$STACK_ENV" <<ENV
@@ -215,7 +215,7 @@ export ADMIN_CONTROLS='${admin_controls}'
 export IDENTITY_REGISTRY='${identity_registry}'
 export CREDENTIAL_REGISTRY='${credential_registry}'
 export ORACLE_REGISTRY='${oracle_registry}'
-export VLEI_TOKEN='${vlei_token}'
+export USDC_TOKEN='${usdc_token}'
 export WRAPPER='${wrapper}'
 ENV
 }

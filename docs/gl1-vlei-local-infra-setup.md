@@ -1,4 +1,4 @@
-# GL1 vLEI Local Infrastructure Setup
+# GL1 USDC Local Infrastructure Setup
 
 This sub-guide owns the mechanical startup details for the local GL1/vLEI
 stack. The main [CLI Execution Guide](gl1-vlei-cli-execution-guide.md) assumes
@@ -113,7 +113,7 @@ ADMIN_CONTROLS
 IDENTITY_REGISTRY
 CREDENTIAL_REGISTRY
 ORACLE_REGISTRY
-VLEI_TOKEN
+USDC_TOKEN
 WRAPPER
 ```
 

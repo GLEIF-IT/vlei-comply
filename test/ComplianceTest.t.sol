@@ -10,8 +10,8 @@ import "../src/identity/CredentialRegistry.sol";
 import "../src/identity/CredentialRegistryIdentityValidator.sol";
 import "../src/identity/ChainlinkCCIDIdentityAdapter.sol";
 import "../src/identity/interfaces/ICredentialRequirements.sol";
-import "../src/assets/vLEI.sol";
-import "../src/wrappers/wvLEI.sol";
+import "../src/assets/USDC.sol";
+import "../src/wrappers/wUSDC.sol";
 import "../src/interfaces/IPolicy.sol";
 
 // MockPolicy for infrastructure testing (ensures stable environment for pending/resolution tests)
@@ -51,13 +51,13 @@ contract ComplianceTest is Test {
     
     IGL1IdentityRegistry public identityRegistry;
     PolicyManager manager;
-    vLEI asset;
-    wvLEI wrapper;
+    USDC asset;
+    wUSDC wrapper;
     MockPolicy mockPolicy;
 
     address alice = address(0x1);
     address bob = address(0x2);
-    uint256 constant UNIT = 10**18;
+    uint256 constant UNIT = 10**6;
 
     function setUp() public {
         admin = new AdminControls(address(this));
@@ -76,9 +76,9 @@ contract ComplianceTest is Test {
         
         manager = new PolicyManager(address(admin), address(identityRegistry));
         
-        asset = new vLEI("vLEI", "VLEI", 18, address(this), 1000000 * 10**18, address(admin));
+        asset = new USDC("USDC", "USDC", 6, address(this), 1000000 * UNIT, address(admin));
 
-        wrapper = new wvLEI (
+        wrapper = new wUSDC (
             address(asset),
             address(manager),
             address(admin)

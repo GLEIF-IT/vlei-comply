@@ -11,13 +11,13 @@ That script proves:
 
 ```text
 GEDA -> QVI -> LE -> OOR -> GL1 Ethereum Wallet Attestation
-  -> vlei-oracle -> vlei-comply registries -> compliant wvLEI transfer
+  -> vlei-oracle -> vlei-comply registries -> compliant wUSDC transfer
 ```
 
 For a human-operated walkthrough, use
-[GL1 vLEI CLI Execution Guide](gl1-vlei-cli-execution-guide.md). For local
+[GL1 USDC CLI Execution Guide](gl1-vlei-cli-execution-guide.md). For local
 service startup and troubleshooting, use
-[GL1 vLEI Local Infrastructure Setup](gl1-vlei-local-infra-setup.md).
+[GL1 USDC Local Infrastructure Setup](gl1-vlei-local-infra-setup.md).
 
 The human guide uses `scripts/dev/init-local-vlei-fixture.sh`, which calls the
 same e2e machinery with explicit stop-points. `--through source-chain` stops

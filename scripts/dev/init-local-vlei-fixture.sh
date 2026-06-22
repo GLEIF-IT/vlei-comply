@@ -6,7 +6,7 @@ set -Eeuo pipefail
 #
 # This script intentionally hides the repetitive KLI issuance mechanics so the
 # operator can focus on the GL1 integration increment: admin allowlists, CCID
-# registry state, oracle-posted evidence, minting, approvals, and wvLEI
+# registry state, oracle-posted evidence, minting, approvals, and wUSDC
 # transfers.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

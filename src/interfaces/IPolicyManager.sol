@@ -6,7 +6,7 @@ import "./IPolicy.sol";
 /**
  * @title IPolicyManager
  * @notice Interface for the policy orchestration layer used by wrapper contracts.
- * @dev `wvLEI` calls this interface with minimally populated party packets. The manager is
+ * @dev `wUSDC` calls this interface with minimally populated party packets. The manager is
  * responsible for identity enrichment and aggregate policy status calculation.
  */
 interface IPolicyManager {

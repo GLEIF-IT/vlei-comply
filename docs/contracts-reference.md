@@ -2,8 +2,8 @@
 
 ## Enforcement
 
-- `vLEI`: ERC-20 asset with owner minting, holder burn, and global pause enforcement.
-- `wvLEI`: wrapper-style transfer surface that builds policy envelopes and executes transfers only after compliance passes.
+- `USDC`: ERC-20 asset with owner minting, holder burn, and global pause enforcement.
+- `wUSDC`: wrapper-style transfer surface that builds policy envelopes and executes transfers only after compliance passes.
 - `AdminControls`: role-based administrative contract for compliance admins, emergency pause, and wallet allowlist.
 
 ## Policy

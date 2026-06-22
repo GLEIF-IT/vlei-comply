@@ -3,7 +3,7 @@
   "generated": "2026-05-06T16:48:52.598Z",
   "generator": "GL1 Compliance Wizard (React SPA)",
   "project": {
-    "name": "vLEI Compliance Integration",
+    "name": "USDC Compliance Integration",
     "package": "vlei-comply",
     "network": "EVM",
     "solidityVersion": "0.8.24",
@@ -11,12 +11,12 @@
   },
   "architecture": {
     "asset": {
-      "name": "vLEI",
+      "name": "USDC",
       "standard": "ERC20",
-      "symbol": "VLEI"
+      "symbol": "USDC"
     },
     "wrapper": {
-      "name": "wvLEI",
+      "name": "wUSDC",
       "enforcementMode": "transfers_only"
     },
     "identityFramework": "CHAINLINK_CCID",
@@ -186,12 +186,12 @@
       "description": "Fail-closed vLEI Legal Entity verifier"
     },
     {
-      "path": "src/assets/vLEI.sol",
+      "path": "src/assets/USDC.sol",
       "type": "contract",
       "description": "Generated ERC20 token"
     },
     {
-      "path": "src/wrappers/wvLEI.sol",
+      "path": "src/wrappers/wUSDC.sol",
       "type": "contract",
       "description": "Generated policy wrapper"
     },

@@ -2,7 +2,7 @@
   "version": "1.0",
   "compatibility": "EVM",
   "assetStandard": "ERC20",
-  "assetDecimals": 18,
+  "assetDecimals": 6,
   "vaspMediation": "ENTITY_TO_ENTITY",
   "identityFramework": "ChainlinkCCI",
   "attestationServices": [
@@ -12,10 +12,10 @@
     }
   ],
   "contracts": {
-    "policyWrapper": "wvLEI.sol",
+    "policyWrapper": "wUSDC.sol",
     "policyManager": "PolicyManager.sol",
     "identityManager": "IdentityRegistry.sol",
-    "asset": "vLEI.sol",
+    "asset": "USDC.sol",
     "adminControls": "AdminControls.sol",
     "attestationVerifier": "VLEILegalEntityVerifier.sol",
     "oracleRegistry": "VLEIOracleRegistry.sol"

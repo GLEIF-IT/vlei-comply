@@ -9,14 +9,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../admin/AdminControls.sol";
 
 /**
- * @title vLEI
- * @notice ERC-20 asset used by the vLEI compliance wrapper.
- * @dev Compliance is enforced by `wvLEI`, not by direct ERC-20 transfers. This token
+ * @title USDC
+ * @notice ERC-20 asset used by the USDC compliance wrapper.
+ * @dev Compliance is enforced by `wUSDC`, not by direct ERC-20 transfers. This token
  * only enforces owner-controlled minting, holder burn, decimal configuration, and the
  * shared `AdminControls` global pause.
- * @custom:security Direct transfers of this token bypass policy checks unless callers use `wvLEI`.
+ * @custom:security Direct transfers of this token bypass policy checks unless callers use `wUSDC`.
  */
-contract vLEI is ERC20, Ownable {
+contract USDC is ERC20, Ownable {
     uint8 private immutable _decimals;
 
     /// @notice Shared pause controller used by the token update hook.

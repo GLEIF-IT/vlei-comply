@@ -1,6 +1,6 @@
 # Security Model
 
-This repository is a production-preparation prototype. It demonstrates the contract boundaries and fail-closed behavior expected in a production vLEI compliance integration, but it is not production-ready as deployed.
+This repository is a production-preparation prototype. It demonstrates the contract boundaries and fail-closed behavior expected in a production USDC compliance integration, but it is not production-ready as deployed.
 
 ## Trust Boundaries
 
@@ -10,7 +10,7 @@ This repository is a production-preparation prototype. It demonstrates the contr
 | Identity mapping      | Chainlink `IdentityRegistry` maps wallet to `aidCcid`.                | Registry writes must be governed by a real policy engine.                              |
 | vLEI evidence         | `VLEIOracleRegistry` stores admin/oracle-posted status.               | Oracle must verify KERI/vLEI chains off-chain and post auditable evidence.             |
 | Policy evaluation     | `PolicyManager` evaluates all configured policies with fail priority. | Policies must be versioned and upgrade-governed.                                       |
-| Direct token transfer | `vLEI` only checks global pause.                                      | Users should interact through wrapper or token should integrate policy hooks directly. |
+| Direct token transfer | `USDC` only checks global pause.                                      | Users should interact through wrapper or token should integrate policy hooks directly. |
 
 ## Admin Roles
 
@@ -40,7 +40,7 @@ Legal Entity verification fails when:
 
 - `AllowAllPolicyEngine` is dev-only and must not be used in production.
 - The oracle registry trusts the admin/oracle poster; it does not verify signatures or KERI events on-chain.
-- `vLEI` direct ERC-20 transfers bypass wrapper compliance except for global pause.
+- `USDC` direct ERC-20 transfers bypass wrapper compliance except for global pause.
 - OOR and role/scope authority checks are not implemented in this first pass.
 
 ## Production TODOs

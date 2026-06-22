@@ -1,4 +1,4 @@
-# GL1 vLEI CLI Execution Guide
+# GL1 USDC CLI Execution Guide
 
 This guide is the human-operated walkthrough for the local GL1 compliance
 prototype. It assumes the local infrastructure is already started and focuses
@@ -6,7 +6,7 @@ on using that infrastructure to understand the originator-to-beneficiary flow.
 
 Use this guide when you want to see how an Ethereum wallet becomes connected to
 a KERI AID, how that AID is tied to vLEI evidence, how the oracle posts compact
-evidence on chain, and why `wvLEI` blocks or allows a transfer.
+evidence on chain, and why `wUSDC` blocks or allows a transfer.
 
 For service startup, ports, cleanup, and troubleshooting, use
 [Local Infrastructure Setup](gl1-vlei-local-infra-setup.md). For the fully
@@ -26,7 +26,7 @@ Ethereum wallet
   -> Chainlink CCID wallet mapping
   -> KERI Legal Entity AID CCID
   -> vLEI Oracle Registry evidence
-  -> wvLEI policy pass
+  -> wUSDC policy pass
   -> compliant transfer
 ```
 
@@ -84,8 +84,8 @@ The key addresses are:
 - `IDENTITY_REGISTRY`: wallet-to-CCID registry written by the oracle
 - `CREDENTIAL_REGISTRY`: compact credential registry written by the oracle
 - `ORACLE_REGISTRY`: AID CCID keyed Legal Entity evidence registry
-- `VLEI_TOKEN`: underlying ERC-20 token
-- `WRAPPER`: compliant `wvLEI` transfer entrypoint
+- `USDC_TOKEN`: underlying ERC-20 token
+- `WRAPPER`: compliant `wUSDC` transfer entrypoint
 
 ## Prepare Operator Shell
 
@@ -126,7 +126,7 @@ $RUN_DIR/beneficiary/oracle-status.json
 `actors.env` exports the values used in the rest of this guide:
 
 ```sh
-env | grep -E '^(FIXTURE_STAGE|ORIGINATOR_|BENEFICIARY_|GEDA_AID|ORACLE_AID|VLEI_TOKEN|WRAPPER|ORACLE_REGISTRY|ADMIN_CONTROLS)='
+env | grep -E '^(FIXTURE_STAGE|ORIGINATOR_|BENEFICIARY_|GEDA_AID|ORACLE_AID|USDC_TOKEN|WRAPPER|ORACLE_REGISTRY|ADMIN_CONTROLS)='
 ```
 
 If you want to practice the wallet-attestation and oracle-posting step manually,
@@ -159,10 +159,10 @@ cast send "$ORIGINATOR_WALLET" --value "$GAS_FUND_AMOUNT" \
 cast send "$BENEFICIARY_WALLET" --value "$GAS_FUND_AMOUNT" \
   --rpc-url "$RPC_URL" --private-key "$ADMIN_PK"
 
-cast send "$VLEI_TOKEN" "mint(address,uint256)" "$ORIGINATOR_WALLET" "$SEED_AMOUNT" \
+cast send "$USDC_TOKEN" "mint(address,uint256)" "$ORIGINATOR_WALLET" "$SEED_AMOUNT" \
   --rpc-url "$RPC_URL" --private-key "$ADMIN_PK"
 
-cast send "$VLEI_TOKEN" "approve(address,uint256)" "$WRAPPER" "$SEED_AMOUNT" \
+cast send "$USDC_TOKEN" "approve(address,uint256)" "$WRAPPER" "$SEED_AMOUNT" \
   --rpc-url "$RPC_URL" --private-key "$ORIGINATOR_PK"
 ```
 
@@ -262,14 +262,14 @@ cast call --rpc-url "$RPC_URL" --from "$ORIGINATOR_WALLET" "$WRAPPER" \
 Submit the real transfer:
 
 ```sh
-cast call "$VLEI_TOKEN" "balanceOf(address)(uint256)" "$ORIGINATOR_WALLET" --rpc-url "$RPC_URL"
-cast call "$VLEI_TOKEN" "balanceOf(address)(uint256)" "$BENEFICIARY_WALLET" --rpc-url "$RPC_URL"
+cast call "$USDC_TOKEN" "balanceOf(address)(uint256)" "$ORIGINATOR_WALLET" --rpc-url "$RPC_URL"
+cast call "$USDC_TOKEN" "balanceOf(address)(uint256)" "$BENEFICIARY_WALLET" --rpc-url "$RPC_URL"
 
 cast send "$WRAPPER" "transfer(address,uint256)" "$BENEFICIARY_WALLET" "$TRANSFER_AMOUNT" \
   --rpc-url "$RPC_URL" --private-key "$ORIGINATOR_PK"
 
-cast call "$VLEI_TOKEN" "balanceOf(address)(uint256)" "$ORIGINATOR_WALLET" --rpc-url "$RPC_URL"
-cast call "$VLEI_TOKEN" "balanceOf(address)(uint256)" "$BENEFICIARY_WALLET" --rpc-url "$RPC_URL"
+cast call "$USDC_TOKEN" "balanceOf(address)(uint256)" "$ORIGINATOR_WALLET" --rpc-url "$RPC_URL"
+cast call "$USDC_TOKEN" "balanceOf(address)(uint256)" "$BENEFICIARY_WALLET" --rpc-url "$RPC_URL"
 ```
 
 The originator balance should decrease by `TRANSFER_AMOUNT`; the beneficiary

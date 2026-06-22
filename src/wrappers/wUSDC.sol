@@ -10,14 +10,14 @@ import "../interfaces/IPolicy.sol";
 import "../admin/AdminControls.sol";
 
 /**
- * @title wvLEI
- * @notice Policy-enforcing wrapper entry point for vLEI transfers.
- * @dev This contract does not custody tokens. Callers approve `wvLEI` to spend the underlying
+ * @title wUSDC
+ * @notice Policy-enforcing wrapper entry point for USDC transfers.
+ * @dev This contract does not custody tokens. Callers approve `wUSDC` to spend the underlying
  * ERC-20, then call wrapper transfer functions. The wrapper builds a transaction envelope, runs
  * `PolicyManager`, and only calls `asset.transferFrom` when the aggregate policy status is Pass.
- * @custom:security Direct transfers of the underlying `vLEI` token bypass this wrapper.
+ * @custom:security Direct transfers of the underlying `USDC` token bypass this wrapper.
  */
-contract wvLEI {
+contract wUSDC {
     /// @notice Underlying ERC-20 asset moved after policy success.
     IERC20 public immutable asset;
 

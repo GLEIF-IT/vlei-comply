@@ -8,8 +8,8 @@ wrapper enforcement, policy orchestration, identity enrichment, oracle-posted ev
 
 ```mermaid
 flowchart LR
-  User["Caller / wallet"] --> Wrapper["wvLEI"]
-  Wrapper --> Asset["vLEI ERC-20"]
+  User["Caller / wallet"] --> Wrapper["wUSDC"]
+  Wrapper --> Asset["USDC ERC-20"]
   Wrapper --> Manager["PolicyManager"]
   Manager --> Adapter["ChainlinkCCIDIdentityAdapter"]
   Adapter --> ChainlinkId["Chainlink IdentityRegistry"]
@@ -26,8 +26,8 @@ flowchart LR
 
 | Component                      | Responsibility                                                                                                             |
 |--------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| `vLEI`                         | ERC-20 asset. It enforces only global pause and owner minting. Compliance is not enforced on direct token transfers.       |
-| `wvLEI`                        | Transfer-facing enforcement shell. It builds `TransactionEnvelope` values and executes transfers only after policies pass. |
+| `USDC`                         | ERC-20 asset. It enforces only global pause and owner minting. Compliance is not enforced on direct token transfers.       |
+| `wUSDC`                        | Transfer-facing enforcement shell. It builds `TransactionEnvelope` values and executes transfers only after policies pass. |
 | `PolicyManager`                | Orchestrates policy evaluation and enriches parties through `IGL1IdentityRegistry`.                                        |
 | `ChainlinkCCIDIdentityAdapter` | Bridges GL1 policy fields to Chainlink CCID identity and credential registries.                                            |
 | `VLEILegalEntityKYCPolicy`     | Requires valid originator and beneficiary Legal Entity checks.                                                             |
@@ -37,7 +37,7 @@ flowchart LR
 
 ## Evaluation Semantics
 
-1. `wvLEI.transfer*` creates originator and beneficiary `PartyPacket` records.
+1. `wUSDC.transfer*` creates originator and beneficiary `PartyPacket` records.
 2. `PolicyManager.runPolicies` resolves `identityRef` from wallet addresses when possible.
 3. If a party already has `identityRef`, `PolicyManager` prefers ID-based enrichment for AID-only flows.
 4. `VLEILegalEntityKYCPolicy` finds the `OriginatorCustomer` and `BeneficiaryCustomer` parties.

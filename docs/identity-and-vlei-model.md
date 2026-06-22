@@ -13,7 +13,7 @@ The canonical AID string is prepared off-chain. Solidity stores and compares onl
 For ordinary wallet transfers:
 
 1. The maintainer/oracle registers `wallet -> aidCcid` in Chainlink `IdentityRegistry`.
-2. `wvLEI.transfer` creates parties with wallet addresses and empty `identityRef`.
+2. `wUSDC.transfer` creates parties with wallet addresses and empty `identityRef`.
 3. `PolicyManager` resolves `identityRef` using `ChainlinkCCIDIdentityAdapter.getBeneficiaryId(wallet)`.
 4. The policy verifies the resulting `identityRef`.
 
@@ -21,7 +21,7 @@ For ordinary wallet transfers:
 
 For mediated transfers:
 
-1. `wvLEI.transferWithBeneficiary` can create customer parties with `wallet == address(0)` and `identityRef != 0`.
+1. `wUSDC.transferWithBeneficiary` can create customer parties with `wallet == address(0)` and `identityRef != 0`.
 2. `PolicyManager` treats the existing `identityRef` as authoritative and uses ID-based enrichment.
 3. The verifier checks the same `identityRef` in `VLEIOracleRegistry`.
 

@@ -22,7 +22,7 @@ Severity definitions:
 - [ ] Harden `VLEIOracleRegistry` evidence posting.
   Add production-grade authorization and proof semantics such as signed oracle reports, quorum or signer policy, replay protection, stale-evidence limits, versioned proof formats, and durable `proofHash` evidence bundles.
 
-- [ ] Resolve direct `vLEI` transfer bypass.
+- [ ] Resolve direct `USDC` transfer bypass.
   Today direct ERC-20 transfers only respect global pause and bypass wrapper policy checks. Decide whether production requires wrapper-only transfers, token-hook enforcement, transfer restrictions, or another architecture, then implement and test it.
 
 - [ ] Formalize Chainlink CCID and KERI AID identity binding.

@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "../src/admin/AdminControls.sol";
-import "../src/assets/vLEI.sol";
+import "../src/assets/USDC.sol";
 import "../src/attestation/VLEILegalEntityVerifier.sol";
 import "../src/attestation/VLEIOracleRegistry.sol";
 import "../src/identity/CredentialRegistry.sol";
@@ -14,7 +14,7 @@ import "../src/interfaces/IGL1IdentityRegistry.sol";
 import "../src/policies/VLEILegalEntityKYCPolicy.sol";
 import "../src/policy/AllowAllPolicyEngine.sol";
 import "../src/policy/PolicyManager.sol";
-import "../src/wrappers/wvLEI.sol";
+import "../src/wrappers/wUSDC.sol";
 
 contract VLEIOracleComplianceTest is Test {
     AdminControls admin;
@@ -26,12 +26,12 @@ contract VLEIOracleComplianceTest is Test {
     VLEILegalEntityVerifier verifier;
     PolicyManager manager;
     VLEILegalEntityKYCPolicy policy;
-    vLEI asset;
-    wvLEI wrapper;
+    USDC asset;
+    wUSDC wrapper;
 
     address alice = address(0xA11CE);
     address bob = address(0xB0B);
-    uint256 constant UNIT = 10 ** 18;
+    uint256 constant UNIT = 10 ** 6;
 
     string constant ALICE_AID = "EALICEAID";
     string constant BOB_AID = "EBOBAID";
@@ -74,8 +74,8 @@ contract VLEIOracleComplianceTest is Test {
         );
         manager.addPolicy(address(policy));
 
-        asset = new vLEI("vLEI", "VLEI", 18, address(this), 1_000_000 * UNIT, address(admin));
-        wrapper = new wvLEI(address(asset), address(manager), address(admin));
+        asset = new USDC("USDC", "USDC", 6, address(this), 1_000_000 * UNIT, address(admin));
+        wrapper = new wUSDC(address(asset), address(manager), address(admin));
 
         asset.transfer(alice, 1_000 * UNIT);
         vm.prank(alice);
