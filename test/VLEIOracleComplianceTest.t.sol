@@ -90,18 +90,18 @@ contract VLEIOracleComplianceTest is Test {
 
     function testOracleRegistryValidationMatrix() public {
         bytes32 ccid = _postRecord(ALICE_AID, ALICE_LEI, ALICE_LEI, false, false, 0);
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.NotAllowed));
+        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.NotAllowed));
 
         oracleRegistry.setAidAllowed(ccid, true);
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.Valid));
+        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.Valid));
 
         oracleRegistry.setCredentialRevoked(ccid, true);
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.Revoked));
+        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.Revoked));
     }
 
     function testLeiMismatchFailsValidation() public {
         bytes32 ccid = _postRecord(ALICE_AID, ALICE_LEI, BOB_LEI, true, false, 0);
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.LeiMismatch));
+        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.LeiMismatch));
         assertFalse(oracleRegistry.isLegalEntityValid(ccid));
     }
 
@@ -110,7 +110,7 @@ contract VLEIOracleComplianceTest is Test {
 
         vm.warp(block.timestamp + 2);
 
-        assertEq(uint256(oracleRegistry.validationCode(ccid)), uint256(VLEIOracleRegistry.ValidationCode.Expired));
+        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.Expired));
         assertFalse(oracleRegistry.isLegalEntityValid(ccid));
     }
 

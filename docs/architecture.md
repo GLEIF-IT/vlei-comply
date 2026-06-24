@@ -8,9 +8,10 @@ wrapper enforcement, policy orchestration, identity enrichment, oracle-posted ev
 
 ```mermaid
 flowchart LR
-  User["Caller / wallet"] --> Wrapper["wUSDC"]
-  Wrapper --> Asset["USDC ERC-20"]
-  Wrapper --> Manager["PolicyManager"]
+  User["Caller / wallet"] -->|"transfer(...) / transferFrom(...)"| Wrapper["wUSDC"]
+  User -.->|"approve(wUSDC, amount) pre-step"| Asset["USDC ERC-20"]
+  Wrapper -->|"USDC.transferFrom(...) after policy pass"| Asset
+  Wrapper -->|"runPolicies(envelope)"| Manager["PolicyManager"]
   Manager --> Adapter["ChainlinkCCIDIdentityAdapter"]
   Adapter --> ChainlinkId["Chainlink IdentityRegistry"]
   Adapter --> ChainlinkCred["Chainlink CredentialRegistry"]
@@ -21,6 +22,8 @@ flowchart LR
   Admin --> Manager
   Admin --> Oracle
 ```
+
+The wallet approves `wUSDC` on the USDC contract before settlement. During settlement, the wallet calls `wUSDC`; `wUSDC` calls `USDC.transferFrom` only after policy evaluation returns `Pass`.
 
 ## Responsibilities
 
@@ -43,4 +46,3 @@ flowchart LR
 4. `VLEILegalEntityKYCPolicy` finds the `OriginatorCustomer` and `BeneficiaryCustomer` parties.
 5. `VLEILegalEntityVerifier` checks each party's `identityRef` in `VLEIOracleRegistry`.
 6. Any missing, expired, revoked, unallowlisted, or LEI-mismatched record fails closed.
-

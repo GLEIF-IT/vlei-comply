@@ -15,8 +15,8 @@ import "../admin/AdminControls.sol";
  * subject LEI, ACDC SAID hash, proof hash, issuance, expiry, allowlist, and revocation.
  */
 contract VLEIOracleRegistry {
-    /// @notice Machine-readable reason for a Legal Entity validation result.
-    enum ValidationCode {
+    /// @notice Machine-readable result for a Legal Entity validation check.
+    enum ValidationResult {
         /// @notice The record exists, is allowlisted, has matching LEI evidence, is unexpired, and is not revoked.
         Valid,
         /// @notice No record exists for the supplied AID CCID.
@@ -236,31 +236,31 @@ contract VLEIOracleRegistry {
         return _records[aidCcid];
     }
 
-    /// @notice Returns the first fail-closed validation code for an AID CCID.
+    /// @notice Returns the first fail-closed validation result for a Legal Entity CCID.
     /// @dev Check order is stable and should be treated as part of CLI/operator diagnostics.
-    /// @param aidCcid AID-derived CCID to validate.
-    /// @return Validation code describing success or the first failure.
-    function validationCode(bytes32 aidCcid) public view returns (ValidationCode) {
+    /// @param aidCcid Legal Entity AID-derived CCID to validate.
+    /// @return Validation result describing success or the first failure.
+    function validateLeCcid(bytes32 aidCcid) public view returns (ValidationResult) {
         LegalEntityRecord storage record = _records[aidCcid];
 
-        if (!record.exists) return ValidationCode.MissingRecord;
-        if (!record.allowed) return ValidationCode.NotAllowed;
+        if (!record.exists) return ValidationResult.MissingRecord;
+        if (!record.allowed) return ValidationResult.NotAllowed;
         if (record.entityLeiHash == bytes32(0) || bytes(record.entityLei).length == 0) {
-            return ValidationCode.MissingEntityLei;
+            return ValidationResult.MissingEntityLei;
         }
-        if (record.credentialSubjectLeiHash == bytes32(0)) return ValidationCode.MissingCredentialSubjectLei;
-        if (record.entityLeiHash != record.credentialSubjectLeiHash) return ValidationCode.LeiMismatch;
-        if (record.acdcSaidHash == bytes32(0)) return ValidationCode.MissingAcdc;
-        if (record.expiresAt != 0 && record.expiresAt <= block.timestamp) return ValidationCode.Expired;
-        if (record.revoked) return ValidationCode.Revoked;
+        if (record.credentialSubjectLeiHash == bytes32(0)) return ValidationResult.MissingCredentialSubjectLei;
+        if (record.entityLeiHash != record.credentialSubjectLeiHash) return ValidationResult.LeiMismatch;
+        if (record.acdcSaidHash == bytes32(0)) return ValidationResult.MissingAcdc;
+        if (record.expiresAt != 0 && record.expiresAt <= block.timestamp) return ValidationResult.Expired;
+        if (record.revoked) return ValidationResult.Revoked;
 
-        return ValidationCode.Valid;
+        return ValidationResult.Valid;
     }
 
     /// @notice Returns whether an AID CCID satisfies first-pass vLEI Legal Entity requirements.
     /// @param aidCcid AID-derived CCID to validate.
-    /// @return True only when `validationCode(aidCcid) == ValidationCode.Valid`.
+    /// @return True only when `validateLeCcid(aidCcid) == ValidationResult.Valid`.
     function isLegalEntityValid(bytes32 aidCcid) external view returns (bool) {
-        return validationCode(aidCcid) == ValidationCode.Valid;
+        return validateLeCcid(aidCcid) == ValidationResult.Valid;
     }
 }

@@ -29,9 +29,9 @@ entityLeiHash == credentialSubjectLeiHash
 
 The entity LEI is the LEI this on-chain record expects for the AID. The credential subject LEI is the LEI extracted from the LE ACDC by the off-chain oracle. A mismatch means the credential does not prove the entity claim being used for compliance.
 
-## Failure Codes
+## Validation Results
 
-`validationCode(aidCcid)` returns the first failing condition:
+`validateLeCcid(aidCcid)` returns the first fail-closed validation result:
 
 1. missing record,
 2. AID not allowlisted,
@@ -42,7 +42,7 @@ The entity LEI is the LEI this on-chain record expects for the AID. The credenti
 7. expired credential,
 8. revoked credential.
 
-`isLegalEntityValid(aidCcid)` returns true only when the code is `Valid`.
+`isLegalEntityValid(aidCcid)` returns true only when the validation result is `Valid`.
 
 ## Production Notes
 
