@@ -1,10 +1,11 @@
 # vLEI Oracle E2E
 
-The canonical machine-run proof lives in the sibling `vlei-oracle` package:
+Prepare clean dependencies as described in the
+[setup guide](gl1-vlei-local-infra-setup.md#prepare-clean-checkouts), then run the
+canonical machine-run proof from the selected `vlei-oracle` checkout:
 
 ```sh
-cd ../vlei-oracle
-./scripts/e2e/gl1-wallet-transfer-e2e.sh
+"$ORACLE_DIR/scripts/e2e/gl1-wallet-transfer-e2e.sh"
 ```
 
 That script proves:
