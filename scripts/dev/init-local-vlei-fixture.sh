@@ -10,9 +10,12 @@ set -Eeuo pipefail
 # transfers.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -n "${DEMO_ENV:-}" ]]; then
+  # shellcheck disable=SC1090
+  source "$DEMO_ENV"
+fi
 COMPLY_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-GL1_DIR="$(cd "${COMPLY_DIR}/.." && pwd)"
-ORACLE_DIR="${GL1_DIR}/vlei-oracle"
+ORACLE_DIR="${ORACLE_DIR:-}"
 
 STACK_RUN_ID="${STACK_RUN_ID:-local-gl1-stack}"
 STACK_RUN_DIR="${STACK_RUN_DIR:-${COMPLY_DIR}/runs/${STACK_RUN_ID}}"
@@ -81,6 +84,8 @@ case "$THROUGH" in
     exit 2
     ;;
 esac
+
+: "${ORACLE_DIR:?Source the clean-checkout demo.env to set ORACLE_DIR}"
 
 printf 'Ensuring detached local stack is running from %s\n' "$STACK_ENV"
 RUN_ID="$STACK_RUN_ID" \

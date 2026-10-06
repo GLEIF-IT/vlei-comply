@@ -10,11 +10,10 @@ evidence on chain, and why `wUSDC` blocks or allows a transfer.
 
 For service startup, ports, cleanup, and troubleshooting, use
 [Local Infrastructure Setup](gl1-vlei-local-infra-setup.md). For the fully
-automated proof, use the sibling oracle script:
+automated proof, use the explicitly selected oracle script:
 
 ```sh
-cd ../vlei-oracle
-./scripts/e2e/gl1-wallet-transfer-e2e.sh
+"$ORACLE_DIR/scripts/e2e/gl1-wallet-transfer-e2e.sh"
 ```
 
 ## What You Are Proving
@@ -93,7 +92,7 @@ Use one terminal for the human operator commands. Keep service logs in other
 terminals or inspect the files under `runs/local-gl1-stack/`.
 
 ```sh
-cd /Users/kbull/code/keri/kentbull/gleif-it/gl1/vlei-comply
+cd "$COMPLY_DIR"
 source runs/local-gl1-stack/stack.env
 ```
 

@@ -134,45 +134,23 @@ graph TB
 ### Prerequisites
 
 - [Foundry](https://book.getfoundry.sh/getting-started/installation) (`foundryup` + `forge`)
-- Git
+- Git and authenticated GitHub CLI (`gh auth login`) for repository access
 - A wallet with deployment funds (for testnet/mainnet)
 
-### Quick Setup (Recommended)
+### Clean Checkout Setup
 
 ```bash
-# 1. Extract and enter project
-unzip vlei-comply.zip
+gh repo clone GLEIF-IT/vlei-comply
 cd vlei-comply
-
-# 2. Run the setup script (initializes git + installs dependencies)
-chmod +x setup.sh
 ./setup.sh
-
-# 3. Build and test
 forge build
 forge test
 ```
 
-### Manual Setup
-
-If you prefer to install dependencies manually:
-
-```bash
-# 1. Initialize git (required for forge install)
-git init && git add -A && git commit -m "initial"
-
-# 2. Install dependencies
-forge install foundry-rs/forge-std
-forge install OpenZeppelin/openzeppelin-contracts
-forge install OpenZeppelin/openzeppelin-contracts-upgradeable
-
-# Note: Chainlink CCID policy-management contracts are pre-included
-# in lib/chainlink-ccid/ — no additional install needed.
-
-# 3. Build and test
-forge build
-forge test
-```
+`setup.sh` initializes the exact submodule revisions recorded in this checkout.
+It does not create commits or install moving upstream heads. The equivalent
+manual dependency step is `git submodule update --init --recursive`.
+Chainlink CCID stubs are tracked in `lib/chainlink-ccid/` and need no download.
 
 ### Configuration
 
@@ -277,13 +255,19 @@ anvil
 - **Interact**: Mint, transfer, and test compliance enforcement in real time
 - **Observe**: Every transaction is logged with gas usage, events, and revert reasons
 
+## Local vLEI demo
+
+Use the [clean-checkout infrastructure guide](docs/gl1-vlei-local-infra-setup.md)
+to prepare pinned oracle, KERI demo, schema, and contract dependencies. The demo
+scripts use the generated environment file; no developer workspace is assumed.
+
 ## Dependencies
 
 | Package                              | Source                                            | Included                         |
 |--------------------------------------|---------------------------------------------------|----------------------------------|
-| `forge-std`                          | `foundry-rs/forge-std`                            | via `setup.sh` / `forge install` |
-| `openzeppelin-contracts`             | `OpenZeppelin/openzeppelin-contracts`             | via `setup.sh` / `forge install` |
-| `openzeppelin-contracts-upgradeable` | `OpenZeppelin/openzeppelin-contracts-upgradeable` | via `setup.sh` / `forge install` |
+| `forge-std`                          | `foundry-rs/forge-std`                            | recorded Git submodules / `setup.sh` |
+| `openzeppelin-contracts`             | `OpenZeppelin/openzeppelin-contracts`             | recorded Git submodules / `setup.sh` |
+| `openzeppelin-contracts-upgradeable` | `OpenZeppelin/openzeppelin-contracts-upgradeable` | recorded Git submodules / `setup.sh` |
 | `chainlink-ccid` (policy-management) | Pre-embedded stub                                 | ✅ Included in `lib/`             |
 
 ## License

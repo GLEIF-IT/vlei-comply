@@ -19,6 +19,37 @@ the reusable infrastructure those AIDs need. The later `oracle` command assumes
 the execution guide has created the oracle Hab in `KERI_BASE` and that you know
 the trusted `GEDA_AID`.
 
+## Prepare Clean Checkouts
+
+The oracle repository owns the pinned demo dependency manifest and preparer.
+Start in any empty working directory; no existing KERIpy, schema-tool, or
+contract checkout is required:
+
+```sh
+gh repo clone GLEIF-IT/vlei-oracle
+cd vlei-oracle
+python3.12 scripts/dev/prepare-demo.py
+source .demo/demo.env
+cd "$COMPLY_DIR"
+scripts/dev/start-local-gl1-stack.sh check
+```
+
+Use Python 3.12.6 or newer and authenticate GitHub CLI with `gh auth login`
+using an account with access to the GLEIF repositories. Install Foundry (`forge`,
+`cast`, `anvil`), `git`, `gh`, `jq`, `curl`, and `nc` on `PATH`. The preparer
+clones exact upstream commits into
+an isolated dependency directory, installs the oracle and pinned Python packages,
+and exports `ORACLE_DIR`, `COMPLY_DIR`, `KERIPY_DIR`, `VLEI_SCHEMA_TOOLS_DIR`, and
+explicit Python tool paths. It starts no services or deployments.
+
+The selected commits are owned by the oracle's
+[`demo-dependencies.json`](https://github.com/GLEIF-IT/vlei-oracle/blob/main/scripts/dev/demo-dependencies.json).
+A different origin, dirty checkout, or revision mismatch fails without a reset.
+Choose a new preparer `--directory` for another checkout set. The scripts can
+also accept explicit dependency/tool exports, but never search for neighbors.
+Keep the generated `demo.env` path available in each terminal, or source the
+resulting `stack.env` after startup; it retains the dependency selections.
+
 ## Recommended Startup
 
 From `vlei-comply`:
@@ -49,18 +80,9 @@ controls, CCID registry state, minting, and transfer behavior.
 
 ## Required Tools
 
-The startup script expects:
-
-```sh
-../vlei-oracle/.venv/bin/kli
-../vlei-oracle/.venv/bin/vLEI-server
-../vlei-oracle/.venv/bin/vlei-oracle
-${HOME}/.foundry/bin/anvil
-${HOME}/.foundry/bin/forge
-jq
-curl
-nc
-```
+Source the generated `demo.env` to select `kli`, `vLEI-server`, and
+`vlei-oracle`. Foundry tools, `jq`, `curl`, and `nc` are resolved from `PATH`.
+Run `scripts/dev/start-local-gl1-stack.sh check` before starting services.
 
 Override tool paths when needed:
 
@@ -154,50 +176,51 @@ because KLI issuers need schema OOBIs for credential creation.
 
 ## Manual Multi-Terminal Startup
 
-Use this when you want to see each service boundary directly.
+Use this when you want to see each service boundary directly. Source the
+generated `demo.env` in every terminal before these commands.
 
 Terminal 1, witnesses:
 
 ```sh
-cd /Users/kbull/code/keri/kentbull/core/python/keripy
-/Users/kbull/code/keri/kentbull/gleif-it/gl1/vlei-oracle/.venv/bin/kli witness demo
+cd "$KERIPY_DIR"
+"$KLI" witness demo
 ```
 
 Terminal 2, schema server:
 
 ```sh
-cd /Users/kbull/code/keri/kentbull/gleif-it/gl1/vlei-comply
+cd "$COMPLY_DIR"
 mkdir -p runs/manual/schema/acdc
-cp -R ../../../credentials/schema-tools/vLEI/schema/acdc/. runs/manual/schema/acdc/
-cp ../vlei-oracle/schemas/acdc/gl1-ethereum-wallet-attestation.json runs/manual/schema/acdc/
+cp -R "$VLEI_SCHEMA_TOOLS_DIR/schema/acdc/." runs/manual/schema/acdc/
+cp "$ORACLE_DIR/schemas/acdc/gl1-ethereum-wallet-attestation.json" runs/manual/schema/acdc/
 
-../vlei-oracle/.venv/bin/vLEI-server \
+"$VLEI_SERVER" \
   -p 7723 \
   -s runs/manual/schema/acdc \
-  -c ../../../credentials/schema-tools/vLEI/samples/acdc \
-  -o ../../../credentials/schema-tools/vLEI/samples/oobis
+  -c "$VLEI_SCHEMA_TOOLS_DIR/samples/acdc" \
+  -o "$VLEI_SCHEMA_TOOLS_DIR/samples/oobis"
 ```
 
 Terminal 3, Anvil:
 
 ```sh
-${HOME}/.foundry/bin/anvil --host 127.0.0.1 --port 8545 --chain-id 31337
+anvil --host 127.0.0.1 --port 8545 --chain-id 31337
 ```
 
 Terminal 4, deploy contracts:
 
 ```sh
-cd /Users/kbull/code/keri/kentbull/gleif-it/gl1/vlei-comply
+cd "$COMPLY_DIR"
 export RPC_URL=http://127.0.0.1:8545
 export ADMIN_PK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
-PRIVATE_KEY="$ADMIN_PK" ${HOME}/.foundry/bin/forge script script/DeployAll.s.sol \
+PRIVATE_KEY="$ADMIN_PK" forge script script/DeployAll.s.sol \
   --rpc-url "$RPC_URL" \
   --broadcast \
   --slow \
   -vvvv | tee runs/manual/deploy-all.log
 
-../vlei-oracle/.venv/bin/vlei-oracle parse-deploy-log \
+"$VLEI_ORACLE" parse-deploy-log \
   --log runs/manual/deploy-all.log \
   --out runs/manual/contracts.json
 ```
@@ -205,7 +228,7 @@ PRIVATE_KEY="$ADMIN_PK" ${HOME}/.foundry/bin/forge script script/DeployAll.s.sol
 Terminal 5, oracle service, after the oracle Hab and GEDA AID exist:
 
 ```sh
-../vlei-oracle/.venv/bin/vlei-oracle server start \
+"$VLEI_ORACLE" server start \
   --name oracle \
   --base "$KERI_BASE" \
   --alias oracle \
