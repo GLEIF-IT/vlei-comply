@@ -17,18 +17,16 @@
     "identityManager": "IdentityRegistry.sol",
     "asset": "USDC.sol",
     "adminControls": "AdminControls.sol",
-    "attestationVerifier": "VLEILegalEntityVerifier.sol",
+    "attestationVerifier": "VLEIEndorsementChecker.sol",
     "oracleRegistry": "VLEIOracleRegistry.sol"
   },
   "policies": [
     {
-      "name": "VLEILegalEntityKYCPolicy",
-      "description": "First-pass vLEI Legal Entity KYC gate requiring valid originator and beneficiary Legal Entity records",
-      "contractName": "VLEILegalEntityKYCPolicy",
+      "name": "VLEIWalletAssociationPolicy",
+      "description": "Require current exact-wallet endorsements for originator and beneficiary customers",
+      "contractName": "VLEIWalletAssociationPolicy",
       "constructorArgs": [
         1,
-        "%%IDENTITY_REGISTRY%%",
-        "%%ATTESTATION_VERIFIER%%",
         "%%ATTESTATION_VERIFIER%%"
       ]
     }

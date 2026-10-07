@@ -9,7 +9,7 @@
 ## Policy
 
 - `PolicyManager`: policy registry, identity enrichment orchestrator, and aggregate policy evaluator.
-- `VLEILegalEntityKYCPolicy`: policy requiring valid originator and beneficiary Legal Entity status.
+- `VLEIWalletAssociationPolicy`: policy requiring current exact-wallet endorsements for both customer roles.
 - `AllowAllPolicyEngine`: dev-only Chainlink policy engine shim for Anvil and tests.
 
 ## Identity
@@ -23,7 +23,7 @@
 ## Attestation And Oracle
 
 - `VLEIOracleRegistry`: authorized current wallet/entity/association registry.
-- `VLEILegalEntityVerifier`: fail-closed verifier that reads `VLEIOracleRegistry`.
+- `VLEIEndorsementChecker`: fail-closed endorsement checker that reads `IVLEIOracleRegistry`.
 
 ## Interfaces
 
@@ -31,7 +31,7 @@
 - `IPolicyManager`: wrapper-to-manager policy orchestration interface.
 - `IGL1IdentityRegistry`: GL1 policy identity enrichment interface.
 - `IAttestationServiceVerifier`: generic party verifier interface.
-- `IVLEILegalEntityVerifier`: vLEI-specific consumer extension.
+- `IVLEIEndorsementChecker`: vLEI-specific consumer extension.
 - `IVLEIOracleRegistry`: current wallet endorsement read interface.
 - `IAddressListVerifier`: simple list verifier interface retained for generated compatibility.
 - `identity/interfaces/*`: Chainlink CCID identity, credential, issuer, and requirement interfaces.

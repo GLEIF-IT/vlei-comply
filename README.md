@@ -15,7 +15,7 @@ Maintainer documentation:
 | Document                                                                  | Purpose                                                              |
 |---------------------------------------------------------------------------|----------------------------------------------------------------------|
 | [Architecture](docs/architecture.md)                                      | Contract responsibilities and transfer evaluation flow               |
-| [Identity and vLEI Model](docs/identity-and-vlei-model.md)                | Chainlink CCID, AID hashing, wallet mapping, and AID-only flow       |
+| [Identity and vLEI Model](docs/identity-and-vlei-model.md)                | Identity hints, exact-wallet endorsements, and AID-only rejection       |
 | [Oracle Registry](docs/oracle-registry.md)                                | Wallet endorsement fields, authorization, and lifecycle     |
 | [GL1 USDC CLI Execution Guide](docs/gl1-vlei-cli-execution-guide.md)      | Human-operated local originator-to-beneficiary workflow              |
 | [GL1 USDC Local Infrastructure Setup](docs/gl1-vlei-local-infra-setup.md) | Local service startup, ports, generated artifacts, and cleanup       |
@@ -46,7 +46,7 @@ graph TB
     end
     
     subgraph ComplianceRulesEngine["Compliance Rules Engine"]
-        Policy_vLEI["VLEILegalEntityKYCPolicy policy"]
+        Policy_vLEI["VLEIWalletAssociationPolicy policy"]
     end
     
     subgraph ExternalServices["Oracle Evidence"]
@@ -81,7 +81,7 @@ graph TB
 | **Policy Manager**          | **Orchestration Layer**: Performs dynamic identity enrichment on all parties before policy evaluation |
 | **Identity Registry**       | **Single Source of Truth**: Provides enriched identity data (KYC, jurisdiction, credentials)          |
 | **Compliance Rules Engine** | Evaluates policies against the **fully enriched** `TransactionEnvelope`                               |
-| **Oracle Evidence**         | Stores compact vLEI Legal Entity status posted by an admin/oracle service                             |
+| **Oracle Evidence**         | Stores the oracle’s exact wallet/entity/association result                             |
 | **Administrative Controls** | Global system management, role-based access, and emergency pause                                      |
 
 ### Dynamic Identity Enrichment Flow
@@ -90,11 +90,11 @@ graph TB
 2. **Orchestration**: The `PolicyManager` receives the envelope and iterates through every party.
 3. **Enrichment**: For each party, the `PolicyManager` queries the `IGL1IdentityRegistry` for all configured identity fields (e.g., `kycHash`, `accountRef`).
 4. **Evaluation**: Policies receive the **enriched** envelope, meaning they can immediately check `party.kycHash` or `party.jurisdiction` without making additional external calls.
-5. **Attestation**: The vLEI policy passes enriched customer `PartyPacket` records to `VLEILegalEntityVerifier`, which checks fail-closed Legal Entity status in `VLEIOracleRegistry`.
+5. **Attestation**: The vLEI policy passes enriched customer `PartyPacket` records to `VLEIEndorsementChecker`, which checks the current exact-wallet endorsement in `VLEIOracleRegistry`.
 
 ## Policies
 
-- **VLEILegalEntityKYCPolicy**: policy requiring both originator and beneficiary customer parties to have valid vLEI Legal Entity oracle records.
+- **VLEIWalletAssociationPolicy**: policy requiring both originator and beneficiary customer parties to have current exact-wallet endorsements.
 
 ## Project Structure
 
@@ -105,7 +105,7 @@ graph TB
 │   ├── wrappers/
 │   │   └── wUSDC.sol
 │   ├── policies/
-│   │   └── VLEILegalEntityKYCPolicy.sol
+│   │   └── VLEIWalletAssociationPolicy.sol
 │   ├── policy/
 │   │   └── PolicyManager.sol
 │   ├── admin/
@@ -114,7 +114,7 @@ graph TB
 │   │   └── [Framework contracts]
 │   ├── attestation/
 │   │   ├── VLEIOracleRegistry.sol
-│   │   └── VLEILegalEntityVerifier.sol
+│   │   └── VLEIEndorsementChecker.sol
 ├── docs/
 │   └── [Maintainer documentation]
 │   └── interfaces/

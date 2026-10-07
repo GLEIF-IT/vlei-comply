@@ -20,12 +20,12 @@ import "../src/identity/interfaces/ICredentialRequirements.sol";
 
 // Attestation Services
 import "../src/attestation/VLEIOracleRegistry.sol";
-import "../src/attestation/VLEILegalEntityVerifier.sol";
+import "../src/attestation/VLEIEndorsementChecker.sol";
 
 // Generated contracts
 import "../src/assets/USDC.sol";
 import "../src/wrappers/wUSDC.sol";
-import "../src/policies/VLEILegalEntityKYCPolicy.sol";
+import "../src/policies/VLEIWalletAssociationPolicy.sol";
 
 /**
  * @title DeployAll
@@ -171,21 +171,16 @@ contract DeployAll is Script {
         VLEIOracleRegistry oracleRegistry = new VLEIOracleRegistry(address(adminControls));
         console.log("VLEIOracleRegistry deployed to:", address(oracleRegistry));
 
-        VLEILegalEntityVerifier vleiVerifier = new VLEILegalEntityVerifier(address(oracleRegistry));
-        console.log("VLEILegalEntityVerifier deployed to:", address(vleiVerifier));
+        VLEIEndorsementChecker endorsementChecker = new VLEIEndorsementChecker(address(oracleRegistry));
+        console.log("VLEIEndorsementChecker deployed to:", address(endorsementChecker));
         
 
         // ========================================
         // 5. Deploy Generated Policies
         // ========================================
-        // Deploy VLEILegalEntityKYCPolicy
-        VLEILegalEntityKYCPolicy vleiPolicy = new VLEILegalEntityKYCPolicy(
-            1,
-            address(identityRegistry),
-            address(vleiVerifier),
-            address(vleiVerifier)
-        );
-        console.log("VLEILegalEntityKYCPolicy deployed to:", address(vleiPolicy));
+        // Deploy VLEIWalletAssociationPolicy
+        VLEIWalletAssociationPolicy vleiPolicy = new VLEIWalletAssociationPolicy(1, address(endorsementChecker));
+        console.log("VLEIWalletAssociationPolicy deployed to:", address(vleiPolicy));
         
         // Register policies with PolicyManager
         policyManager.addPolicy(address(vleiPolicy));
@@ -232,7 +227,7 @@ contract DeployAll is Script {
         console.log("PolicyManager:", address(policyManager));
 
         console.log("VLEIOracleRegistry:", address(oracleRegistry));
-        console.log("VLEILegalEntityVerifier:", address(vleiVerifier));
+        console.log("VLEIEndorsementChecker:", address(endorsementChecker));
         console.log("Asset (USDC):", address(asset));
         console.log("Wrapper (wUSDC):", address(wrapper));
         console.log("========================================");
