@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import "../interfaces/IPolicy.sol";
 import "../interfaces/IVLEILegalEntityVerifier.sol";
-import "./VLEIOracleRegistry.sol";
+import "../interfaces/IVLEIOracleRegistry.sol";
 
 /**
  * @title VLEILegalEntityVerifier
@@ -15,13 +15,13 @@ import "./VLEIOracleRegistry.sol";
  */
 contract VLEILegalEntityVerifier is IVLEILegalEntityVerifier {
     /// @notice Oracle/admin-posted evidence registry used for Legal Entity checks.
-    VLEIOracleRegistry public immutable oracleRegistry;
+    IVLEIOracleRegistry public immutable oracleRegistry;
 
     /// @notice Creates the verifier.
     /// @param _oracleRegistry Address of the `VLEIOracleRegistry` instance.
     constructor(address _oracleRegistry) {
         require(_oracleRegistry != address(0), "Invalid oracle registry");
-        oracleRegistry = VLEIOracleRegistry(_oracleRegistry);
+        oracleRegistry = IVLEIOracleRegistry(_oracleRegistry);
     }
 
     /// @notice Validates whether a party has valid vLEI Legal Entity evidence.
@@ -43,10 +43,15 @@ contract VLEILegalEntityVerifier is IVLEILegalEntityVerifier {
     /// @param party Enriched party whose identity reference is checked.
     /// @return True when the oracle registry accepts the party's identity reference.
     function _validateLegalEntity(IPolicy.PartyPacket calldata party) internal view returns (bool) {
-        if (party.identityRef == bytes32(0)) {
+        bytes32 identityRef = _identityRef(party);
+        if (identityRef == bytes32(0)) {
             return false;
         }
 
-        return oracleRegistry.isLegalEntityValid(party.identityRef);
+        return oracleRegistry.isLegalEntityValid(identityRef);
+    }
+    /// @notice Select the party input before querying the registry.
+    function _identityRef(IPolicy.PartyPacket calldata party) internal pure returns (bytes32) {
+        return party.identityRef;
     }
 }
