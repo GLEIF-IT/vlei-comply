@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 /**
  * @title ITrustedIssuerRegistry
  * @notice Interface for managing trusted issuer identifiers.
- * @dev This registry is a Chainlink-style compatibility component. The first-pass vLEI oracle
+ * @dev This registry is a Chainlink-style compatibility component. The vLEI oracle
  * path does not currently consult trusted issuer state for transfer pass/fail decisions.
  */
 interface ITrustedIssuerRegistry {

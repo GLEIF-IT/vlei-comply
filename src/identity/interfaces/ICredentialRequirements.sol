@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
  * @title ICredentialRequirements
  * @notice Interface for configuring credential requirements and credential sources.
  * @dev This Chainlink-style component can express "N of M" credential requirements for
- * a validator. The first-pass vLEI verifier does not depend on it for pass/fail decisions.
+ * a validator. The vLEI verifier does not depend on it for pass/fail decisions.
  */
 interface ICredentialRequirements {
   /// @notice Reverts when adding a duplicate requirement id.

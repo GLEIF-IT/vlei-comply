@@ -68,7 +68,7 @@ interface IPolicy {
         uint256 amount;
         /// @notice Timestamp supplied by the wrapper, normally `block.timestamp`.
         uint256 timestamp;
-        /// @notice Optional payload for IVMS101, credential SAIDs, operation intent, or future constraints.
+        /// @notice Optional payload for IVMS101, credential SAIDs, operation intent, or policy-specific constraints.
         bytes extraData;
         /// @notice Dynamic list of transaction parties.
         PartyPacket[] parties;
