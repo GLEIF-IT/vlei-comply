@@ -46,7 +46,7 @@ AID allowlist, LEI comparison, proof hash, or credential expiry in this registry
 
 `VLEIWalletAssociationPolicy` requires matching current endorsements for both
 customer wallets. Register each wallet's identity hint in `IdentityRegistry`,
-allow the caller through `AdminControls`, mint local test tokens, and approve
+mint local test tokens and approve
 `wUSDC` before calling `transfer(address,uint256)`. An unendorsed second wallet,
 a withdrawn result, or a zero-wallet customer fails. The legacy signature POST
 and AID-record fixture are incompatible with this contract interface.

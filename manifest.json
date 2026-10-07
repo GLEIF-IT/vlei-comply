@@ -76,11 +76,6 @@
       "description": "Attestation verifier interface"
     },
     {
-      "path": "src/interfaces/IAddressListVerifier.sol",
-      "type": "interface",
-      "description": "Address list verifier interface"
-    },
-    {
       "path": "src/interfaces/IVLEIEndorsementChecker.sol",
       "type": "interface",
       "description": "vLEI Legal Entity verifier interface"

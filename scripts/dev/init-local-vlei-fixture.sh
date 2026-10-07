@@ -5,7 +5,7 @@ set -Eeuo pipefail
 # smart-contract guide.
 #
 # This script intentionally hides the repetitive KLI issuance mechanics so the
-# operator can focus on the GL1 integration increment: admin allowlists, CCID
+# operator can focus on the GL1 integration increment: CCID
 # registry state, oracle-posted evidence, minting, approvals, and wUSDC
 # transfers.
 

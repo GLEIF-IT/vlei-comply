@@ -76,8 +76,6 @@ contract VLEIOracleComplianceTest is Test {
         vm.prank(alice);
         asset.approve(address(wrapper), type(uint256).max);
 
-        admin.setAllowed(alice, true);
-        admin.setAllowed(bob, true);
 
         aliceCcid = keccak256(bytes(ALICE_AID));
         bobCcid = keccak256(bytes(BOB_AID));
@@ -190,6 +188,58 @@ contract VLEIOracleComplianceTest is Test {
         (status, reason) = policy.evaluate(envelope);
         assertEq(uint256(status), uint256(IPolicy.PolicyStatus.Fail));
         assertEq(abi.decode(reason, (uint8)), 10);
+    }
+
+    function testOwnerCanUseEveryTransferEntryPointWithoutWalletAdmission() public {
+        _registerAndEndorse();
+        vm.prank(alice);
+        assertTrue(wrapper.transfer(bob, UNIT));
+        vm.prank(alice);
+        assertTrue(wrapper.transferFrom(alice, bob, UNIT));
+        vm.prank(alice);
+        assertTrue(wrapper.transferWithBeneficiary(bob, UNIT, bytes32(0), bytes32(0)));
+        vm.prank(alice);
+        assertTrue(wrapper.transferFromWithBeneficiary(alice, bob, UNIT, bytes32(0), bytes32(0)));
+        assertEq(asset.balanceOf(bob), 4 * UNIT);
+    }
+
+    function testWrapperApprovalDoesNotAuthorizeAnotherCallerToSpend() public {
+        _registerAndEndorse();
+        address attacker = address(0xBAD);
+        vm.prank(attacker);
+        vm.expectRevert("Caller must be token owner");
+        wrapper.transferFrom(alice, bob, UNIT);
+        vm.prank(attacker);
+        vm.expectRevert("Caller must be token owner");
+        wrapper.transferFromWithBeneficiary(alice, bob, UNIT, bytes32(0), bytes32(0));
+        assertEq(asset.balanceOf(alice), 1_000 * UNIT);
+        assertEq(asset.balanceOf(bob), 0);
+    }
+
+    function testEmergencyPauseStillProtectsEveryTransferEntryPoint() public {
+        _registerAndEndorse();
+        admin.pause();
+        vm.prank(alice);
+        vm.expectRevert("System paused");
+        wrapper.transfer(bob, UNIT);
+        vm.prank(alice);
+        vm.expectRevert("System paused");
+        wrapper.transferFrom(alice, bob, UNIT);
+        vm.prank(alice);
+        vm.expectRevert("System paused");
+        wrapper.transferWithBeneficiary(bob, UNIT, bytes32(0), bytes32(0));
+        vm.prank(alice);
+        vm.expectRevert("System paused");
+        wrapper.transferFromWithBeneficiary(alice, bob, UNIT, bytes32(0), bytes32(0));
+        admin.unpause();
+        assertTrue(_transfer());
+    }
+
+    function testEmergencyPauseRemainsRoleProtected() public {
+        vm.prank(alice);
+        vm.expectRevert("Not emergency role");
+        admin.pause();
+        assertFalse(admin.isPaused());
     }
 
 }
