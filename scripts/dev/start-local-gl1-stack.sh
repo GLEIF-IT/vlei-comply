@@ -5,7 +5,7 @@ set -Eeuo pipefail
 #
 # This is intentionally not an e2e runner. It starts the long-lived services
 # and deploys contracts, then leaves KERI identity creation, credential
-# presentation, allowlisting, and transfer checks to the operator.
+# presentation and transfer checks to the operator.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Dependencies are selected by the clean-checkout setup or explicit exports.

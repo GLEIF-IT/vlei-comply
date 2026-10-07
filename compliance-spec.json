@@ -38,7 +38,6 @@
   "adminCapabilities": {
     "globalPause": true,
     "wrapperPause": true,
-    "allowlistControl": true,
     "policyFreeze": false
   },
   "identityFeatures": [

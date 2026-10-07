@@ -24,7 +24,7 @@ contract wUSDC {
     /// @notice Policy orchestration contract used for envelope enrichment and evaluation.
     PolicyManager public immutable policyManager;
 
-    /// @notice Shared pause and wallet allowlist controller.
+    /// @notice Shared role and emergency pause controller.
     AdminControls public immutable adminControls;
     
     // --- Pending Transaction Queue ---
@@ -97,15 +97,18 @@ contract wUSDC {
         adminControls = AdminControls(_adminControls);
     }
     
-    /// @notice Allows calls only while unpaused and from a wrapper-allowlisted caller.
-    /// @dev This checks `msg.sender`, so relayed or delegated calling patterns need the caller
-    /// itself allowlisted even when `from` is a different token owner.
+    /// @notice Allows calls while the shared emergency pause is inactive.
     modifier whenNotPaused() {
         require(!adminControls.isPaused(), "System paused");
-        require(adminControls.isAllowed(msg.sender), "Sender not allowed");
         _;
     }
     
+    /// @notice The token owner's wrapper approval does not authorize arbitrary callers.
+    modifier onlyTokenOwner(address from) {
+        require(msg.sender == from, "Caller must be token owner");
+        _;
+    }
+
     /// @notice Allows calls only by compliance administrators.
     /// @dev Used for pending transaction resolution.
     modifier onlyAdmin() {
@@ -200,13 +203,13 @@ contract wUSDC {
     /**
      * @notice Transfers approved underlying tokens from `from` to `to` after policy success.
      * @dev Builds direct originator and beneficiary customer parties using wallet addresses. The
-     * wrapper caller must be wallet-allowlisted and have ERC-20 allowance from `from`.
+     * caller must be `from`, which must approve the wrapper on the underlying token.
      * @param from Source wallet.
      * @param to Destination wallet.
      * @param amount Token amount in underlying asset base units.
      * @return True when the underlying ERC-20 transfer succeeds; false on Fail/Pending policy status.
      */
-    function transferFrom(address from, address to, uint256 amount) external whenNotPaused returns (bool) {
+    function transferFrom(address from, address to, uint256 amount) external whenNotPaused onlyTokenOwner(from) returns (bool) {
         IPolicy.PartyPacket[] memory parties = new IPolicy.PartyPacket[](2);
         
         parties[0] = IPolicy.PartyPacket({
@@ -424,8 +427,8 @@ contract wUSDC {
     
     /**
      * @notice Transfers from `from` while supplying abstract originator/beneficiary ids.
-     * @dev Mirrors `transferWithBeneficiary` for ERC-20 allowance flows. The wrapper caller must
-     * be wallet-allowlisted and have allowance from `from`.
+     * @dev Mirrors `transferWithBeneficiary` for ERC-20 allowance flows. The caller must be `from`,
+     * which must approve the wrapper on the underlying token.
      * @param from Sender address, which may be a VASP wallet.
      * @param to Recipient address, which may be a VASP wallet.
      * @param amount Token amount in underlying asset base units.
@@ -439,7 +442,7 @@ contract wUSDC {
         uint256 amount,
         bytes32 originatorId,
         bytes32 beneficiaryId
-    ) external whenNotPaused returns (bool) {
+    ) external whenNotPaused onlyTokenOwner(from) returns (bool) {
         // Dynamically build parties based on which IDs are provided
         bool hasOriginator = originatorId != bytes32(0);
         bool hasBeneficiary = beneficiaryId != bytes32(0);

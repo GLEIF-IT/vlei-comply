@@ -80,12 +80,6 @@ contract DeployAll is Script {
         console.log("AdminControls deployed to:", address(adminControls));
 
         
-        // Initial Allowlist Seeding
-        console.log("Seeding allowlist...");
-        adminControls.setAllowed(deployer, true);
-        console.log("Allowed deployer:", deployer);
-        
-        
         // ========================================
         // 2. Deploy CHAINLINK_CCI Framework (Proxy Deployment for Testing)
         // ========================================

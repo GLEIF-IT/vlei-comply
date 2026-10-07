@@ -4,7 +4,7 @@
 
 - `USDC`: ERC-20 asset with owner minting, holder burn, and global pause enforcement.
 - `wUSDC`: wrapper-style transfer surface that builds policy envelopes and executes transfers only after compliance passes.
-- `AdminControls`: role-based administrative contract for compliance admins, emergency pause, and wallet allowlist.
+- `AdminControls`: role-based administrative contract for compliance admins and emergency pause.
 
 ## Policy
 
@@ -33,5 +33,4 @@
 - `IAttestationServiceVerifier`: generic party verifier interface.
 - `IVLEIEndorsementChecker`: vLEI-specific consumer extension.
 - `IVLEIOracleRegistry`: current wallet endorsement read interface.
-- `IAddressListVerifier`: simple list verifier interface retained for generated compatibility.
 - `identity/interfaces/*`: Chainlink CCID identity, credential, issuer, and requirement interfaces.

@@ -40,9 +40,10 @@ The wallet approves `wUSDC` on the USDC contract before settlement. During settl
 
 ## Evaluation Semantics
 
-1. `wUSDC.transfer*` creates originator and beneficiary `PartyPacket` records.
-2. `PolicyManager.runPolicies` resolves `identityRef` from wallet addresses when possible.
-3. If a party already has `identityRef`, `PolicyManager` prefers ID-based enrichment for AID-only flows.
-4. `VLEIWalletAssociationPolicy` finds the `OriginatorCustomer` and `BeneficiaryCustomer` parties.
-5. `VLEIEndorsementChecker` requires nonzero wallet and entity inputs and queries their exact endorsement.
-6. A missing, withdrawn, or mismatched endorsement fails. Zero-wallet customer parties fail even with an identity hint.
+1. The owner initiates `wUSDC.transfer*` after approving the wrapper. There is no global wallet whitelist. Explicit `from` entry points require the caller to be that owner.
+2. `wUSDC.transfer*` creates originator and beneficiary `PartyPacket` records.
+3. `PolicyManager.runPolicies` resolves `identityRef` from wallet addresses when possible.
+4. If a party already has `identityRef`, `PolicyManager` prefers ID-based enrichment for AID-only flows.
+5. `VLEIWalletAssociationPolicy` finds the `OriginatorCustomer` and `BeneficiaryCustomer` parties.
+6. `VLEIEndorsementChecker` requires nonzero wallet and entity inputs and queries their exact endorsement.
+7. A missing, withdrawn, or mismatched endorsement fails. Zero-wallet customer parties fail even with an identity hint.

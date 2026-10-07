@@ -98,8 +98,6 @@ contract ComplianceTest is Test {
         asset.approve(address(wrapper), 1000 * UNIT);
         
 
-        admin.setAllowed(alice, true);
-        admin.setAllowed(bob, true);
     }
 
     // Event definitions for expectEmit matching
