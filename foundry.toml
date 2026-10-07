@@ -6,6 +6,7 @@ solc = "0.8.24"
 via_ir = true
 optimizer = true
 optimizer_runs = 200
+fs_permissions = [{ access = "read", path = "./abi" }]
 
 remappings = [
     "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",

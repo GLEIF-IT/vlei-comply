@@ -22,7 +22,7 @@
 
 ## Attestation And Oracle
 
-- `VLEIOracleRegistry`: oracle/admin-posted Legal Entity evidence registry.
+- `VLEIOracleRegistry`: authorized current wallet/entity/association registry.
 - `VLEILegalEntityVerifier`: fail-closed verifier that reads `VLEIOracleRegistry`.
 
 ## Interfaces
@@ -31,6 +31,7 @@
 - `IPolicyManager`: wrapper-to-manager policy orchestration interface.
 - `IGL1IdentityRegistry`: GL1 policy identity enrichment interface.
 - `IAttestationServiceVerifier`: generic party verifier interface.
-- `IVLEILegalEntityVerifier`: vLEI-specific verifier extension.
+- `IVLEILegalEntityVerifier`: vLEI-specific consumer extension.
+- `IVLEIOracleRegistry`: current wallet endorsement read interface.
 - `IAddressListVerifier`: simple list verifier interface retained for generated compatibility.
 - `identity/interfaces/*`: Chainlink CCID identity, credential, issuer, and requirement interfaces.

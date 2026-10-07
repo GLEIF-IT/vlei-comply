@@ -5,14 +5,8 @@ import "../interfaces/IPolicy.sol";
 import "../interfaces/IVLEILegalEntityVerifier.sol";
 import "../interfaces/IVLEIOracleRegistry.sol";
 
-/**
- * @title VLEILegalEntityVerifier
- * @notice Verifies vLEI Legal Entity status against an on-chain oracle registry.
- * @dev This verifier expects `party.identityRef` to already be enriched to the AID-derived
- * Chainlink CCID. It performs no wallet lookup itself and fails closed when the identity ref is zero.
- * @dev The verifier validates only Legal Entity AID, LEI match, ACDC presence,
- * allowlist, expiry, and revocation. OOR and authority-specific checks are not performed.
- */
+/// @notice Fail-closed consumer of the oracle registry read boundary.
+/// @dev This consumer supplies no association-bound party input.
 contract VLEILegalEntityVerifier is IVLEILegalEntityVerifier {
     /// @notice Oracle/admin-posted evidence registry used for Legal Entity checks.
     IVLEIOracleRegistry public immutable oracleRegistry;
@@ -24,34 +18,23 @@ contract VLEILegalEntityVerifier is IVLEILegalEntityVerifier {
         oracleRegistry = IVLEIOracleRegistry(_oracleRegistry);
     }
 
-    /// @notice Validates whether a party has valid vLEI Legal Entity evidence.
+    /// @notice Reject unbound party input.
     /// @dev Implements the generic verifier interface used by generated policies.
     /// @param party Enriched party whose `identityRef` should be an AID-derived CCID.
-    /// @return True when the party's AID CCID has a valid oracle registry record.
+    /// @return False for unbound input.
     function validate(IPolicy.PartyPacket calldata party) external view override returns (bool) {
         return _validateLegalEntity(party);
     }
 
-    /// @notice Validates Legal Entity status for a party.
+    /// @notice Reject unbound Legal Entity input.
     /// @param party Enriched party whose `identityRef` should be an AID-derived CCID.
-    /// @return True when the party's AID CCID has a valid oracle registry record.
+    /// @return False for unbound input.
     function validateLegalEntity(IPolicy.PartyPacket calldata party) external view override returns (bool) {
         return _validateLegalEntity(party);
     }
 
-    /// @notice Shared validation implementation for the generic and vLEI-specific entry points.
-    /// @param party Enriched party whose identity reference is checked.
-    /// @return True when the oracle registry accepts the party's identity reference.
-    function _validateLegalEntity(IPolicy.PartyPacket calldata party) internal view returns (bool) {
-        bytes32 identityRef = _identityRef(party);
-        if (identityRef == bytes32(0)) {
-            return false;
-        }
-
-        return oracleRegistry.isLegalEntityValid(identityRef);
-    }
-    /// @notice Select the party input before querying the registry.
-    function _identityRef(IPolicy.PartyPacket calldata party) internal pure returns (bytes32) {
-        return party.identityRef;
+    /// @notice Fail closed without an association-bound party input.
+    function _validateLegalEntity(IPolicy.PartyPacket calldata) internal pure returns (bool) {
+        return false;
     }
 }
