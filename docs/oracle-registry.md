@@ -1,52 +1,40 @@
-# vLEI Oracle Registry
+# Wallet association endorsements
 
-`VLEIOracleRegistry` is an on-chain evidence registry. It is not a live GLEIF, Sally, or KERI verifier. A trusted off-chain oracle service validates the vLEI credential chain and posts compact status that Solidity can check deterministically.
+`VLEIOracleRegistry` records the authorized oracle's result for one wallet on the
+deployed chain. The oracle verifies the KERI/vLEI chain, current credential status,
+embedded EOA proof, and account type off-chain. Solidity consumes an endorsement;
+it does not verify vLEI evidence.
 
-## Legal Entity Record
+The wallet keys a current record containing only `identityRef` (the Keccak-256
+hash of the canonical entity AID) and the exact `associationSaid` string. Presence
+represents acceptance. No LEI, proof hash, expiry, timestamp, or per-record writer
+is stored.
 
-Each record is keyed by `aidCcid`.
+A `COMPLIANCE_ADMIN_ROLE` holder can call:
 
-| Field                      | Meaning                                                                                          |
-|----------------------------|--------------------------------------------------------------------------------------------------|
-| `aid`                      | Canonical AID string used to compute `aidCcid`. Stored for inspection and event-driven indexing. |
-| `entityLei`                | LEI expected for the Legal Entity represented by the AID.                                        |
-| `entityLeiHash`            | `keccak256(bytes(entityLei))`.                                                                   |
-| `credentialSubjectLeiHash` | Hash of the LEI asserted inside the LE ACDC credential subject.                                  |
-| `acdcSaidHash`             | Hash/reference for the LE ACDC SAID validated off-chain.                                         |
-| `proofHash`                | Optional commitment to the oracle's proof bundle or evidence report.                             |
-| `issuedAt`                 | Oracle-posted credential/evidence issue time. Defaults to block time when zero.                  |
-| `expiresAt`                | Expiration cutoff. Zero means no expiration in this prototype.                                   |
-| `allowed`                  | AID-level allowlist gate controlled by compliance admin.                                         |
-| `revoked`                  | Revocation flag for the LE ACDC status.                                                          |
+- `publishEndorsement(address,bytes32,string)` to publish or replace a binding;
+- `withdrawEndorsement(address,string)` to remove that exact association;
+- `getEndorsement(address)` to read the current identity and SAID;
+- `isEndorsed(address,bytes32)` to check the current wallet/entity binding.
 
-## Entity LEI vs Credential Subject LEI
+A late withdrawal of an older SAID cannot remove its replacement. Removing a
+writer's role prevents future updates; it does not erase prior results. An
+unrevoked binding does not expire as time advances. During oracle outages, stale
+endorsements may remain usable without a separate governance freshness rule.
 
-The registry stores both `entityLeiHash` and `credentialSubjectLeiHash` to make the invariant explicit:
+The legacy AID-record API is removed. Use fresh contracts. The policy consumer
+currently rejects parties without an association-bound input; a wallet-to-AID
+mapping alone supplies no authority.
 
-```text
-entityLeiHash == credentialSubjectLeiHash
+## ABI and encoding
+
+The registry ABI and publication vector are in `abi/`. Reproduce the ABI with:
+
+```sh
+forge build
+forge inspect VLEIOracleRegistry abi --json > abi/VLEIOracleRegistry.json
 ```
 
-The entity LEI is the LEI this on-chain record expects for the AID. The credential subject LEI is the LEI extracted from the LE ACDC by the off-chain oracle. A mismatch means the credential does not prove the entity claim being used for compliance.
-
-## Validation Results
-
-`validateLeCcid(aidCcid)` returns the first fail-closed validation result:
-
-1. missing record,
-2. AID not allowlisted,
-3. missing entity LEI,
-4. missing credential subject LEI,
-5. LEI mismatch,
-6. missing ACDC SAID,
-7. expired credential,
-8. revoked credential.
-
-`isLegalEntityValid(aidCcid)` returns true only when the validation result is `Valid`.
-
-## Production Notes
-
-The local integration uses `vlei-oracle` as the off-chain verifier/poster for
-KERI/vLEI material. Production deployments should harden that service's
-governance, key management, observability, evidence retention, and deployment
-operations while keeping the on-chain registry compact and fail-closed.
+The vector uses the protocol's public test association. `associationSaid` is
+encoded directly as a Solidity string; `identityRef` is bytes32, and the wallet
+is an address. Hashing the identity is representation, not evidence verification.

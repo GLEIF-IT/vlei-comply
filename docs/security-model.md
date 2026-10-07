@@ -8,7 +8,7 @@ This repository is a production-preparation prototype. It demonstrates the contr
 |---|---|
 | Wallet access | `AdminControls` allowlist gates wrapper callers. |
 | Identity mapping | Chainlink `IdentityRegistry` maps wallet to `aidCcid`. |
-| vLEI evidence | `VLEIOracleRegistry` stores admin/oracle-posted status. |
+| Wallet endorsement | `VLEIOracleRegistry` stores authorized wallet/entity/association bindings. |
 | Policy evaluation | `PolicyManager` evaluates all configured policies with fail priority. |
 | Direct token transfer | `USDC` only checks global pause. |
 
@@ -18,23 +18,18 @@ This repository is a production-preparation prototype. It demonstrates the contr
 
 - manage wallet allowlist,
 - add/remove/freeze policy set,
-- post and update vLEI oracle records,
-- allowlist or revoke AID-level status.
+- publish, replace, and withdraw exact wallet associations.
 
 `AdminControls.EMERGENCY_ROLE` can pause and unpause the system.
 
 ## Fail-Closed Behavior
 
-Legal Entity verification fails when:
-
-- no Chainlink CCID resolves for a wallet-based party,
-- no `identityRef` is present for an AID-only party,
-- no oracle record exists,
-- the AID is not allowlisted,
-- LEI evidence is missing or mismatched,
-- ACDC evidence is missing,
-- the record is expired,
-- the record is revoked.
+The registry accepts only nonzero wallets and identities and a nonempty association
+reference. A policy must bind the supplied wallet and entity to the current
+endorsement. A mapping alone is insufficient; the current consumer rejects
+unbound parties. Withdrawal deletes the result, and late withdrawal cannot clear
+a replacement. Time alone does not expire a result. Oracle outages can leave
+stale results usable until the oracle can withdraw them.
 
 ## Prototype Limitations
 

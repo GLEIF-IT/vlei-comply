@@ -35,8 +35,8 @@ contract VLEIOracleComplianceTest is Test {
 
     string constant ALICE_AID = "EALICEAID";
     string constant BOB_AID = "EBOBAID";
-    string constant ALICE_LEI = "5493001KJTIIGC8Y1R12";
-    string constant BOB_LEI = "54930084UKLVMY22DS16";
+    string constant ALICE_SAID = "EALICEASSOCIATION";
+    string constant BOB_SAID = "EBOBASSOCIATION";
 
     bytes32 aliceCcid;
     bytes32 bobCcid;
@@ -84,123 +84,17 @@ contract VLEIOracleComplianceTest is Test {
         admin.setAllowed(alice, true);
         admin.setAllowed(bob, true);
 
-        aliceCcid = oracleRegistry.computeAidCcid(ALICE_AID);
-        bobCcid = oracleRegistry.computeAidCcid(BOB_AID);
+        aliceCcid = keccak256(bytes(ALICE_AID));
+        bobCcid = keccak256(bytes(BOB_AID));
     }
 
-    function testOracleRegistryValidationMatrix() public {
-        bytes32 ccid = _postRecord(ALICE_AID, ALICE_LEI, ALICE_LEI, false, false, 0);
-        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.NotAllowed));
-
-        oracleRegistry.setAidAllowed(ccid, true);
-        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.Valid));
-
-        oracleRegistry.setCredentialRevoked(ccid, true);
-        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.Revoked));
-    }
-
-    function testLeiMismatchFailsValidation() public {
-        bytes32 ccid = _postRecord(ALICE_AID, ALICE_LEI, BOB_LEI, true, false, 0);
-        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.LeiMismatch));
-        assertFalse(oracleRegistry.isLegalEntityValid(ccid));
-    }
-
-    function testExpiredCredentialFailsValidation() public {
-        bytes32 ccid = _postRecord(ALICE_AID, ALICE_LEI, ALICE_LEI, true, false, uint40(block.timestamp + 1));
-
-        vm.warp(block.timestamp + 2);
-
-        assertEq(uint256(oracleRegistry.validateLeCcid(ccid)), uint256(VLEIOracleRegistry.ValidationResult.Expired));
-        assertFalse(oracleRegistry.isLegalEntityValid(ccid));
-    }
-
-    function testDirectTransferFailsUntilBothAidRecordsAllowed() public {
-        _registerAliceAndBob();
-
-        assertFalse(_transferAsAlice(100 * UNIT), "missing oracle records should fail");
-
-        _postRecord(ALICE_AID, ALICE_LEI, ALICE_LEI, true, false, 0);
-        assertFalse(_transferAsAlice(100 * UNIT), "missing beneficiary oracle record should fail");
-
-        _postRecord(BOB_AID, BOB_LEI, BOB_LEI, false, false, 0);
-        assertFalse(_transferAsAlice(100 * UNIT), "unallowlisted beneficiary AID should fail");
-
-        oracleRegistry.setAidAllowed(bobCcid, true);
-        assertTrue(_transferAsAlice(100 * UNIT), "valid sender and beneficiary should pass");
-        assertEq(asset.balanceOf(bob), 100 * UNIT);
-    }
-
-    function testMissingSenderIdentityFails() public {
-        chainlinkIdentityRegistry.registerIdentity(bobCcid, bob, "");
-        _postRecord(BOB_AID, BOB_LEI, BOB_LEI, true, false, 0);
-
-        assertFalse(_transferAsAlice(100 * UNIT));
-        assertEq(asset.balanceOf(bob), 0);
-    }
-
-    function testRevokedSenderFailsTransfer() public {
-        _registerAliceAndBob();
-        _postValidAliceAndBob();
-        oracleRegistry.setCredentialRevoked(aliceCcid, true);
-
-        assertFalse(_transferAsAlice(100 * UNIT));
-        assertEq(asset.balanceOf(bob), 0);
-    }
-
-    function testExpiredBeneficiaryFailsTransfer() public {
-        _registerAliceAndBob();
-        _postRecord(ALICE_AID, ALICE_LEI, ALICE_LEI, true, false, 0);
-        _postRecord(BOB_AID, BOB_LEI, BOB_LEI, true, false, uint40(block.timestamp + 1));
-
-        vm.warp(block.timestamp + 2);
-
-        assertFalse(_transferAsAlice(100 * UNIT));
-        assertEq(asset.balanceOf(bob), 0);
-    }
-
-    function testTransferWithBeneficiaryUsesAidOnlyParties() public {
-        _postValidAliceAndBob();
-
-        vm.prank(alice);
-        bool success = wrapper.transferWithBeneficiary(bob, 100 * UNIT, aliceCcid, bobCcid);
-
-        assertTrue(success);
-        assertEq(asset.balanceOf(bob), 100 * UNIT);
-    }
-
-    function _registerAliceAndBob() internal {
+    function testPolicyRejectsUnboundParties() public {
         chainlinkIdentityRegistry.registerIdentity(aliceCcid, alice, "");
         chainlinkIdentityRegistry.registerIdentity(bobCcid, bob, "");
-    }
-
-    function _postValidAliceAndBob() internal {
-        _postRecord(ALICE_AID, ALICE_LEI, ALICE_LEI, true, false, 0);
-        _postRecord(BOB_AID, BOB_LEI, BOB_LEI, true, false, 0);
-    }
-
-    function _postRecord(
-        string memory aid,
-        string memory entityLei,
-        string memory credentialSubjectLei,
-        bool allowed,
-        bool revoked,
-        uint40 expiresAt
-    ) internal returns (bytes32) {
-        return oracleRegistry.postLegalEntityRecord(
-            aid,
-            entityLei,
-            credentialSubjectLei,
-            keccak256(abi.encodePacked(aid, "-acdc")),
-            keccak256(abi.encodePacked(aid, "-proof")),
-            0,
-            expiresAt,
-            allowed,
-            revoked
-        );
-    }
-
-    function _transferAsAlice(uint256 amount) internal returns (bool) {
+        oracleRegistry.publishEndorsement(alice, aliceCcid, ALICE_SAID);
+        oracleRegistry.publishEndorsement(bob, bobCcid, BOB_SAID);
         vm.prank(alice);
-        return wrapper.transfer(bob, amount);
+        assertFalse(wrapper.transfer(bob, 100 * UNIT));
+        assertEq(asset.balanceOf(bob), 0);
     }
 }

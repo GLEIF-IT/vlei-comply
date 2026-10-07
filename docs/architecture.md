@@ -35,7 +35,7 @@ The wallet approves `wUSDC` on the USDC contract before settlement. During settl
 | `ChainlinkCCIDIdentityAdapter` | Bridges GL1 policy fields to Chainlink CCID identity and credential registries.                                            |
 | `VLEILegalEntityKYCPolicy`     | Requires valid originator and beneficiary Legal Entity checks.                                                             |
 | `VLEILegalEntityVerifier`      | Reads oracle-posted vLEI evidence and returns a fail-closed boolean.                                                       |
-| `VLEIOracleRegistry`           | Stores admin/oracle-posted AID, LEI, ACDC SAID, expiry, revocation, and allowlist status.                                  |
+| `VLEIOracleRegistry`           | Stores authorized current wallet/entity/association bindings.                                  |
 | `AllowAllPolicyEngine`         | Dev-only policy engine used so Chainlink-style registries can be initialized and written locally.                          |
 
 ## Evaluation Semantics
@@ -44,5 +44,5 @@ The wallet approves `wUSDC` on the USDC contract before settlement. During settl
 2. `PolicyManager.runPolicies` resolves `identityRef` from wallet addresses when possible.
 3. If a party already has `identityRef`, `PolicyManager` prefers ID-based enrichment for AID-only flows.
 4. `VLEILegalEntityKYCPolicy` finds the `OriginatorCustomer` and `BeneficiaryCustomer` parties.
-5. `VLEILegalEntityVerifier` checks each party's `identityRef` in `VLEIOracleRegistry`.
-6. Any missing, expired, revoked, unallowlisted, or LEI-mismatched record fails closed.
+5. The registry exposes the current exact wallet/entity endorsement.
+6. The current consumer rejects unbound parties; a stored identity mapping supplies no authority.
