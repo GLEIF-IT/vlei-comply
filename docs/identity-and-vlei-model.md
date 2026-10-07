@@ -1,37 +1,21 @@
-# Identity And vLEI Model
+# Wallet identity and association model
 
-The identity model uses Chainlink CCID as the on-chain identity key and interprets that key as the hash of a canonical KERI AID string.
+The entity identity reference is `keccak256(bytes(canonicalAidString))`.
+Canonical AIDs and credential proofs are verified off-chain by the oracle.
+The current endorsement binds that identity to one wallet and association SAID
+on the deployed chain. KERI key rotation leaves the AID reference stable.
 
-```text
-aidCcid = keccak256(bytes(canonicalAidString))
-```
+For ordinary transfers, the wrapper supplies the originator and beneficiary
+wallets. The policy manager resolves wallet-to-identity hints through the
+Chainlink adapter. `VLEIEndorsementChecker` requires a nonzero wallet and identity
+and checks their exact current endorsement. Missing or stale mapping, withdrawal,
+or an identity mismatch cannot pass. A second wallet for the same entity needs
+its own endorsement.
 
-The canonical AID string is prepared off-chain. Solidity stores and compares only the bytes32 key and, in `VLEIOracleRegistry`, the raw string for inspection and event-driven indexing.
+Zero-wallet customer parties created by `transferWithBeneficiary` cannot satisfy
+this wallet association policy. AID-only assurance would require a separately
+named policy and is outside this interface.
 
-## Wallet-To-Identity Flow
-
-For ordinary wallet transfers:
-
-1. The maintainer/oracle registers `wallet -> aidCcid` in Chainlink `IdentityRegistry`.
-2. `wUSDC.transfer` creates parties with wallet addresses and empty `identityRef`.
-3. `PolicyManager` resolves `identityRef` using `ChainlinkCCIDIdentityAdapter.getBeneficiaryId(wallet)`.
-4. The policy verifies the resulting `identityRef`.
-
-## AID-Only Flow
-
-For mediated transfers:
-
-1. `wUSDC.transferWithBeneficiary` can create customer parties with `wallet == address(0)` and `identityRef != 0`.
-2. `PolicyManager` treats the existing `identityRef` as authoritative and uses ID-based enrichment.
-3. The verifier checks the same `identityRef` in `VLEIOracleRegistry`.
-
-This is required for VASP or QVI scenarios where the on-chain wallet may represent an intermediary rather than the actual Legal Entity.
-
-## Rotation Assumption
-
-The model assumes the canonical KERI AID string used for `aidCcid` remains stable across key rotation.
-
-## Chainlink Credential Registry
-
-`CredentialRegistry` is deployed and available, but it is not authoritative for Legal Entity pass/fail.
-The current verifier reads `VLEIOracleRegistry`.
+The Chainlink credential registry supplies optional generic enrichment fields;
+it does not authorize wallet association transfers. The oracle registry owns
+the current acceptance result. It contains no LEI or copied credential evidence.

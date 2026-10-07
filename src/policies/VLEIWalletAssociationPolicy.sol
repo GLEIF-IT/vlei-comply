@@ -5,58 +5,43 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IPolicy.sol";
-import "../interfaces/IGL1IdentityRegistry.sol";
 import "../interfaces/IAttestationServiceVerifier.sol";
 
 /**
- * @title VLEILegalEntityKYCPolicy
- * @notice Requires both originator and beneficiary customers to pass vLEI Legal Entity verification.
- * @dev This policy performs Legal Entity KYC gating. It checks customer Legal Entity
- * status through `VLEILegalEntityVerifier` and does not enforce OOR/ECR authority, sanctions
+ * @title VLEIWalletAssociationPolicy
+ * @notice Requires both originator and beneficiary customers to pass exact-wallet endorsement checks.
+ * @dev This policy performs wallet association gating. It checks current customer wallet endorsements through `VLEIEndorsementChecker` and does not enforce OOR/ECR authority, sanctions
  * lists, or VASP-specific requirements.
  */
-contract VLEILegalEntityKYCPolicy is IPolicy {
+contract VLEIWalletAssociationPolicy is IPolicy {
     /// @notice ABI-encoded proof reason for a passing policy evaluation.
     uint8 private constant REASON_PASS = 1;
     /// @notice ABI-encoded proof reason when no originator customer party is present.
     uint8 private constant REASON_MISSING_ORIGINATOR = 10;
     /// @notice ABI-encoded proof reason when no beneficiary customer party is present.
     uint8 private constant REASON_MISSING_BENEFICIARY = 11;
-    /// @notice ABI-encoded proof reason when the originator customer fails vLEI validation.
+    /// @notice ABI-encoded proof reason when the originator customer fails endorsement checking.
     uint8 private constant REASON_INVALID_ORIGINATOR = 12;
-    /// @notice ABI-encoded proof reason when the beneficiary customer fails vLEI validation.
+    /// @notice ABI-encoded proof reason when the beneficiary customer fails endorsement checking.
     uint8 private constant REASON_INVALID_BENEFICIARY = 13;
 
     uint64 private immutable _policyVersion;
     
-    /// @notice Identity registry adapter retained for ABI/constructor compatibility with generated policy wiring.
-    IGL1IdentityRegistry public immutable identityRegistry;
+    /// @notice Consumer of current exact-wallet endorsements.
+    IAttestationServiceVerifier public immutable endorsementChecker;
 
-    /// @notice Active vLEI verifier used to validate customer parties.
-    IAttestationServiceVerifier public immutable vleiVerifier;
-
-    /// @notice Secondary generated verifier slot retained for constructor compatibility.
-    /// @dev This field is not consulted by the current vLEI policy.
-    IAttestationServiceVerifier public immutable secondaryVerifier;
-    
-    /// @notice Creates the policy.
-    /// @param version_ Policy version reported by `policyVersion`.
-    /// @param _identityRegistry Identity registry adapter retained for compatibility.
-    /// @param _vleiVerifier Active vLEI verifier address.
-    /// @param _secondaryVerifier Secondary generated verifier slot retained for compatibility.
-    constructor(uint64 version_, address _identityRegistry, address _vleiVerifier, address _secondaryVerifier) {
+    constructor(uint64 version_, address checker) {
+        require(checker != address(0), "Invalid endorsement checker");
         _policyVersion = version_;
-        identityRegistry = IGL1IdentityRegistry(_identityRegistry);
-        vleiVerifier = IAttestationServiceVerifier(_vleiVerifier);
-        secondaryVerifier = IAttestationServiceVerifier(_secondaryVerifier);
+        endorsementChecker = IAttestationServiceVerifier(checker);
     }
-    
+
     /**
      * @notice Returns the stable policy identifier.
      * @return Keccak256 hash of the policy name.
      */
     function policyId() external pure override returns (bytes32) {
-        return keccak256("VLEI_LEGAL_ENTITY_KYC");
+        return keccak256("VLEI_WALLET_ASSOCIATION");
     }
     
     /**
@@ -68,9 +53,9 @@ contract VLEILegalEntityKYCPolicy is IPolicy {
     }
     
     /**
-     * @notice Evaluates the vLEI Legal Entity policy against a transaction envelope.
+     * @notice Evaluates the wallet association policy against a transaction envelope.
      * @dev Requires at least one `OriginatorCustomer` and one `BeneficiaryCustomer`. Every customer
-     * party with those roles must pass `vleiVerifier.validate`. VASP/OOR parties are ignored in v1.
+     * party with those roles must pass `endorsementChecker.validate`. VASP/OOR parties are ignored in v1.
      * @param envelope Transaction envelope with enriched party data.
      * @return status Pass when both required customer roles validate; otherwise Fail.
      * @return proof ABI-encoded uint8 reason code for operator diagnostics.
@@ -86,12 +71,12 @@ contract VLEILegalEntityKYCPolicy is IPolicy {
 
             if (party.role == IPolicy.PartyRole.OriginatorCustomer) {
                 hasOriginator = true;
-                if (!vleiVerifier.validate(party)) {
+                if (!endorsementChecker.validate(party)) {
                     return (IPolicy.PolicyStatus.Fail, abi.encode(REASON_INVALID_ORIGINATOR));
                 }
             } else if (party.role == IPolicy.PartyRole.BeneficiaryCustomer) {
                 hasBeneficiary = true;
-                if (!vleiVerifier.validate(party)) {
+                if (!endorsementChecker.validate(party)) {
                     return (IPolicy.PolicyStatus.Fail, abi.encode(REASON_INVALID_BENEFICIARY));
                 }
             }

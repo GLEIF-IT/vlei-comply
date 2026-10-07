@@ -26,8 +26,8 @@ This repository is a production-preparation prototype. It demonstrates the contr
 
 The registry accepts only nonzero wallets and identities and a nonempty association
 reference. A policy must bind the supplied wallet and entity to the current
-endorsement. A mapping alone is insufficient; the current consumer rejects
-unbound parties. Withdrawal deletes the result, and late withdrawal cannot clear
+endorsement. A mapping alone is insufficient; `VLEIEndorsementChecker` requires a nonzero
+wallet and identity matching the current result. Zero-wallet customer parties fail. Withdrawal deletes the result, and late withdrawal cannot clear
 a replacement. Time alone does not expire a result. Oracle outages can leave
 stale results usable until the oracle can withdraw them.
 

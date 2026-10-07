@@ -1,37 +1,20 @@
-# vLEI Oracle E2E
+# Oracle and contract integration
 
-Prepare clean dependencies as described in the
-[setup guide](gl1-vlei-local-infra-setup.md#prepare-clean-checkouts), then run the
-canonical machine-run proof from the selected `vlei-oracle` checkout:
+The oracle verifies a finished untargeted association credential and its
+GLEIF-rooted source chain, then checks its embedded EOA signature and account
+code. The contract consumes only the resulting wallet/entity/association
+endorsement. Issuance is owned by the Legal Entity controller, while verification
+and posting are separate oracle responsibilities.
 
-```sh
-"$ORACLE_DIR/scripts/e2e/gl1-wallet-transfer-e2e.sh"
-```
+The current oracle issuance exercise is documented in its `scripts/protocol`
+directory. It verifies real credentials through IPEX/HTTP and uses local Anvil
+for account-code observations. It does not yet prove contract-backed transfers.
+The contract suite separately tests exact-wallet endorsement consumption,
+withdrawal, replacement, unauthorized writers, stale identity hints, and
+zero-wallet customer rejection.
 
-That script proves:
-
-```text
-GEDA -> QVI -> LE -> OOR -> GL1 Ethereum Wallet Attestation
-  -> vlei-oracle -> vlei-comply registries -> compliant wUSDC transfer
-```
-
-For a human-operated walkthrough, use
-[GL1 USDC CLI Execution Guide](gl1-vlei-cli-execution-guide.md). For local
-service startup and troubleshooting, use
-[GL1 USDC Local Infrastructure Setup](gl1-vlei-local-infra-setup.md).
-
-The human guide uses `scripts/dev/init-local-vlei-fixture.sh`, which calls the
-same e2e machinery with explicit stop-points. `--through source-chain` stops
-after GEDA/QVI/LE/OOR issuance. `--through oracle-posted` stops after wallet
-attestations are verified and posted on chain, leaving admin allowlists,
-minting, approvals, and transfers for the operator.
-
-Important protocol boundaries:
-
-- wallet attestation edges to the LE and OOR credentials use `NI2I`
-- the oracle receives a standard KERIpy IPEX Grant and does not run
-  `kli ipex admit`
-- the Ethereum wallet signature is external to the ACDC and is POSTed to the
-  oracle as CESR-encoded signature evidence
-- admin wallet allowlisting and AID CCID allowlisting remain explicit policy
-  steps after oracle verification
+Use the [registry reference](oracle-registry.md) for the ABI and the
+[local command guide](gl1-vlei-cli-execution-guide.md) for contract commands.
+The old signature-attachment/AID-record fixture cannot be used with these
+contracts. A complete acceptance exercise must verify, post, transfer, revoke,
+and then reject against one pinned oracle/contract pair.

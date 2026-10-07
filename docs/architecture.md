@@ -15,8 +15,8 @@ flowchart LR
   Manager --> Adapter["ChainlinkCCIDIdentityAdapter"]
   Adapter --> ChainlinkId["Chainlink IdentityRegistry"]
   Adapter --> ChainlinkCred["Chainlink CredentialRegistry"]
-  Manager --> Policy["VLEILegalEntityKYCPolicy"]
-  Policy --> Verifier["VLEILegalEntityVerifier"]
+  Manager --> Policy["VLEIWalletAssociationPolicy"]
+  Policy --> Verifier["VLEIEndorsementChecker"]
   Verifier --> Oracle["VLEIOracleRegistry"]
   Admin["AdminControls"] --> Wrapper
   Admin --> Manager
@@ -33,8 +33,8 @@ The wallet approves `wUSDC` on the USDC contract before settlement. During settl
 | `wUSDC`                        | Transfer-facing enforcement shell. It builds `TransactionEnvelope` values and executes transfers only after policies pass. |
 | `PolicyManager`                | Orchestrates policy evaluation and enriches parties through `IGL1IdentityRegistry`.                                        |
 | `ChainlinkCCIDIdentityAdapter` | Bridges GL1 policy fields to Chainlink CCID identity and credential registries.                                            |
-| `VLEILegalEntityKYCPolicy`     | Requires valid originator and beneficiary Legal Entity checks.                                                             |
-| `VLEILegalEntityVerifier`      | Reads oracle-posted vLEI evidence and returns a fail-closed boolean.                                                       |
+| `VLEIWalletAssociationPolicy`     | Requires current originator and beneficiary wallet endorsements.                                                             |
+| `VLEIEndorsementChecker`      | Checks the exact wallet/entity endorsement and returns a fail-closed boolean.                                                       |
 | `VLEIOracleRegistry`           | Stores authorized current wallet/entity/association bindings.                                  |
 | `AllowAllPolicyEngine`         | Dev-only policy engine used so Chainlink-style registries can be initialized and written locally.                          |
 
@@ -43,6 +43,6 @@ The wallet approves `wUSDC` on the USDC contract before settlement. During settl
 1. `wUSDC.transfer*` creates originator and beneficiary `PartyPacket` records.
 2. `PolicyManager.runPolicies` resolves `identityRef` from wallet addresses when possible.
 3. If a party already has `identityRef`, `PolicyManager` prefers ID-based enrichment for AID-only flows.
-4. `VLEILegalEntityKYCPolicy` finds the `OriginatorCustomer` and `BeneficiaryCustomer` parties.
-5. The registry exposes the current exact wallet/entity endorsement.
-6. The current consumer rejects unbound parties; a stored identity mapping supplies no authority.
+4. `VLEIWalletAssociationPolicy` finds the `OriginatorCustomer` and `BeneficiaryCustomer` parties.
+5. `VLEIEndorsementChecker` requires nonzero wallet and entity inputs and queries their exact endorsement.
+6. A missing, withdrawn, or mismatched endorsement fails. Zero-wallet customer parties fail even with an identity hint.

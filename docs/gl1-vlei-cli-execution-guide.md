@@ -44,6 +44,9 @@ then leaves the new binding intact. Chain scope is the deployment; the oracle
 must verify the association's chain before submission. There is no separate
 AID allowlist, LEI comparison, proof hash, or credential expiry in this registry.
 
-The current policy consumer rejects unbound parties. A registry publication
-alone does not demonstrate a passing transfer. The legacy signature POST and
-AID-record fixture are incompatible with this contract interface.
+`VLEIWalletAssociationPolicy` requires matching current endorsements for both
+customer wallets. Register each wallet's identity hint in `IdentityRegistry`,
+allow the caller through `AdminControls`, mint local test tokens, and approve
+`wUSDC` before calling `transfer(address,uint256)`. An unendorsed second wallet,
+a withdrawn result, or a zero-wallet customer fails. The legacy signature POST
+and AID-record fixture are incompatible with this contract interface.

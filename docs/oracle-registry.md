@@ -22,9 +22,8 @@ writer's role prevents future updates; it does not erase prior results. An
 unrevoked binding does not expire as time advances. During oracle outages, stale
 endorsements may remain usable without a separate governance freshness rule.
 
-The legacy AID-record API is removed. Use fresh contracts. The policy consumer
-currently rejects parties without an association-bound input; a wallet-to-AID
-mapping alone supplies no authority.
+The legacy AID-record API is removed. Use fresh contracts. The policy consumer requires the exact wallet and entity to match the current
+binding. A wallet-to-AID mapping alone supplies no authority.
 
 ## ABI and encoding
 

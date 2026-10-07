@@ -24,8 +24,8 @@
     "policyCount": 1,
     "policies": [
       {
-        "name": "VLEILegalEntityKYCPolicy",
-        "description": "First-pass vLEI Legal Entity KYC gate requiring valid originator and beneficiary Legal Entity records",
+        "name": "VLEIWalletAssociationPolicy",
+        "description": "Require current exact-wallet endorsements for originator and beneficiary customers",
         "branchCount": 1,
         "branches": [
           {
@@ -81,7 +81,7 @@
       "description": "Address list verifier interface"
     },
     {
-      "path": "src/interfaces/IVLEILegalEntityVerifier.sol",
+      "path": "src/interfaces/IVLEIEndorsementChecker.sol",
       "type": "interface",
       "description": "vLEI Legal Entity verifier interface"
     },
@@ -178,12 +178,12 @@
     {
       "path": "src/attestation/VLEIOracleRegistry.sol",
       "type": "contract",
-      "description": "On-chain vLEI Oracle evidence registry"
+      "description": "Current wallet association endorsement registry"
     },
     {
-      "path": "src/attestation/VLEILegalEntityVerifier.sol",
+      "path": "src/attestation/VLEIEndorsementChecker.sol",
       "type": "contract",
-      "description": "Fail-closed vLEI Legal Entity verifier"
+      "description": "Fail-closed exact-wallet endorsement checker"
     },
     {
       "path": "src/assets/USDC.sol",
@@ -196,9 +196,9 @@
       "description": "Generated policy wrapper"
     },
     {
-      "path": "src/policies/VLEILegalEntityKYCPolicy.sol",
+      "path": "src/policies/VLEIWalletAssociationPolicy.sol",
       "type": "contract",
-      "description": "First-pass vLEI Legal Entity KYC policy"
+      "description": "Wallet association endorsement policy"
     },
     {
       "path": "script/DeployAll.s.sol",
