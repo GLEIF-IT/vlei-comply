@@ -49,7 +49,7 @@ class StartupInputTest(unittest.TestCase):
             schemas = directory / "schema assets"
             assets = {
                 oracle
-                / "schemas/acdc/gl1-ethereum-wallet-attestation.json": json.dumps(
+                / "protocol/external-association-v1/association.schema.json": json.dumps(
                     {"$id": "fixture-schema"}
                 ),
                 keripy / "scripts/demo/data/rules.json": "{}",
