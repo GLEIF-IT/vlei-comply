@@ -60,7 +60,7 @@ contract TrustedIssuerRegistry is PolicyProtectedUpgradeable, ITrustedIssuerRegi
     __PolicyProtected_init(initialOwner, policyEngine);
   }
 
-  /// @notice Internal unchained initializer reserved for future storage initialization.
+  /// @notice Component-specific initialization hook.
   function __TrustedIssuerRegistry_init_unchained() internal onlyInitializing {}
 
   // ------------------------------------------------------------------------

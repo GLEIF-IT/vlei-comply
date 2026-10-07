@@ -7,10 +7,10 @@ import "./IPolicy.sol";
 /**
  * @title IVLEILegalEntityVerifier
  * @notice vLEI-specific verifier interface layered on the generic party verifier.
- * @dev The first-pass implementation checks Legal Entity status from an on-chain oracle registry.
+ * @dev The implementation checks Legal Entity status from an on-chain oracle registry.
  */
 interface IVLEILegalEntityVerifier is IAttestationServiceVerifier {
-    /// @notice Checks whether a party satisfies first-pass vLEI Legal Entity requirements.
+    /// @notice Checks whether a party satisfies vLEI Legal Entity requirements.
     /// @param party Enriched transaction party whose `identityRef` should be an AID-derived CCID.
     /// @return True when the party's Legal Entity evidence is valid and allowlisted.
     function validateLegalEntity(IPolicy.PartyPacket calldata party) external view returns (bool);

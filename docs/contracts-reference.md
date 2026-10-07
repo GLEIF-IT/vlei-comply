@@ -9,15 +9,15 @@
 ## Policy
 
 - `PolicyManager`: policy registry, identity enrichment orchestrator, and aggregate policy evaluator.
-- `VLEILegalEntityKYCPolicy`: first-pass policy requiring valid originator and beneficiary Legal Entity status.
+- `VLEILegalEntityKYCPolicy`: policy requiring valid originator and beneficiary Legal Entity status.
 - `AllowAllPolicyEngine`: dev-only Chainlink policy engine shim for Anvil and tests.
 
 ## Identity
 
 - `IdentityRegistry`: Chainlink-style CCID-to-account registry.
-- `CredentialRegistry`: Chainlink-style CCID credential store, retained for future credential-source work.
+- `CredentialRegistry`: Chainlink-style CCID credential store.
 - `CredentialRegistryIdentityValidator`: validates configured credential requirements across identity and credential sources.
-- `TrustedIssuerRegistry`: stores trusted issuer hashes for future issuer-governance use.
+- `TrustedIssuerRegistry`: stores trusted issuer hashes.
 - `ChainlinkCCIDIdentityAdapter`: adapts Chainlink CCID data to the GL1 `IGL1IdentityRegistry` interface.
 
 ## Attestation And Oracle

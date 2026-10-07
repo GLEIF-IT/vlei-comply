@@ -6,7 +6,7 @@ import "../admin/AdminControls.sol";
 /**
  * @title VLEIOracleRegistry
  * @notice Admin/oracle-posted registry of vLEI Legal Entity AID and LE ACDC status.
- * @dev The first-pass demo treats `keccak256(bytes(canonicalAidString))` as the Chainlink CCID.
+ * @dev The demo treats `keccak256(bytes(canonicalAidString))` as the Chainlink CCID.
  * This contract stores evidence already verified off-chain by an oracle/admin service. It does
  * not query Sally, GLEIF, KERI infrastructure, or any external revocation endpoint at runtime.
  * @custom:security A `COMPLIANCE_ADMIN_ROLE` holder can create, allow, revoke, and expire records.
@@ -257,7 +257,7 @@ contract VLEIOracleRegistry {
         return ValidationResult.Valid;
     }
 
-    /// @notice Returns whether an AID CCID satisfies first-pass vLEI Legal Entity requirements.
+    /// @notice Returns whether an AID CCID satisfies vLEI Legal Entity requirements.
     /// @param aidCcid AID-derived CCID to validate.
     /// @return True only when `validateLeCcid(aidCcid) == ValidationResult.Valid`.
     function isLegalEntityValid(bytes32 aidCcid) external view returns (bool) {

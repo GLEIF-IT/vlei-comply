@@ -1,6 +1,6 @@
 # Identity And vLEI Model
 
-The first-pass identity model uses Chainlink CCID as the on-chain identity key and interprets that key as the hash of a canonical KERI AID string.
+The identity model uses Chainlink CCID as the on-chain identity key and interprets that key as the hash of a canonical KERI AID string.
 
 ```text
 aidCcid = keccak256(bytes(canonicalAidString))
@@ -29,9 +29,9 @@ This is required for VASP or QVI scenarios where the on-chain wallet may represe
 
 ## Rotation Assumption
 
-The model assumes the canonical KERI AID string used for `aidCcid` remains stable across key rotation. If a future KERI integration uses another identifier as the durable root, this mapping must be revisited before production.
+The model assumes the canonical KERI AID string used for `aidCcid` remains stable across key rotation.
 
 ## Chainlink Credential Registry
 
-`CredentialRegistry` is deployed and available, but it is not authoritative for first-pass Legal Entity pass/fail. 
-The current verifier reads `VLEIOracleRegistry`. The Chainlink credential layer is preserved for future credential-source modeling and OOR-specific validation.
+`CredentialRegistry` is deployed and available, but it is not authoritative for Legal Entity pass/fail.
+The current verifier reads `VLEIOracleRegistry`.

@@ -58,7 +58,7 @@ contract IdentityRegistry is PolicyProtectedUpgradeable, IIdentityRegistry {
     __PolicyProtected_init(initialOwner, policyEngine);
   }
 
-  /// @notice Internal unchained initializer reserved for future storage initialization.
+  /// @notice Component-specific initialization hook.
   // solhint-disable-next-line no-empty-blocks
   function __IdentityRegistry_init_unchained() internal onlyInitializing {}
 

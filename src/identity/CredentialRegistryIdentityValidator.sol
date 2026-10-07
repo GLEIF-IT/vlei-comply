@@ -13,7 +13,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
  * @notice Validates accounts against configurable credential requirements across credential sources.
  * @dev This Chainlink-style validator resolves an account to a CCID through configured identity
  * registries, checks credential presence/expiry in credential registries, and optionally validates
- * credential payload bytes through data validators. The vLEI first-pass policy does not currently
+ * credential payload bytes through data validators. The vLEI policy does not currently
  * depend on this validator for Legal Entity pass/fail decisions.
  */
 contract CredentialRegistryIdentityValidator is OwnableUpgradeable, ICredentialRequirements, IIdentityValidator {

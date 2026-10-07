@@ -8,7 +8,7 @@ import {PolicyProtectedUpgradeable} from "@chainlink/policy-management/core/Poli
 /**
  * @title CredentialRegistry
  * @notice Chainlink-style registry for credentials attached to CCIDs.
- * @dev This component is deployed for compatibility and future credential expansion. The current
+ * @dev This component is deployed alongside the identity registry. The current
  * vLEI Legal Entity transfer gate is enforced by `VLEIOracleRegistry`, not this registry.
  */
 contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
@@ -57,7 +57,7 @@ contract CredentialRegistry is PolicyProtectedUpgradeable, ICredentialRegistry {
     __PolicyProtected_init(initialOwner, policyEngine);
   }
 
-  /// @notice Internal unchained initializer reserved for future storage initialization.
+  /// @notice Component-specific initialization hook.
   // solhint-disable-next-line no-empty-blocks
   function __CredentialRegistry_init_unchained() internal onlyInitializing {}
 

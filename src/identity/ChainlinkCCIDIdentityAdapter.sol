@@ -9,7 +9,7 @@ import "./interfaces/ICredentialValidator.sol";
 /**
  * @title ChainlinkCCIDIdentityAdapter (CHAINLINK_CCI)
  * @notice Adapts GL1 policy enrichment calls to Chainlink CCID registries.
- * @dev The first-pass vLEI path treats a Chainlink CCID as the AID-derived identity reference:
+ * @dev The vLEI path treats a Chainlink CCID as the AID-derived identity reference:
  * `ccid = keccak256(bytes(canonicalAidString))`. Credential-based KYC/jurisdiction helpers are
  * compatibility enrichment fields and are not authoritative for Legal Entity pass/fail decisions.
  */

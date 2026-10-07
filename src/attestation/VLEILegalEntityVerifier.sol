@@ -7,11 +7,11 @@ import "./VLEIOracleRegistry.sol";
 
 /**
  * @title VLEILegalEntityVerifier
- * @notice Verifies first-pass vLEI Legal Entity status against an on-chain oracle registry.
+ * @notice Verifies vLEI Legal Entity status against an on-chain oracle registry.
  * @dev This verifier expects `party.identityRef` to already be enriched to the AID-derived
  * Chainlink CCID. It performs no wallet lookup itself and fails closed when the identity ref is zero.
- * @custom:prototype The verifier validates only Legal Entity AID, LEI match, ACDC presence,
- * allowlist, expiry, and revocation. OOR and authority-specific checks belong in a future layer.
+ * @dev The verifier validates only Legal Entity AID, LEI match, ACDC presence,
+ * allowlist, expiry, and revocation. OOR and authority-specific checks are not performed.
  */
 contract VLEILegalEntityVerifier is IVLEILegalEntityVerifier {
     /// @notice Oracle/admin-posted evidence registry used for Legal Entity checks.
@@ -24,7 +24,7 @@ contract VLEILegalEntityVerifier is IVLEILegalEntityVerifier {
         oracleRegistry = VLEIOracleRegistry(_oracleRegistry);
     }
 
-    /// @notice Validates whether a party has valid first-pass vLEI Legal Entity evidence.
+    /// @notice Validates whether a party has valid vLEI Legal Entity evidence.
     /// @dev Implements the generic verifier interface used by generated policies.
     /// @param party Enriched party whose `identityRef` should be an AID-derived CCID.
     /// @return True when the party's AID CCID has a valid oracle registry record.
