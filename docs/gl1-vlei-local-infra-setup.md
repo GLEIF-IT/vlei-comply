@@ -30,9 +30,12 @@ This invokes the oracle's single real issuance implementation. It creates its
 own local Anvil and oracle, stops them on exit, and uses temporary KERI stores
 unless requested otherwise. It exercises GEDA delegation, QVI/LE/association
 issuance, nonce consumption, IPEX/HTTP verification, missing evidence, EOA
-classification, and source revocation. The current fixture is witness-free and
-uses simulated account code for its contract/EIP-7702 cases. It does not yet
-post endorsements or transact through the deployed compliance contracts.
+classification, posting, allowed transfer, revocation, and rejected transfer.
+Actors discover a live native witness through OOBI and collect actual receipts.
+The contract extension deploys fresh local contracts and executes a real signed
+EIP-7702 authorization transaction. Simulated account-code cases remain separate.
+Add `--two-chain-check --process-check --kli-check` for independent chains,
+actual oracle-process crashes around broadcast, and the native KLI issue command.
 
 ## Persistent local services
 
@@ -60,8 +63,9 @@ scripts/dev/start-local-gl1-stack.sh oracle
 
 The launcher currently runs verification with `--no-post`, the selected schema
 cache, and local RPC. The [registry guide](oracle-registry.md) describes the
-separate contract ABI. A complete issuance-to-transfer qualification is still
-pending connection of durable posting. There is no global wallet whitelist or
+separate contract ABI. For posting, use the oracle README’s explicit deployment,
+chain, dedicated writer-key, and confirmation settings. The isolated fixture
+qualifies durable posting end to end. There is no global wallet whitelist or
 AID-record/signature-attachment workflow.
 
 `runs/<run-id>/stack.env` retains selected dependency and contract paths. Use
