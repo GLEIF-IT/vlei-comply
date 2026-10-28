@@ -68,6 +68,7 @@ class StartupInputTest(unittest.TestCase):
                 "KLI": "true",
                 "VLEI_SERVER": "true",
                 "VLEI_ORACLE": "true",
+                "EOA_VERIFIER": "true",
                 "FORGE": "true",
                 "CAST": "true",
                 "ANVIL": "true",
@@ -126,6 +127,33 @@ class StartupInputTest(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout, selected)
+
+    def test_service_commands_keep_verification_and_posting_separate(self) -> None:
+        """Check the launcher passes explicit trust/deployment settings to the right CLI."""
+        with tempfile.TemporaryDirectory() as temporary:
+            environment = {
+                **os.environ, "RUN_DIR": temporary, "STACK_ENV": temporary + "/absent",
+                "GEDA_AID": "geda", "VERIFIER_AID": "verifier", "ORACLE_AID": "oracle",
+                "VERIFIER_KEL": temporary + "/verifier.cesr", "VLEI_ORACLE_POSTING_KEY": "test-key",
+                "ORACLE_REGISTRY": "endorsements", "IDENTITY_REGISTRY": "identities",
+                "EOA_VERIFIER": "true", "VLEI_ORACLE": "true",
+            }
+            result = subprocess.run([
+                "bash", "-c",
+                'source "$1" help >/dev/null; start_detached() { printf "%s " "$@"; printf "\\n"; }; '
+                'require_http() { :; }; start_verifier; start_oracle',
+                "_", str(ROOT / "scripts/dev/start-local-gl1-stack.sh"),
+            ], env=environment, capture_output=True, text=True, check=True)
+            verifier, oracle = result.stdout.splitlines()
+            self.assertIn("env -u VLEI_ORACLE_POSTING_KEY -u ADMIN_PK", verifier)
+            self.assertIn("--trusted-geda-aid geda", verifier)
+            self.assertIn("--webhook-aid oracle", verifier)
+            self.assertNotIn("--endorsement-registry", verifier)
+            self.assertIn("--verifier-aid verifier", oracle)
+            self.assertIn("--endorsement-registry endorsements", oracle)
+            self.assertNotIn("--trusted-geda-aid", oracle)
+            self.assertNotIn("--no-post", oracle)
+            self.assertNotIn("test-key", result.stdout)
 
 
 if __name__ == "__main__":

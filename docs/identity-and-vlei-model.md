@@ -1,7 +1,9 @@
 # Wallet identity and association model
 
 The entity identity reference is `keccak256(bytes(canonicalAidString))`.
-Canonical AIDs and credential proofs are verified off-chain by the oracle.
+EOA Verifier initially verifies native credential proofs and issuer relationships.
+The oracle trusts its authenticated status and derives the entity reference from
+the association issuer AID.
 The current endorsement binds that identity to one wallet and association SAID
 on the deployed chain. KERI key rotation leaves the AID reference stable.
 

@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Run the isolated real association issuance/verification exercise.
+# Run the pinned oracle-owned native two-service/token qualification.
 if [[ -n "${DEMO_ENV:-}" ]]; then
   # shellcheck disable=SC1090
   source "$DEMO_ENV"
 fi
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  printf 'Usage: scripts/dev/init-local-vlei-fixture.sh [--keep] [--two-chain-check --process-check --kli-check]\n'
-  printf 'Requires the selected demo.env. Starts its own isolated Anvil and oracle.\n'
-  printf 'Qualifies witnessed issuance, verification, posting, transfers, and revocation.\n'
+  printf 'Usage: scripts/dev/init-local-vlei-fixture.sh [pytest options]\n'
+  printf 'Requires ORACLE_DIR and VLEI_ORACLE; uses this comply checkout.\n'
+  printf 'Runs two installed CLIs, native witnessed issuance and actual USDC balances.\n'
   exit 0
 fi
-: "${COMPLY_DIR:?Source demo.env to select the pinned contract checkout}"
-: "${ORACLE_DIR:?Source demo.env to select the oracle checkout}"
-: "${VLEI_SCHEMA_TOOLS_DIR:?Source demo.env to select source schemas}"
-: "${VLEI_ORACLE:?Source demo.env to select the oracle environment}"
+: "${ORACLE_DIR:?Select the qualified oracle source checkout}"
+: "${VLEI_ORACLE:?Select the installed oracle CLI environment}"
+COMPLY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ORACLE_EXECUTABLE="$(command -v "$VLEI_ORACLE")"
 ORACLE_PYTHON="$(dirname "$ORACLE_EXECUTABLE")/python"
-exec "$ORACLE_PYTHON" "$ORACLE_DIR/scripts/protocol/exercise_issuance.py" \
-  --schema-dir "$VLEI_SCHEMA_TOOLS_DIR/schema/acdc" --comply-dir "$COMPLY_DIR" "$@"
+export VLEI_COMPLY_DIR="$COMPLY_DIR"
+export PYTHONPATH="$ORACLE_DIR/tests:$ORACLE_DIR/scripts/protocol"
+exec "$ORACLE_PYTHON" -m pytest -q "$ORACLE_DIR/tests/test_two_services.py" "$@"

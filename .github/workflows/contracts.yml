@@ -1,0 +1,26 @@
+name: Contracts and launcher
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: recursive
+      - name: Install test tools
+        run: |
+          curl -LfsS https://github.com/foundry-rs/foundry/releases/download/v1.5.1/foundry_v1.5.1_linux_amd64.tar.gz | tar xz -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+          sudo apt-get update -qq
+          sudo apt-get install -y jq netcat-openbsd
+      - name: Check launcher and contracts
+        run: |
+          bash -n scripts/dev/start-local-gl1-stack.sh scripts/dev/init-local-vlei-fixture.sh
+          python3 scripts/dev/test_startup.py
+          forge test
