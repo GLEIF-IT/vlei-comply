@@ -31,7 +31,7 @@ cast call "$ORACLE_REGISTRY" 'isEndorsed(address,bytes32)(bool)' \
   "$WALLET" "$IDENTITY_REF" --rpc-url "$RPC_URL"
 ```
 
-Withdraw only the association whose source evidence was invalidated:
+Withdraw only the association whose association credential was verifiably revoked:
 
 ```sh
 cast send "$ORACLE_REGISTRY" 'withdrawEndorsement(address,string)' \
@@ -41,7 +41,7 @@ cast send "$ORACLE_REGISTRY" 'withdrawEndorsement(address,string)' \
 
 Publishing a new SAID replaces the current binding. Withdrawing the old SAID
 then leaves the new binding intact. Chain scope is the deployment; the oracle
-must verify the association's chain before submission. There is no separate
+must match authenticated verifier facts to its configured chain before submission. There is no separate
 AID allowlist, LEI comparison, proof hash, or credential expiry in this registry.
 
 `VLEIWalletAssociationPolicy` requires matching current endorsements for both
