@@ -3,7 +3,7 @@
 ## Enforcement
 
 - `USDC`: ERC-20 asset with owner minting, holder burn, and global pause enforcement.
-- `wUSDC`: wrapper-style transfer surface that builds policy envelopes and executes transfers only after compliance passes.
+- `wUSDC`: owner-initiated `transfer` / `transferFrom` routes; records rejection and executes only after policy Pass.
 - `AdminControls`: role-based administrative contract for compliance admins and emergency pause.
 
 ## Policy
@@ -15,10 +15,7 @@
 ## Identity
 
 - `IdentityRegistry`: Chainlink-style CCID-to-account registry.
-- `CredentialRegistry`: Chainlink-style CCID credential store.
-- `CredentialRegistryIdentityValidator`: validates configured credential requirements across identity and credential sources.
-- `TrustedIssuerRegistry`: stores trusted issuer hashes.
-- `ChainlinkCCIDIdentityAdapter`: adapts Chainlink CCID data to the GL1 `IGL1IdentityRegistry` interface.
+- `ChainlinkCCIDIdentityAdapter`: adapts the exact-wallet Chainlink CCID lookup to the GL1 `IGL1IdentityRegistry` interface.
 
 ## Attestation And Oracle
 
@@ -27,10 +24,9 @@
 
 ## Interfaces
 
-- `IPolicy`: common transaction envelope, party packet, policy result, and policy evaluator interface.
+- `IPolicy`: asset/amount/timestamp envelope, wallet/identity party, policy result and evaluator interface. No KYC fields or pending decisions.
 - `IPolicyManager`: wrapper-to-manager policy orchestration interface.
-- `IGL1IdentityRegistry`: GL1 policy identity enrichment interface.
+- `IGL1IdentityRegistry`: single wallet-to-entity lookup consumed by the policy manager.
 - `IAttestationServiceVerifier`: generic party verifier interface.
-- `IVLEIEndorsementChecker`: vLEI-specific consumer extension.
 - `IVLEIOracleRegistry`: current wallet endorsement read interface.
-- `identity/interfaces/*`: Chainlink CCID identity, credential, issuer, and requirement interfaces.
+- `identity/interfaces/*`: the Chainlink CCID identity registry interface.

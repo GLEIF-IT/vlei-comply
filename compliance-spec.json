@@ -3,7 +3,6 @@
   "compatibility": "EVM",
   "assetStandard": "ERC20",
   "assetDecimals": 6,
-  "vaspMediation": "ENTITY_TO_ENTITY",
   "identityFramework": "ChainlinkCCI",
   "attestationServices": [
     {
@@ -38,36 +37,6 @@
   "adminCapabilities": {
     "globalPause": true,
     "wrapperPause": true,
-    "policyFreeze": false
-  },
-  "identityFeatures": [
-    {
-      "key": "kycMode",
-      "fieldName": "kycVerification",
-      "label": "KYC Verification",
-      "category": "CREDENTIAL",
-      "mode": "PROOF"
-    },
-    {
-      "key": "enableKycLevels",
-      "fieldName": "kycLevel",
-      "label": "KYC Level",
-      "category": "NUMERICAL",
-      "mode": "ENABLED"
-    },
-    {
-      "key": "sanctionsMode",
-      "fieldName": "sanctionsScreening",
-      "label": "Sanctions Screening",
-      "category": "CREDENTIAL",
-      "mode": "PROOF"
-    },
-    {
-      "key": "hasVASPLicense",
-      "fieldName": "hasVASPLicense",
-      "label": "VASP License",
-      "category": "CREDENTIAL",
-      "mode": "DISABLED"
-    }
-  ]
+    "policyFreeze": true
+  }
 }

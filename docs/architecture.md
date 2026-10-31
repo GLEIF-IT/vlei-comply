@@ -1,49 +1,42 @@
 # Architecture
 
-`vlei-comply` is a Foundry prototype for enforcing vLEI Legal Entity compliance around an ERC-20 token wrapper. 
-The current implementation is intentionally local-demo friendly, but it uses the same boundaries expected in a production design: 
-wrapper enforcement, policy orchestration, identity enrichment, oracle-posted evidence, and fail-closed policy evaluation.
-
-## Contract Flow
+`vlei-comply` is a Foundry prototype for adding auditable compliance decisions to
+owner-initiated, wallet-to-wallet USDC transfers through a noncustodial wrapper.
+EOA Verifier accepts native credential evidence; oracle publishes its selected
+wallet association. Contracts consume current on-chain mappings.
 
 ```mermaid
 flowchart LR
-  User["Caller / wallet"] -->|"transfer(...) / transferFrom(...)"| Wrapper["wUSDC"]
-  User -.->|"approve(wUSDC, amount) pre-step"| Asset["USDC ERC-20"]
-  Wrapper -->|"USDC.transferFrom(...) after policy pass"| Asset
-  Wrapper -->|"runPolicies(envelope)"| Manager["PolicyManager"]
-  Manager --> Adapter["ChainlinkCCIDIdentityAdapter"]
-  Adapter --> ChainlinkId["Chainlink IdentityRegistry"]
-  Adapter --> ChainlinkCred["Chainlink CredentialRegistry"]
-  Manager --> Policy["VLEIWalletAssociationPolicy"]
-  Policy --> Verifier["VLEIEndorsementChecker"]
-  Verifier --> Oracle["VLEIOracleRegistry"]
-  Admin["AdminControls"] --> Wrapper
-  Admin --> Manager
-  Admin --> Oracle
+  Owner -->|transfer / transferFrom| Wrapper[wUSDC]
+  Owner -.->|approve wrapper| Asset[USDC]
+  Wrapper -->|after policy Pass| Asset
+  Wrapper -->|runPolicies| Manager[PolicyManager]
+  Manager --> Adapter[ChainlinkCCIDIdentityAdapter]
+  Adapter --> Id[Chainlink IdentityRegistry]
+  Manager --> Policy[VLEIWalletAssociationPolicy]
+  Policy --> Checker[VLEIEndorsementChecker]
+  Checker --> Oracle[VLEIOracleRegistry]
 ```
 
-The wallet approves `wUSDC` on the USDC contract before settlement. During settlement, the wallet calls `wUSDC`; `wUSDC` calls `USDC.transferFrom` only after policy evaluation returns `Pass`.
+The Chainlink registry and its adapter remain because they supply the exact
+wallet-to-entity lookup consumed by `PolicyManager`. The oracle registers that
+mapping before publishing the matching endorsement. No credential registry,
+trusted-issuer registry or credential-requirement validator is deployed here.
 
-## Responsibilities
+1. The owner approves the wrapper on USDC and initiates a transfer. Explicit
+   `from` calls require that owner as caller; allowance grants no third-party
+   authority to initiate wrapper transfers.
+2. The wrapper creates originator and beneficiary wallet parties.
+3. The manager resolves identity from each wallet, replacing supplied hints.
+   Missing wallets or failed lookups leave no identity fallback.
+4. The association policy requires both roles and their exact current wallet/entity
+   endorsements. Revocation, missing mapping or mismatch fails; elapsed time
+   does not invalidate an otherwise current endorsement.
+5. `PoliciesRun` emits the enriched envelope hash and aggregate result. The wrapper
+   emits `ComplianceCheckFailed` for rejection and executes the underlying token
+   call only on Pass. Token transfer events establish actual movement.
 
-| Component                      | Responsibility                                                                                                             |
-|--------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| `USDC`                         | ERC-20 asset. It enforces only global pause and owner minting. Compliance is not enforced on direct token transfers.       |
-| `wUSDC`                        | Transfer-facing enforcement shell. It builds `TransactionEnvelope` values and executes transfers only after policies pass. |
-| `PolicyManager`                | Orchestrates policy evaluation and enriches parties through `IGL1IdentityRegistry`.                                        |
-| `ChainlinkCCIDIdentityAdapter` | Bridges GL1 policy fields to Chainlink CCID identity and credential registries.                                            |
-| `VLEIWalletAssociationPolicy`     | Requires current originator and beneficiary wallet endorsements.                                                             |
-| `VLEIEndorsementChecker`      | Checks the exact wallet/entity endorsement and returns a fail-closed boolean.                                                       |
-| `VLEIOracleRegistry`           | Stores authorized current wallet/entity/association endorsements.                                  |
-| `AllowAllPolicyEngine`         | Dev-only policy engine used so Chainlink-style registries can be initialized and written locally.                          |
-
-## Evaluation Semantics
-
-1. The owner initiates `wUSDC.transfer*` after approving the wrapper. There is no global wallet whitelist. Explicit `from` entry points require the caller to be that owner.
-2. `wUSDC.transfer*` creates originator and beneficiary `PartyPacket` records.
-3. `PolicyManager.runPolicies` resolves `identityRef` from wallet addresses when possible.
-4. If a party already has `identityRef`, `PolicyManager` prefers ID-based enrichment for AID-only flows.
-5. `VLEIWalletAssociationPolicy` finds the `OriginatorCustomer` and `BeneficiaryCustomer` parties.
-6. `VLEIEndorsementChecker` requires nonzero wallet and entity inputs and queries their exact endorsement.
-7. A missing, withdrawn, or mismatched endorsement fails. Zero-wallet customer parties fail even with an identity hint.
+Both wrapper routes share this path. There is no pending queue, mediated abstract
+customer route or administrator settlement path. Shared emergency pause protects
+both routes. `AllowAllPolicyEngine` is retained only for local Chainlink registry
+initialization/writes; production registry governance remains separate work.

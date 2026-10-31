@@ -207,10 +207,9 @@ contracts_have_code() {
 }
 
 write_stack_env() {
-  local admin_controls identity_registry credential_registry oracle_registry usdc_token wrapper name
+  local admin_controls identity_registry oracle_registry usdc_token wrapper name
   admin_controls="$("$JQ" -r .adminControls "$CONTRACTS_JSON")"
   identity_registry="$("$JQ" -r .identityRegistry "$CONTRACTS_JSON")"
-  credential_registry="$("$JQ" -r .credentialRegistry "$CONTRACTS_JSON")"
   oracle_registry="$("$JQ" -r .oracleRegistry "$CONTRACTS_JSON")"
   usdc_token="$("$JQ" -r .usdcToken "$CONTRACTS_JSON")"
   wrapper="$("$JQ" -r .wrapper "$CONTRACTS_JSON")"
@@ -223,7 +222,6 @@ write_stack_env() {
     done
     printf 'export ADMIN_CONTROLS=%q\n' "$admin_controls"
     printf 'export IDENTITY_REGISTRY=%q\n' "$identity_registry"
-    printf 'export CREDENTIAL_REGISTRY=%q\n' "$credential_registry"
     printf 'export ORACLE_REGISTRY=%q\n' "$oracle_registry"
     printf 'export USDC_TOKEN=%q\n' "$usdc_token"
     printf 'export WRAPPER=%q\n' "$wrapper"

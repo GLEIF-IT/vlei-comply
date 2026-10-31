@@ -6,15 +6,17 @@ and posts the selected mapping. Neither application refreshes accepted evidence.
 
 ## Qualify the installed applications
 
-The following pinned KERI/IPEX fixture uses the earlier status/ACK contract.
-Install its matching applications together in a fresh Python 3.12 environment.
-From this comply checkout:
+The following KERI/IPEX fixture uses the current independent-service model.
+Install the matching applications together in a fresh Python 3.12 environment.
+Select the oracle commit recorded in the companion qualification PR as
+`ORACLE_REVISION`. From this comply checkout:
 
 ```sh
 export WORK="$PWD/runs/qualification"
 mkdir -p "$WORK"
 gh repo clone GLEIF-IT/vlei-oracle "$WORK/oracle"
-git -C "$WORK/oracle" checkout --detach 7d82d04cd444cb21e1da1e6ec0408cc40105d4f4
+: "${ORACLE_REVISION:?Select the qualified oracle companion commit}"
+git -C "$WORK/oracle" checkout --detach "$ORACLE_REVISION"
 python3.12 -m venv "$WORK/venv"
 "$WORK/venv/bin/pip" install "$WORK/oracle" \
   -r "$WORK/oracle/tests/requirements.txt" \
@@ -29,8 +31,7 @@ Foundry 1.5.1 (`forge`, `cast`, `anvil`) must be on PATH and this checkout's
 submodules initialized. The pinned test requirements select EOA Verifier's merged
 artifact. The fixture owns its Anvil, witness, issuer stores and both CLI processes;
 it stops them on exit. Add pytest's `--basetemp <fresh-directory>` to retain test
-artifacts for inspection. It never shares a running operator's stores. Old
-`--keep`, `--process-check` and related legacy exercise flags are not accepted.
+artifacts for inspection. It never shares a running operator's stores.
 
 The scenario verifies source-chain issuance, IPEX intake of JSON messages with
 CESR attachments, authenticated delivery/lost ACK, two wallet endorsements,
@@ -39,9 +40,10 @@ replacement, restart and revocation withdrawal. See [integration](vlei-oracle-e2
 On affected macOS hosts, copy inputs into a Linux container without host bind
 mounts; keep LMDB stores in that container.
 
-The coordinated terminology rollout requires fresh application stores and
-contracts, without migrating or deleting existing stores. Its new dependency pins
-and paired qualification belong to the oracle follow-on.
+Use fresh application stores and contracts. The oracle companion PR updates the
+contract pin and deploy-log parser for this reduced deployment; qualification
+uses that candidate against this contract checkout. Existing stores are not
+migrated or deleted.
 
 ## Persistent local services
 

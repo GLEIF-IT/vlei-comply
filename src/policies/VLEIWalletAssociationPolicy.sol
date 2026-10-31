@@ -55,7 +55,7 @@ contract VLEIWalletAssociationPolicy is IPolicy {
     /**
      * @notice Evaluates the wallet association policy against a transaction envelope.
      * @dev Requires at least one `OriginatorCustomer` and one `BeneficiaryCustomer`. Every customer
-     * party with those roles must pass `endorsementChecker.validate`. VASP/OOR parties are ignored in v1.
+     * party with those roles must pass `endorsementChecker.validate`. Only wallet originator and beneficiary roles are supported.
      * @param envelope Transaction envelope with enriched party data.
      * @return status Pass when both required customer roles validate; otherwise Fail.
      * @return proof ABI-encoded uint8 reason code for operator diagnostics.

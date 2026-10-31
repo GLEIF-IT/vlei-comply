@@ -2,11 +2,11 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IPolicy.sol";
-import "../interfaces/IVLEIEndorsementChecker.sol";
+import "../interfaces/IAttestationServiceVerifier.sol";
 import "../interfaces/IVLEIOracleRegistry.sol";
 
 /// @notice Consumes exact-wallet endorsements; it does not verify vLEI evidence.
-contract VLEIEndorsementChecker is IVLEIEndorsementChecker {
+contract VLEIEndorsementChecker is IAttestationServiceVerifier {
     IVLEIOracleRegistry public immutable oracleRegistry;
 
     constructor(address registry) {
@@ -15,10 +15,6 @@ contract VLEIEndorsementChecker is IVLEIEndorsementChecker {
     }
 
     function validate(IPolicy.PartyPacket calldata party) external view override returns (bool) {
-        return _isEndorsed(party);
-    }
-
-    function checkEndorsement(IPolicy.PartyPacket calldata party) external view override returns (bool) {
         return _isEndorsed(party);
     }
 

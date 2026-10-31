@@ -14,10 +14,10 @@ and checks their exact current endorsement. Missing or stale mapping, withdrawal
 or an identity mismatch cannot pass. A second wallet for the same entity needs
 its own endorsement.
 
-Zero-wallet customer parties created by `transferWithBeneficiary` cannot satisfy
-this wallet association policy. AID-only assurance would require a separately
-named policy and is outside this interface.
+Every participant must supply its actual wallet. The manager derives the identity
+from that wallet and discards caller-provided identity hints. There are no abstract
+customer-ID routes or optional KYC/jurisdiction/VASP fields. The oracle registry
+owns the current endorsement and contains no LEI or copied credential evidence.
 
-The Chainlink credential registry supplies optional generic enrichment fields;
-it does not authorize wallet association transfers. The oracle registry owns
-the current endorsement. It contains no LEI or copied credential evidence.
+The wrapper records policy evaluation for transfers initiated through it. It does
+not custody tokens or constrain direct underlying USDC transfers.
