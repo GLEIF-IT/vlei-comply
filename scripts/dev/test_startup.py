@@ -94,7 +94,6 @@ class StartupInputTest(unittest.TestCase):
                         for name in [
                             "adminControls",
                             "identityRegistry",
-                            "credentialRegistry",
                             "oracleRegistry",
                             "usdcToken",
                             "wrapper",

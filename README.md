@@ -20,7 +20,7 @@ Maintainer documentation:
 | Document                                                                  | Purpose                                                              |
 |---------------------------------------------------------------------------|----------------------------------------------------------------------|
 | [Architecture](docs/architecture.md)                                      | Contract responsibilities and transfer evaluation flow               |
-| [Identity and vLEI Model](docs/identity-and-vlei-model.md)                | Identity hints, exact-wallet endorsements, and AID-only rejection       |
+| [Identity and vLEI Model](docs/identity-and-vlei-model.md)                | Wallet identity lookup and exact-wallet endorsements       |
 | [Oracle Registry](docs/oracle-registry.md)                                | Wallet endorsement fields, authorization, and lifecycle     |
 | [GL1 USDC CLI Execution Guide](docs/gl1-vlei-cli-execution-guide.md)      | Human-operated local originator-to-beneficiary workflow              |
 | [GL1 USDC Local Infrastructure Setup](docs/gl1-vlei-local-infra-setup.md) | Local service startup, ports, generated artifacts, and cleanup       |
@@ -29,73 +29,35 @@ Maintainer documentation:
 
 ## Architecture
 
-The compliance framework follows a layered architecture aligned with the reference model (v1.0):
+wUSDC is a noncustodial route for wallet-to-wallet USDC transfers with auditable
+compliance decisions. The owner approves the wrapper on USDC and calls
+`transfer(to, amount)` or `transferFrom(from, to, amount)`. The explicit-source
+variant requires `msg.sender == from`.
 
 ```mermaid
-graph TB
-    subgraph "Policy Wrapper"
-        Asset["Digital Asset<br/>(ERC20)"]
-        Wrapper["wUSDC<br/>(Interception Logic)"]
-    end
-    
-    subgraph "Administrative Controls"
-        Admin["AdminControls<br/>(Role Management)"]
-    end
-    
-    subgraph "Policy Manager Layer"
-        PM("PolicyManager<br/>(AND)")
-    end
-    
-    subgraph "Identity Module"
-        IdFramework["Chainlink CCID<br/>(Identity Framework)"]
-    end
-    
-    subgraph ComplianceRulesEngine["Compliance Rules Engine"]
-        Policy_vLEI["VLEIWalletAssociationPolicy policy"]
-    end
-    
-    subgraph ExternalServices["Oracle Evidence"]
-        Service_Oracle["VLEIOracleRegistry<br/>(admin/oracle posted)"]
-    end
-    
-    %% Main Flow
-    Asset --- Wrapper
-    Wrapper -->|"Checks policy rules"| PM
-    Admin -->|"Implements"| Wrapper
-    
-    %% Orchestration
-    PM -->|"Retrieve identity"| IdFramework
-    PM -->|"Policy calls verifier"| Service_Oracle
-    PM -->|"Query"| Policy_vLEI
-    
-    %% Styles
-    style PM fill:#0d47a1,color:#fff,stroke:#fff,shape:rect,rx:20,ry:20
-    style Admin fill:#1e293b,color:#fff
-    style Wrapper fill:#e3f2fd,stroke:#0d47a1,stroke-dasharray: 5 5
-    style Asset fill:#1565c0,color:#fff
-    style IdFramework fill:#fff,stroke:#333,stroke-dasharray: 5 5
-    style ComplianceRulesEngine fill:#fff,stroke:#333,stroke-dasharray: 5 5
-    style ExternalServices fill:#fff,stroke:#333,stroke-dasharray: 5 5
+flowchart LR
+    Owner --> Wrapper[wUSDC]
+    Wrapper --> Manager[PolicyManager]
+    Manager --> Adapter[ChainlinkCCIDIdentityAdapter]
+    Adapter --> Identity[Chainlink IdentityRegistry]
+    Manager --> Policy[VLEIWalletAssociationPolicy]
+    Policy --> Checker[VLEIEndorsementChecker]
+    Checker --> Registry[VLEIOracleRegistry]
+    Wrapper -->|after Pass| USDC
 ```
 
-### Component Roles
+The manager resolves each participant's identity from its exact wallet; supplied
+identity hints never replace the lookup. The policy checks that each wallet and
+resolved identity match its current oracle endorsement. A second wallet for the
+same entity requires its own endorsement. `PoliciesRun` records the evaluated
+envelope hash and aggregate result; `ComplianceCheckFailed` records policy
+rejection. Both direct routes evaluate current state on every call.
 
-| Component                   | Responsibility                                                                                        |
-|-----------------------------|-------------------------------------------------------------------------------------------------------|
-| **Policy Wrapper**          | Intercepts transfers, builds initial `TransactionEnvelope` with minimal context                       |
-| **Policy Manager**          | **Orchestration Layer**: Performs dynamic identity enrichment on all parties before policy evaluation |
-| **Identity Registry**       | **Single Source of Truth**: Provides enriched identity data (KYC, jurisdiction, credentials)          |
-| **Compliance Rules Engine** | Evaluates policies against the **fully enriched** `TransactionEnvelope`                               |
-| **Oracle Evidence**         | Stores the oracle’s published wallet/entity/association endorsement                             |
-| **Administrative Controls** | Global system management, role-based access, and emergency pause                                      |
-
-### Dynamic Identity Enrichment Flow
-
-1. **Interception**: The token wrapper (`ERC20`, `ERC721`, or `ERC1155`) catches a transfer and creates a `TransactionEnvelope` containing basic party addresses and amount/TokenID.
-2. **Orchestration**: The `PolicyManager` receives the envelope and iterates through every party.
-3. **Enrichment**: For each party, the `PolicyManager` queries the `IGL1IdentityRegistry` for all configured identity fields (e.g., `kycHash`, `accountRef`).
-4. **Evaluation**: Policies receive the **enriched** envelope, meaning they can immediately check `party.kycHash` or `party.jurisdiction` without making additional external calls.
-5. **Attestation**: The vLEI policy passes enriched customer `PartyPacket` records to `VLEIEndorsementChecker`, which checks the current exact-wallet endorsement in `VLEIOracleRegistry`.
+Only direct wallet participants are supported. There are no abstract-customer
+mediation routes, pending-transfer queues or administrative settlement APIs.
+The policy envelope contains the asset, amount, timestamp and wallet parties;
+KYC, jurisdiction and VASP enrichment are outside this model. Direct USDC
+transfers remain ordinary token transfers; asset-wide enforcement is not a goal.
 
 ## Policies
 
@@ -116,7 +78,8 @@ graph TB
 │   ├── admin/
 │   │   └── AdminControls.sol
 │   ├── identity/
-│   │   └── [Framework contracts]
+│   │   ├── IdentityRegistry.sol
+│   │   └── ChainlinkCCIDIdentityAdapter.sol
 │   ├── attestation/
 │   │   ├── VLEIOracleRegistry.sol
 │   │   └── VLEIEndorsementChecker.sol

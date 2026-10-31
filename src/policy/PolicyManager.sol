@@ -10,7 +10,7 @@ import "../admin/AdminControls.sol";
  * @title PolicyManager
  * @notice Orchestration layer for transaction-envelope policy evaluation.
  * @dev The manager enriches wrapper-supplied party packets from `IGL1IdentityRegistry`,
- * evaluates each registered policy, and aggregates status using Fail > Pending > Pass.
+ * evaluates each registered policy, and requires every policy to return Pass.
  * It deliberately catches identity-registry read failures during enrichment so missing or
  * unavailable identity data reaches policies as zero values and policies can fail closed.
  */
@@ -18,7 +18,7 @@ contract PolicyManager is IPolicyManager {
     /// @notice Shared administrative authority for policy set management.
     AdminControls public immutable adminControls;
 
-    /// @notice Identity enrichment adapter, currently backed by Chainlink CCID registries.
+    /// @notice Wallet identity lookup backed by the Chainlink CCID identity registry.
     IGL1IdentityRegistry public immutable identityRegistry;
     
     /// @notice Ordered list of active policy contract addresses.
@@ -121,11 +121,9 @@ contract PolicyManager is IPolicyManager {
     
     /**
      * @notice Runs all registered policies on a transaction envelope.
-     * @dev Enrichment order is ID-aware:
-     * 1. If a wallet exists and `identityRef` is zero, resolve wallet -> CCID via `getBeneficiaryId`.
-     * 2. If `identityRef` is nonzero, prefer id-based enrichment for AID-only flows.
-     * 3. If a wallet exists, fall back to wallet-based fields for any still-empty values.
-     * Missing registry data is left as zero values so policies can fail closed.
+     * @dev Resolve identity from each exact wallet; caller-supplied identity hints
+     * cannot replace the registry lookup. Missing data remains zero and fails the
+     * wallet association policy.
      * @param envelope Wrapper-supplied transaction envelope.
      * @return attestation Aggregate compliance result and per-policy records.
      */
@@ -158,12 +156,10 @@ contract PolicyManager is IPolicyManager {
             
             (IPolicy.PolicyStatus status, bytes memory proof) = policy.evaluate(enrichedEnvelope);
             
-            if (status == IPolicy.PolicyStatus.Fail) {
+            if (status != IPolicy.PolicyStatus.Pass) {
                 overall = IPolicy.PolicyStatus.Fail;
-            } else if (status == IPolicy.PolicyStatus.Pending && overall != IPolicy.PolicyStatus.Fail) {
-                overall = IPolicy.PolicyStatus.Pending;
             }
-            
+
             results[i] = IPolicy.PolicyResult({
                 policyId: policy.policyId(),
                 policyVersion: policy.policyVersion(),
@@ -173,7 +169,7 @@ contract PolicyManager is IPolicyManager {
             });
         }
         
-        // 3. Simple aggregation: Fail > Pending > Pass
+        // 3. Any non-passing result fails the aggregate
         bytes32 envHash = keccak256(abi.encode(enrichedEnvelope));
         
         // 4. Build ComplianceAttestation
@@ -198,133 +194,16 @@ contract PolicyManager is IPolicyManager {
         return policies;
     }
 
-    /// @notice Enriches one party with available identity registry data.
-    /// @dev This function supports wallet-present flows and AID-only flows. External read
-    /// failures are ignored to keep policy evaluation deterministic and fail-closed.
-    /// @param party Wrapper-supplied party packet.
-    /// @return enriched Party packet with best-effort registry enrichment.
-    function _enrichParty(IPolicy.PartyPacket calldata party) internal view returns (IPolicy.PartyPacket memory enriched) {
-        enriched = party;
-
-        if (address(identityRegistry) == address(0)) {
-            return enriched;
-        }
-
-        if (enriched.identityRef == bytes32(0) && enriched.wallet != address(0)) {
-            try identityRegistry.getBeneficiaryId(enriched.wallet) returns (bytes32 val) {
-                if (val != bytes32(0)) {
-                    enriched.identityRef = val;
-                }
-            } catch {}
-        }
-
-        if (enriched.identityRef != bytes32(0)) {
-            enriched = _enrichById(enriched);
-        }
-
-        if (enriched.wallet != address(0)) {
-            enriched = _enrichByWallet(enriched);
-        }
-    }
-
-    /// @notice Enriches a party from id-based registry getters.
-    /// @param party Party packet whose `identityRef` is nonzero.
-    /// @return enriched Party packet after id-based lookups.
-    function _enrichById(IPolicy.PartyPacket memory party) internal view returns (IPolicy.PartyPacket memory enriched) {
-        enriched = party;
-        bytes32 identityRef = enriched.identityRef;
-
-        try identityRegistry.identityRefById(identityRef) returns (bytes32 val) {
-            if (val != bytes32(0)) {
-                enriched.identityRef = val;
-                identityRef = val;
-            }
-        } catch {}
-
-        if (enriched.kycHash == bytes32(0)) {
-            try identityRegistry.kycHashById(identityRef) returns (bytes32 val) {
-                if (val != bytes32(0)) {
-                    enriched.kycHash = val;
-                }
-            } catch {}
-        }
-
-        if (enriched.accountRef == bytes32(0)) {
-            try identityRegistry.accountRefById(identityRef) returns (bytes32 val) {
-                if (val != bytes32(0)) {
-                    enriched.accountRef = val;
-                }
-            } catch {}
-        }
-
-        if (enriched.jurisdiction == bytes32(0)) {
-            try identityRegistry.jurisdictionById(identityRef) returns (bytes32 val) {
-                if (val != bytes32(0)) {
-                    enriched.jurisdiction = val;
-                }
-            } catch {}
-        }
-
-        if (enriched.kycLevel == 0) {
-            try identityRegistry.kycLevelById(identityRef) returns (uint256 val) {
-                if (val != 0) {
-                    enriched.kycLevel = val;
-                }
-            } catch {}
-        }
-
-        if (!enriched.hasVASPLicense) {
-            try identityRegistry.hasVASPLicenseById(identityRef) returns (bool val) {
-                if (val) {
-                    enriched.hasVASPLicense = true;
-                }
-            } catch {}
-        }
-    }
-
-    /// @notice Enriches a party from wallet-based registry getters.
-    /// @param party Party packet whose `wallet` is nonzero.
-    /// @return enriched Party packet after wallet-based lookups.
-    function _enrichByWallet(IPolicy.PartyPacket memory party) internal view returns (IPolicy.PartyPacket memory enriched) {
-        enriched = party;
-
-        if (enriched.kycHash == bytes32(0)) {
-            try identityRegistry.kycHash(enriched.wallet) returns (bytes32 val) {
-                if (val != bytes32(0)) {
-                    enriched.kycHash = val;
-                }
-            } catch {}
-        }
-
-        if (enriched.accountRef == bytes32(0)) {
-            try identityRegistry.accountRef(enriched.wallet) returns (bytes32 val) {
-                if (val != bytes32(0)) {
-                    enriched.accountRef = val;
-                }
-            } catch {}
-        }
-
-        if (enriched.jurisdiction == bytes32(0)) {
-            try identityRegistry.jurisdiction(enriched.wallet) returns (bytes32 val) {
-                if (val != bytes32(0)) {
-                    enriched.jurisdiction = val;
-                }
-            } catch {}
-        }
-
-        if (enriched.kycLevel == 0) {
-            try identityRegistry.kycLevel(enriched.wallet) returns (uint256 val) {
-                if (val != 0) {
-                    enriched.kycLevel = val;
-                }
-            } catch {}
-        }
-
-        if (!enriched.hasVASPLicense) {
-            try identityRegistry.hasVASPLicense(enriched.wallet) returns (bool val) {
-                if (val) {
-                    enriched.hasVASPLicense = true;
-                }
+    /// @notice Resolve the entity for this wallet without trusting caller hints.
+    /// @dev Failed lookups leave identityRef zero for fail-closed policy evaluation.
+    function _enrichParty(IPolicy.PartyPacket calldata party)
+        internal view returns (IPolicy.PartyPacket memory enriched)
+    {
+        enriched.role = party.role;
+        enriched.wallet = party.wallet;
+        if (party.wallet != address(0) && address(identityRegistry) != address(0)) {
+            try identityRegistry.identityRef(party.wallet) returns (bytes32 identity) {
+                enriched.identityRef = identity;
             } catch {}
         }
     }

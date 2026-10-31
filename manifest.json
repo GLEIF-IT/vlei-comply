@@ -51,11 +51,6 @@
       "description": "Project documentation"
     },
     {
-      "path": "test/ComplianceTest.t.sol",
-      "type": "test",
-      "description": "Compliance logic tests"
-    },
-    {
       "path": "src/interfaces/IPolicy.sol",
       "type": "interface",
       "description": "Policy interface"
@@ -76,11 +71,6 @@
       "description": "Attestation verifier interface"
     },
     {
-      "path": "src/interfaces/IVLEIEndorsementChecker.sol",
-      "type": "interface",
-      "description": "vLEI Legal Entity verifier interface"
-    },
-    {
       "path": "src/admin/AdminControls.sol",
       "type": "contract",
       "description": "Administrative controls"
@@ -91,59 +81,14 @@
       "description": "Policy orchestrator"
     },
     {
-      "path": "src/identity/TrustedIssuerRegistry.sol",
-      "type": "framework",
-      "description": "${config.identity.framework} - Trusted Issuer Registry"
-    },
-    {
       "path": "src/identity/IdentityRegistry.sol",
       "type": "framework",
-      "description": "${config.identity.framework} - Identity Registry"
-    },
-    {
-      "path": "src/identity/CredentialRegistry.sol",
-      "type": "framework",
-      "description": "${config.identity.framework} - Credential Registry"
-    },
-    {
-      "path": "src/identity/CredentialRegistryIdentityValidator.sol",
-      "type": "framework",
-      "description": "${config.identity.framework} - Identity Validator"
+      "description": "Chainlink wallet-to-entity identity registry"
     },
     {
       "path": "src/identity/interfaces/IIdentityRegistry.sol",
       "type": "interface",
       "description": "${config.identity.framework} - IIdentityRegistry"
-    },
-    {
-      "path": "src/identity/interfaces/ICredentialRegistry.sol",
-      "type": "interface",
-      "description": "${config.identity.framework} - ICredentialRegistry"
-    },
-    {
-      "path": "src/identity/interfaces/ICredentialValidator.sol",
-      "type": "interface",
-      "description": "${config.identity.framework} - ICredentialValidator"
-    },
-    {
-      "path": "src/identity/interfaces/ITrustedIssuerRegistry.sol",
-      "type": "interface",
-      "description": "${config.identity.framework} - ITrustedIssuerRegistry"
-    },
-    {
-      "path": "src/identity/interfaces/ICredentialRequirements.sol",
-      "type": "interface",
-      "description": "${config.identity.framework} - ICredentialRequirements"
-    },
-    {
-      "path": "src/identity/interfaces/IIdentityValidator.sol",
-      "type": "interface",
-      "description": "${config.identity.framework} - IIdentityValidator"
-    },
-    {
-      "path": "src/identity/interfaces/ICredentialDataValidator.sol",
-      "type": "interface",
-      "description": "${config.identity.framework} - ICredentialDataValidator"
     },
     {
       "path": "src/identity/ChainlinkCCIDIdentityAdapter.sol",
@@ -214,6 +159,16 @@
       "path": ".gitignore",
       "type": "config",
       "description": "Git ignore file"
+    },
+    {
+      "path": "test/PolicyManagerTest.t.sol",
+      "type": "test",
+      "description": "Wallet lookup, audit hashing and policy aggregation"
+    },
+    {
+      "path": "test/VLEIOracleComplianceTest.t.sol",
+      "type": "test",
+      "description": "Exact-wallet transfer and audit integration"
     }
   ]
 }

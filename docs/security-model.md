@@ -25,7 +25,7 @@ This repository is a production-preparation prototype. It demonstrates the contr
 
 There is no global wallet whitelist. Transfer eligibility is decided by current
 endorsements and policy. The token owner approves the wrapper and initiates the
-transfer. Both `transferFrom` wrapper entry points require `msg.sender == from`:
+transfer. The `transferFrom` wrapper entry point requires `msg.sender == from`:
 approval to the wrapper authorizes its token call, not an arbitrary caller.
 Administrator roles still protect registry writes and policy changes, and the
 emergency role still controls the shared pause.
@@ -43,5 +43,17 @@ stale results usable until the oracle can withdraw them.
 
 - `AllowAllPolicyEngine` is dev-only and must not be used in production.
 - The oracle registry trusts the admin/oracle poster; it does not verify signatures or KERI events on-chain.
-- `USDC` direct ERC-20 transfers bypass wrapper compliance except for global pause.
+- wUSDC is an auditable transfer route; direct USDC transfers are intentionally outside its policy checks.
 - OOR and role/scope authority checks are not implemented by this verifier.
+
+## Supported transfer surface
+
+Only owner-initiated `transfer` and `transferFrom` are supported. Both resolve
+current wallet identities and evaluate policy immediately. There is no pending
+queue or administrative approval that can execute a previously evaluated transfer.
+Policy hashes bind the resolved wallet parties, asset, amount and timestamp.
+Failed identity lookups discard supplied hints; unknown policy results fail.
+
+The pre-existing zero-policy configuration currently returns Pass. Making an
+empty configuration fail closed is the next architecture-plan PR; the local
+deployment explicitly installs the wallet-association policy.
