@@ -3,19 +3,19 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "../src/admin/AdminControls.sol";
-import "../src/assets/USDC.sol";
-import "../src/attestation/VLEIEndorsementChecker.sol";
-import "../src/attestation/VLEIOracleRegistry.sol";
-import "../src/identity/IdentityRegistry.sol";
-import "../src/identity/ChainlinkCCIDIdentityAdapter.sol";
-import "../src/interfaces/IGL1IdentityRegistry.sol";
-import "../src/policies/VLEIWalletAssociationPolicy.sol";
-import "../src/policy/AllowAllPolicyEngine.sol";
-import "../src/policy/PolicyManager.sol";
-import "../src/wrappers/wUSDC.sol";
+import "../../src/admin/AdminControls.sol";
+import "../../src/demo/USDC.sol";
+import "../../src/associations/VLEIEndorsementChecker.sol";
+import "../../src/associations/VLEIOracleRegistry.sol";
+import "../../src/identity/IdentityRegistry.sol";
+import "../../src/identity/ChainlinkCCIDIdentityAdapter.sol";
+import "../../src/identity/IGL1IdentityRegistry.sol";
+import "../../src/policy/VLEIWalletAssociationPolicy.sol";
+import "../../src/demo/AllowAllPolicyEngine.sol";
+import "../../src/policy/PolicyManager.sol";
+import "../../src/wrappers/wUSDC.sol";
 
-contract VLEIOracleComplianceTest is Test {
+contract WalletAssociationComplianceTest is Test {
     AdminControls admin;
     AllowAllPolicyEngine policyEngine;
     IdentityRegistry chainlinkIdentityRegistry;

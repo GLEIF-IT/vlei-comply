@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.24;
 
-import "../interfaces/IPolicy.sol";
-import "../interfaces/IAttestationServiceVerifier.sol";
-import "../interfaces/IVLEIOracleRegistry.sol";
+import "../policy/IPolicy.sol";
+import "../policy/IAttestationServiceVerifier.sol";
+import "./IVLEIOracleRegistry.sol";
 
 /// @notice Consumes exact-wallet endorsements; it does not verify vLEI evidence.
 contract VLEIEndorsementChecker is IAttestationServiceVerifier {

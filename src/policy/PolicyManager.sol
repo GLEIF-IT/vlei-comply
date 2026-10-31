@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.24;
 
-import "../interfaces/IPolicy.sol";
-import "../interfaces/IPolicyManager.sol";
-import "../interfaces/IGL1IdentityRegistry.sol";
+import "./IPolicy.sol";
+import "./IPolicyManager.sol";
+import "../identity/IGL1IdentityRegistry.sol";
 import "../admin/AdminControls.sol";
 
 /**
