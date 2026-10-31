@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -48,10 +49,6 @@ class StartupInputTest(unittest.TestCase):
             keripy = directory / "witness assets"
             schemas = directory / "schema assets"
             assets = {
-                oracle
-                / "protocol/external-association-v1/association.schema.json": json.dumps(
-                    {"$id": "fixture-schema"}
-                ),
                 keripy / "scripts/demo/data/rules.json": "{}",
                 schemas
                 / "samples/acdc/qualified-vLEI-issuer-vLEI-credential.json": "{}",
@@ -59,6 +56,7 @@ class StartupInputTest(unittest.TestCase):
             for path, value in assets.items():
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(value)
+            (schemas / "schema/acdc").mkdir(parents=True)
             environment = {
                 "PATH": os.environ["PATH"],
                 "HOME": temporary,
@@ -69,12 +67,15 @@ class StartupInputTest(unittest.TestCase):
                 "VLEI_SERVER": "true",
                 "VLEI_ORACLE": "true",
                 "EOA_VERIFIER": "true",
+                "EOA_VERIFIER_PYTHON": sys.executable,
+                "RUN_DIR": str(directory / "run"),
                 "FORGE": "true",
                 "CAST": "true",
                 "ANVIL": "true",
             }
             result = subprocess.run(
-                ["bash", str(ROOT / "scripts/dev/start-local-gl1-stack.sh"), "check"],
+                ["bash", "-c", 'source "$1" check; prepare_schema_dir', "_",
+                 str(ROOT / "scripts/dev/start-local-gl1-stack.sh")],
                 env=environment,
                 capture_output=True,
                 check=False,
@@ -82,6 +83,13 @@ class StartupInputTest(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("Dependency inputs are ready", result.stdout)
+            from importlib.resources import files
+            self.assertEqual(
+                (directory / "run/schema/acdc/association.schema.json").read_bytes(),
+                files("eoa_verifier.verification").joinpath(
+                    "schema_data/external-association-v1.json"
+                ).read_bytes(),
+            )
 
     def test_stack_environment_preserves_shell_sensitive_checkout_paths(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

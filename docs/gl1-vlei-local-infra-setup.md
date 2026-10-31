@@ -8,22 +8,22 @@ and posts the selected mapping. Neither application refreshes accepted evidence.
 
 The following KERI/IPEX fixture uses the current independent-service model.
 Install the matching applications together in a fresh Python 3.12 environment.
-Select the oracle commit recorded in the companion qualification PR as
-`ORACLE_REVISION`. From this comply checkout:
+Select a reviewed exact Oracle revision as `ORACLE_REVISION`; use its
+`tests/requirements.txt` producer pin and the contract pin in its CI/demo manifest. From this comply checkout:
 
 ```sh
 export WORK="$PWD/runs/qualification"
 mkdir -p "$WORK"
 gh repo clone GLEIF-IT/vlei-oracle "$WORK/oracle"
-: "${ORACLE_REVISION:?Select the qualified oracle companion commit}"
+: "${ORACLE_REVISION:?Select an exact compatible oracle commit}"
 git -C "$WORK/oracle" checkout --detach "$ORACLE_REVISION"
 python3.12 -m venv "$WORK/venv"
 "$WORK/venv/bin/pip" install "$WORK/oracle" \
-  -r "$WORK/oracle/tests/requirements.txt" \
-  -r "$WORK/oracle/scripts/protocol/requirements.txt"
+  -r "$WORK/oracle/tests/requirements.txt"
 export ORACLE_DIR="$WORK/oracle"
 export VLEI_ORACLE="$WORK/venv/bin/vlei-oracle"
 export EOA_VERIFIER="$WORK/venv/bin/eoa-verifier"
+export EOA_VERIFIER_PYTHON="$WORK/venv/bin/python"
 scripts/dev/init-local-vlei-fixture.sh
 ```
 
@@ -40,20 +40,20 @@ replacement, restart and revocation withdrawal. See [integration](vlei-oracle-e2
 On affected macOS hosts, copy inputs into a Linux container without host bind
 mounts; keep LMDB stores in that container.
 
-Use fresh application stores and contracts. The oracle companion PR updates the
-contract pin and deploy-log parser for this reduced deployment; qualification
-uses that candidate against this contract checkout. Existing stores are not
-migrated or deleted.
+Use fresh demonstration application stores and contracts. Existing operator
+stores are neither migrated nor deleted by this procedure.
 
 ## Persistent local services
 
 The existing `start-local-gl1-stack.sh start` command starts the witness demo,
 schema server and Anvil, deploys contracts, and writes `runs/<run-id>/stack.env`.
 It requires explicit `ORACLE_DIR`, `KERIPY_DIR` (witness demo assets),
-`VLEI_SCHEMA_TOOLS_DIR`, installed `KLI`/`VLEI_SERVER`, both application executables,
+`VLEI_SCHEMA_TOOLS_DIR`, installed `KLI`/`VLEI_SERVER`, both application executables and `EOA_VERIFIER_PYTHON`,
 Foundry, `jq`, `curl` and `nc`. It does not infer sibling repository paths. The
 oracle dependency preparer can provide asset paths; use the selected application
-executables above rather than an older combined-service environment.
+executables above. Schema bytes come directly from the explicitly selected
+installed Verifier resource, never an Oracle protocol checkout. The exported
+Python must belong to the same pinned environment as `EOA_VERIFIER`.
 
 ```sh
 scripts/dev/start-local-gl1-stack.sh check

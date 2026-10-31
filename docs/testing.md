@@ -17,7 +17,9 @@ fixture and real topology remain together. Tests never import .t.sol files. The
 same 28 cases cover admin, identity, policy, registry and wrapper interactions.
 Behavior, selectors/events and stored fields are unchanged by this refactor.
 
-Run forge test and python3 scripts/dev/test_startup.py with Foundry 1.5.1.
+Run forge test with Foundry 1.5.1. Run scripts/dev/test_startup.py using the
+Python from the explicitly pinned installed Verifier environment; its preflight
+test reads the real packaged schema without an Oracle schema checkout.
 ABI comparisons are exact;
 storage comparisons resolve type structure while ignoring compiler AST IDs and
 moved source paths. Compiler metadata may change.
