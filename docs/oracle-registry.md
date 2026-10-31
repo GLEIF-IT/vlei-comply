@@ -2,7 +2,10 @@
 
 `VLEIOracleRegistry` records the authorized oracle's result for one wallet on the
 deployed chain. EOA Verifier performs initial KERI/vLEI chain, relationship,
-wallet-proof and account checks. The oracle trusts its authenticated status and
+wallet-proof and account checks. Association nonces contain 1–128 ASCII characters
+from `[A-Za-z0-9_-]`; the verifier permanently consumes each issuer/nonce pair at
+acceptance using ordinary dot-separated Komer keys. Solidity does not receive or
+store those nonces. The oracle trusts its authenticated status and
 applies ownership selection before posting. Solidity consumes the endorsement;
 it does not verify vLEI evidence.
 
