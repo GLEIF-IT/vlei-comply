@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
-import "../src/attestation/VLEIOracleRegistry.sol";
+import "../../src/associations/VLEIOracleRegistry.sol";
 
 contract VLEIOracleRegistryTest is Test {
     AdminControls admin;

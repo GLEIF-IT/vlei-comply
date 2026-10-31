@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../admin/AdminControls.sol";
-import "../interfaces/IVLEIOracleRegistry.sol";
+import "./IVLEIOracleRegistry.sol";
 
 /// @notice Records the authorized oracle's current wallet association endorsement.
 /// @dev KERI, credential status, signatures and account type are verified off-chain.

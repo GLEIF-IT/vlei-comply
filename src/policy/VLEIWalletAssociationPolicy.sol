@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.24;
 
-import "../interfaces/IPolicy.sol";
-import "../interfaces/IAttestationServiceVerifier.sol";
+import "./IPolicy.sol";
+import "./IAttestationServiceVerifier.sol";
 
 /**
  * @title VLEIWalletAssociationPolicy

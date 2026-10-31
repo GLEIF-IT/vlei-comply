@@ -6,14 +6,14 @@ import "forge-std/console.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "../src/admin/AdminControls.sol";
 import "../src/policy/PolicyManager.sol";
-import "../src/policy/AllowAllPolicyEngine.sol";
+import "../src/demo/AllowAllPolicyEngine.sol";
 import "../src/identity/IdentityRegistry.sol";
 import "../src/identity/ChainlinkCCIDIdentityAdapter.sol";
-import "../src/attestation/VLEIOracleRegistry.sol";
-import "../src/attestation/VLEIEndorsementChecker.sol";
-import "../src/assets/USDC.sol";
+import "../src/associations/VLEIOracleRegistry.sol";
+import "../src/associations/VLEIEndorsementChecker.sol";
+import "../src/demo/USDC.sol";
 import "../src/wrappers/wUSDC.sol";
-import "../src/policies/VLEIWalletAssociationPolicy.sol";
+import "../src/policy/VLEIWalletAssociationPolicy.sol";
 
 /// @notice Deploy the local direct-wallet association and audit prototype.
 /// @dev The dev-only allow-all engine enables local Chainlink registry writes.

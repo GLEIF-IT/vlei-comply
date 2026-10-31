@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../interfaces/IGL1IdentityRegistry.sol";
-import "./interfaces/IIdentityRegistry.sol";
+import "./IGL1IdentityRegistry.sol";
+import "./IIdentityRegistry.sol";
 
 /// @notice Connects GL1 wallet policy evaluation to the Chainlink CCID registry.
 /// @dev The oracle registers keccak256(bytes(canonicalIssuerAid)) for each wallet.

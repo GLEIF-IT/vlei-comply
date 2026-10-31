@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../interfaces/IPolicyManager.sol";
-import "../interfaces/IPolicy.sol";
+import "../policy/IPolicyManager.sol";
+import "../policy/IPolicy.sol";
 import "../admin/AdminControls.sol";
 
 /// @notice Noncustodial wallet-to-wallet transfer route with auditable compliance decisions.

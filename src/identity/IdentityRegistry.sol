@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.20;
 
-import {IIdentityRegistry} from "./interfaces/IIdentityRegistry.sol";
+import {IIdentityRegistry} from "./IIdentityRegistry.sol";
 import {PolicyProtectedUpgradeable} from "@chainlink/policy-management/core/PolicyProtectedUpgradeable.sol";
 
 /**
