@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import "../admin/AdminControls.sol";
 import "../interfaces/IVLEIOracleRegistry.sol";
 
-/// @notice Records the authorized oracle's current wallet association result.
+/// @notice Records the authorized oracle's current wallet association endorsement.
 /// @dev KERI, credential status, signatures and account type are verified off-chain.
 /// The deployment supplies chain scope. Consuming this result trusts the oracle.
 contract VLEIOracleRegistry is IVLEIOracleRegistry {
@@ -29,7 +29,7 @@ contract VLEIOracleRegistry is IVLEIOracleRegistry {
         adminControls = AdminControls(_adminControls);
     }
 
-    /// @notice Publish or replace the current binding for one wallet.
+    /// @notice Publish or replace the current endorsement for one wallet.
     function publishEndorsement(address wallet, bytes32 identityRef, string calldata associationSaid)
         external onlyOracleWriter
     {

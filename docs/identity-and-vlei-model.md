@@ -1,7 +1,7 @@
 # Wallet identity and association model
 
 The entity identity reference is `keccak256(bytes(canonicalAidString))`.
-EOA Verifier initially verifies native credential proofs and issuer relationships.
+EOA Verifier initially verifies KERI/ACDC evidence and issuer relationships.
 The oracle trusts its authenticated status and derives the entity reference from
 the association issuer AID.
 The current endorsement binds that identity to one wallet and association SAID
@@ -20,4 +20,4 @@ named policy and is outside this interface.
 
 The Chainlink credential registry supplies optional generic enrichment fields;
 it does not authorize wallet association transfers. The oracle registry owns
-the current acceptance result. It contains no LEI or copied credential evidence.
+the current endorsement. It contains no LEI or copied credential evidence.

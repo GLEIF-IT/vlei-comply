@@ -8,7 +8,7 @@ This repository is a production-preparation prototype. It demonstrates the contr
 |---|---|
 | Wallet eligibility | Current exact-wallet endorsements and configured policies gate transfers. |
 | Identity mapping | Chainlink `IdentityRegistry` maps wallet to `aidCcid`. |
-| Wallet endorsement | `VLEIOracleRegistry` stores authorized wallet/entity/association bindings. |
+| Wallet endorsement | `VLEIOracleRegistry` stores authorized wallet/entity/association endorsements. |
 | Policy evaluation | `PolicyManager` evaluates all configured policies with fail priority. |
 | Direct token transfer | `USDC` only checks global pause. |
 

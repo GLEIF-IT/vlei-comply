@@ -35,7 +35,7 @@ The wallet approves `wUSDC` on the USDC contract before settlement. During settl
 | `ChainlinkCCIDIdentityAdapter` | Bridges GL1 policy fields to Chainlink CCID identity and credential registries.                                            |
 | `VLEIWalletAssociationPolicy`     | Requires current originator and beneficiary wallet endorsements.                                                             |
 | `VLEIEndorsementChecker`      | Checks the exact wallet/entity endorsement and returns a fail-closed boolean.                                                       |
-| `VLEIOracleRegistry`           | Stores authorized current wallet/entity/association bindings.                                  |
+| `VLEIOracleRegistry`           | Stores authorized current wallet/entity/association endorsements.                                  |
 | `AllowAllPolicyEngine`         | Dev-only policy engine used so Chainlink-style registries can be initialized and written locally.                          |
 
 ## Evaluation Semantics

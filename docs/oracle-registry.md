@@ -8,15 +8,15 @@ it does not verify vLEI evidence.
 
 The wallet keys a current record containing only `identityRef` (the Keccak-256
 hash of the canonical entity AID) and the exact `associationSaid` string. Presence
-represents acceptance. No LEI, proof hash, expiry, timestamp, or per-record writer
-is stored.
+represents a published endorsement. No LEI, proof hash, expiry, timestamp, or
+per-record writer is stored.
 
 A `COMPLIANCE_ADMIN_ROLE` holder can call:
 
-- `publishEndorsement(address,bytes32,string)` to publish or replace a binding;
+- `publishEndorsement(address,bytes32,string)` to publish or replace an endorsement;
 - `withdrawEndorsement(address,string)` to remove that exact association;
 - `getEndorsement(address)` to read the current identity and SAID;
-- `isEndorsed(address,bytes32)` to check the current wallet/entity binding.
+- `isEndorsed(address,bytes32)` to check the current wallet/entity endorsement.
 
 A late withdrawal of an older SAID cannot remove its replacement. Removing a
 writer's role prevents future updates; it does not erase prior results. An
@@ -25,7 +25,7 @@ can leave an endorsement usable until revocation reaches the contract. There is
 no periodic source/account recheck in this build.
 
 The legacy AID-record API is removed. Use fresh contracts. The policy consumer requires the exact wallet and entity to match the current
-binding. A wallet-to-AID mapping alone supplies no authority.
+endorsement. A wallet-to-AID mapping alone supplies no authority.
 
 ## ABI and encoding
 

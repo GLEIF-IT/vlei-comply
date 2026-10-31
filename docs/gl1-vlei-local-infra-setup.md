@@ -6,8 +6,9 @@ and posts the selected mapping. Neither application refreshes accepted evidence.
 
 ## Qualify the installed applications
 
-Select the oracle source revision that owns the shared native fixture, then install
-both applications in a fresh Python 3.12 environment. From this comply checkout:
+The following pinned KERI/IPEX fixture uses the earlier status/ACK contract.
+Install its matching applications together in a fresh Python 3.12 environment.
+From this comply checkout:
 
 ```sh
 export WORK="$PWD/runs/qualification"
@@ -31,11 +32,16 @@ it stops them on exit. Add pytest's `--basetemp <fresh-directory>` to retain tes
 artifacts for inspection. It never shares a running operator's stores. Old
 `--keep`, `--process-check` and related legacy exercise flags are not accepted.
 
-The scenario verifies actual source-chain issuance, native IPEX/CESR intake,
-signed delivery/lost ACK, two wallet endorsements, token balance changes,
+The scenario verifies source-chain issuance, IPEX intake of JSON messages with
+CESR attachments, authenticated delivery/lost ACK, two wallet endorsements,
+token balance changes,
 replacement, restart and revocation withdrawal. See [integration](vlei-oracle-e2e.md).
 On affected macOS hosts, copy inputs into a Linux container without host bind
 mounts; keep LMDB stores in that container.
+
+The coordinated terminology rollout requires fresh application stores and
+contracts, without migrating or deleting existing stores. Its new dependency pins
+and paired qualification belong to the oracle follow-on.
 
 ## Persistent local services
 
@@ -53,7 +59,7 @@ scripts/dev/start-local-gl1-stack.sh start
 source runs/local-gl1-stack/stack.env
 ```
 
-Provision two native service identities before starting either application. The
+Provision two KERI service identities before starting either application. The
 following unencrypted single-key setup is for isolated local development:
 
 ```sh
@@ -83,15 +89,15 @@ scripts/dev/start-local-gl1-stack.sh status
 `services` starts verifier on 9724 and oracle on 9723, exports the verifier's public
 KEL to the oracle, then sends the oracle's public KEL to the verifier. Each peer
 AID is explicitly configured; fetched keys do not change that trust choice.
-Native validation accepts the streams before their keys can authenticate status or
+KERIpy verifies each peer's KEL evidence before its keys can authenticate status or
 ACKs. The verifier sends to `/v1/status-events`; the oracle gets only its own
 posting secret. `verifier` and `oracle` commands can start them separately;
 `oracle` also requires `VERIFIER_KEL` naming the public CESR file.
 
-Present the association and its required native evidence to EOA Verifier, not the
-oracle. After native association revocation, deliver its TEL and witnessed KEL
-anchor through the same native transport. Grant or credential bytes alone do not
-establish revocation. GET `/v1/associations/<said>/status` reads stored status only.
+Present the association and its required KEL/TEL and credential evidence to
+EOA Verifier. Deliver revocation TEL evidence and its witnessed KEL anchor through
+the same CESR-stream transport for verification. Grant or credential bytes alone
+do not establish revocation. GET `/v1/associations/<said>/status` reads stored status only.
 
 Use `start-local-gl1-stack.sh stop` to stop processes recorded by this launcher.
 Persistent identities, accepted/revoked status and delivery records remain.
