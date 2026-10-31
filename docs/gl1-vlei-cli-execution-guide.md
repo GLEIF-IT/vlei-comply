@@ -39,10 +39,11 @@ cast send "$ORACLE_REGISTRY" 'withdrawEndorsement(address,string)' \
   --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY"
 ```
 
-Publishing a new SAID replaces the current binding. Withdrawing the old SAID
-then leaves the new binding intact. Chain scope is the deployment; the oracle
-must match authenticated verifier facts to its configured chain before submission. There is no separate
-AID allowlist, LEI comparison, proof hash, or credential expiry in this registry.
+Publishing a new SAID replaces the current endorsement. Withdrawing the old SAID
+then leaves the new endorsement intact. Chain scope is the deployment; the oracle
+must match authenticated association status to its configured chain before
+submission. There is no separate AID allowlist, LEI comparison, proof hash, or
+credential expiry in this registry.
 
 `VLEIWalletAssociationPolicy` requires matching current endorsements for both
 customer wallets. Register each wallet's identity hint in `IdentityRegistry`,

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# Run the pinned oracle-owned native two-service/token qualification.
+# Run the pinned oracle-owned KERI/IPEX two-service/token qualification.
 if [[ -n "${DEMO_ENV:-}" ]]; then
   # shellcheck disable=SC1090
   source "$DEMO_ENV"
@@ -9,7 +9,7 @@ fi
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   printf 'Usage: scripts/dev/init-local-vlei-fixture.sh [pytest options]\n'
   printf 'Requires ORACLE_DIR and VLEI_ORACLE; uses this comply checkout.\n'
-  printf 'Runs two installed CLIs, native witnessed issuance and actual USDC balances.\n'
+  printf 'Runs two installed CLIs, witnessed credential issuance and actual USDC balances.\n'
   exit 0
 fi
 : "${ORACLE_DIR:?Select the qualified oracle source checkout}"
