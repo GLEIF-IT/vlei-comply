@@ -22,7 +22,7 @@ and schema hosting, service identities, peer introduction, chain, deployment,
 writer setup and lifecycle. Its run manifest records endpoints and artifacts.
 
 The [maintained scenario](vlei-oracle-e2e.md) distinguishes verifier acceptance,
-authenticated storage ACK, Oracle selection and confirmed contract mapping. It
+signed Oracle storage response, Oracle selection and confirmed contract mapping. It
 checks token balances and exact-SAID withdrawal. A successful HTTP response or
 transaction receipt alone is insufficient. Stop preserves stores and chain;
 clean is explicit and restricted to a stopped run owned by that environment.
