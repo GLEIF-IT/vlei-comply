@@ -13,18 +13,19 @@ forge test
 anvil
 # In another terminal, use a public Anvil test key:
 export PRIVATE_KEY='<Anvil test key>'
-forge script script/DeployAll.s.sol --rpc-url http://127.0.0.1:8545 --broadcast
+scripts/deploy-local.sh --rpc-url http://127.0.0.1:8545 --output deployments/demo/contracts.json
 ```
 
-Set `ORACLE_REGISTRY` and `RPC_URL` from this deployment, and select the exact
-wallet, the canonical issuer AID, and the verified association SAID. The issuer
+Read `ORACLE_REGISTRY` from `.contracts.oracleRegistry` in that JSON and set
+`RPC_URL` to the same local chain, and select the exact
+wallet, the local Anvil `DEPLOYER` address, the canonical issuer AID, and the verified association SAID. The issuer
 AID's Keccak-256 hash is the entity reference consumed by policy.
 
 ```sh
 export IDENTITY_REF="$(cast keccak "$ISSUER_AID")"
 cast send "$ORACLE_REGISTRY" 'publishEndorsement(address,bytes32,string)' \
   "$WALLET" "$IDENTITY_REF" "$ASSOCIATION_SAID" \
-  --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY"
+  --rpc-url "$RPC_URL" --unlocked --from "$DEPLOYER"
 cast call "$ORACLE_REGISTRY" 'getEndorsement(address)((bytes32,string))' \
   "$WALLET" --rpc-url "$RPC_URL"
 cast call "$ORACLE_REGISTRY" 'isEndorsed(address,bytes32)(bool)' \
@@ -36,7 +37,7 @@ Withdraw only the association whose association credential was verifiably revoke
 ```sh
 cast send "$ORACLE_REGISTRY" 'withdrawEndorsement(address,string)' \
   "$WALLET" "$ASSOCIATION_SAID" \
-  --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY"
+  --rpc-url "$RPC_URL" --unlocked --from "$DEPLOYER"
 ```
 
 Publishing a new SAID replaces the current endorsement. Withdrawing the old SAID

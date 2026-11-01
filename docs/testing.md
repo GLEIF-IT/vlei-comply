@@ -17,14 +17,15 @@ fixture and real topology remain together. Tests never import .t.sol files. The
 same 28 cases cover admin, identity, policy, registry and wrapper interactions.
 Behavior, selectors/events and stored fields are unchanged by this refactor.
 
-Run forge test with Foundry 1.5.1. Run scripts/dev/test_startup.py using the
-Python from the explicitly pinned installed Verifier environment; its preflight
-test reads the real packaged schema without an Oracle schema checkout.
-ABI comparisons are exact;
-storage comparisons resolve type structure while ignoring compiler AST IDs and
-moved source paths. Compiler metadata may change.
+Run `forge test` with Foundry 1.5.1. Contract CI needs no Python, Verifier or
+Oracle package. It also invokes [deploy-local](../scripts/README.md) against its
+own Anvil, checking structured output, deployed code, installed policy and roles.
+Existing artifacts and remote RPC targets are refused before another broadcast.
 
-For witnessed applications/token/recovery qualification, select the qualified
-oracle checkout/environment and run scripts/dev/init-local-vlei-fixture.sh. It
-invokes the sole tests/qualification/test_two_services.py after changing into the
-oracle root, without PYTHONPATH injection or duplicated workflow code.
+ABI comparisons are exact; storage comparisons resolve type structure while
+ignoring compiler AST IDs and moved source paths. Compiler metadata may change.
+
+Witnessed applications/token/recovery qualification belongs to the
+[Oracle environment](https://github.com/GLEIF-IT/vlei-oracle/tree/main/scripts/integration).
+Its sole maintained scenario invokes this repository's deployment command and
+asserts real wallet balances, replacement and exact revocation withdrawal.
