@@ -1,6 +1,6 @@
 # Security Model
 
-This repository is a production-preparation prototype. It demonstrates the contract boundaries and fail-closed behavior expected in a production USDC compliance integration, but it is not production-ready as deployed.
+This repository is a production-preparation prototype. It demonstrates current contract boundaries and configured-policy checks, but it is not production-ready as deployed.
 
 ## Trust Boundaries
 
@@ -44,7 +44,7 @@ stale results usable until the oracle can withdraw them.
 - `AllowAllPolicyEngine` is dev-only and must not be used in production.
 - The oracle registry trusts the admin/oracle poster; it does not verify signatures or KERI events on-chain.
 - wUSDC is an auditable transfer route; direct USDC transfers are intentionally outside its policy checks.
-- OOR and role/scope authority checks are not implemented by this verifier.
+- OOR and role/scope authority checks are not implemented by this contract policy.
 
 ## Supported transfer surface
 
@@ -54,6 +54,5 @@ queue or administrative approval that can execute a previously evaluated transfe
 Policy hashes bind the resolved wallet parties, asset, amount and timestamp.
 Failed identity lookups discard supplied hints; unknown policy results fail.
 
-The pre-existing zero-policy configuration currently returns Pass. Making an
-empty configuration fail closed is the next architecture-plan PR; the local
-deployment explicitly installs the wallet-association policy.
+The pre-existing zero-policy configuration currently returns Pass. The local deployment explicitly installs the wallet-association policy; absence
+of policies currently bypasses that protection.
