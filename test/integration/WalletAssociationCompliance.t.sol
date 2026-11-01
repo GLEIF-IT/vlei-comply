@@ -260,7 +260,7 @@ contract WalletAssociationComplianceTest is Test {
         assertEq(asset.balanceOf(bob), UNIT);
     }
 
-    function testRetiredMediationAndAdminSettlementCallsAreAbsent() public {
+    function testRemovedMediationAndAdminSettlementCallsAreAbsent() public {
         _registerAndEndorse();
         vm.prank(alice);
         (bool mediated, bytes memory mediatedError) = address(wrapper).call(abi.encodeWithSignature(
@@ -323,7 +323,7 @@ contract WalletAssociationComplianceTest is Test {
 
 
     /// @dev Each forward-delivery step is independently committed; no stale identity
-    /// or delayed retirement may authorize the wallet during an entity change.
+    /// or delayed endorsement withdrawal may authorize the wallet during an entity change.
     function testSequentialEntityChangeRequiresFinalPublication() public {
         _registerAndEndorse();
         bytes32 successor = keccak256("successor entity");
