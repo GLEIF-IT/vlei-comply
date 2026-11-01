@@ -38,11 +38,11 @@ validate_rpc() {
 
 # Keep every output component under our permitted directory; never follow links.
 prepare_output_directory() {
-  local output="$1"
-  case "$output" in deployments/*.json) ;; *) fail 'Output must be deployments/...json relative to this checkout' ;; esac
-  case "/$output/" in */../*|*/./*|*//* ) fail 'Output path must be canonical' ;; esac
-  [[ ! -e "$output" && ! -L "$output" ]] || fail "Output already exists: $output"
-  local directory="$(dirname "$output")"
+  local deployment_path="$1"
+  case "$deployment_path" in deployments/*.json) ;; *) fail 'Output must be deployments/...json relative to this checkout' ;; esac
+  case "/$deployment_path/" in */../*|*/./*|*//* ) fail 'Output path must be canonical' ;; esac
+  [[ ! -e "$deployment_path" && ! -L "$deployment_path" ]] || fail "Output already exists: $deployment_path"
+  local directory="$(dirname "$deployment_path")"
   local component current="$SCRIPT_ROOT"
   local components=()
   IFS=/ read -r -a components <<< "$directory"
@@ -55,42 +55,42 @@ prepare_output_directory() {
 
 # Check actual chain state after broadcast, including the intentionally active policy.
 verify_deployment() {
-  local rpc_url="$1" artifact="$2"
-  local chain address manager admin deployer role
-  chain="$(cast chain-id --rpc-url "$rpc_url")"
-  jq -e --argjson chain "$chain" \
-    '.version == 1 and .chainId == $chain and (.contracts | length == 10)' "$artifact" >/dev/null
+  local rpc_url="$1" artifact_path="$2"
+  local chain_id address policy_manager_address admin_controls_address deployer_address admin_role
+  chain_id="$(cast chain-id --rpc-url "$rpc_url")"
+  jq -e --argjson chain_id "$chain_id" \
+    '.version == 1 and .chainId == $chain_id and (.contracts | length == 10)' "$artifact_path" >/dev/null
   while IFS= read -r address; do
     [[ "$(cast code --rpc-url "$rpc_url" "$address")" != '0x' ]] || fail "No deployed code: $address"
-  done < <(jq -r '.contracts[]' "$artifact")
-  manager="$(jq -r '.contracts.policyManager' "$artifact")"
-  [[ "$(cast call --rpc-url "$rpc_url" "$manager" 'policyCount()(uint256)')" == '1' ]] || fail 'Expected one configured policy'
-  admin="$(jq -r '.contracts.adminControls' "$artifact")"
-  deployer="$(jq -r '.deployer' "$artifact")"
-  role="$(cast call --rpc-url "$rpc_url" "$admin" 'COMPLIANCE_ADMIN_ROLE()(bytes32)')"
-  [[ "$(cast call --rpc-url "$rpc_url" "$admin" 'hasRole(bytes32,address)(bool)' "$role" "$deployer")" == 'true' ]] || fail 'Deployer lacks compliance-admin role'
+  done < <(jq -r '.contracts[]' "$artifact_path")
+  policy_manager_address="$(jq -r '.contracts.policyManager' "$artifact_path")"
+  [[ "$(cast call --rpc-url "$rpc_url" "$policy_manager_address" 'policyCount()(uint256)')" == '1' ]] || fail 'Expected one configured policy'
+  admin_controls_address="$(jq -r '.contracts.adminControls' "$artifact_path")"
+  deployer_address="$(jq -r '.deployer' "$artifact_path")"
+  admin_role="$(cast call --rpc-url "$rpc_url" "$admin_controls_address" 'COMPLIANCE_ADMIN_ROLE()(bytes32)')"
+  [[ "$(cast call --rpc-url "$rpc_url" "$admin_controls_address" 'hasRole(bytes32,address)(bool)' "$admin_role" "$deployer_address")" == 'true' ]] || fail 'Deployer lacks compliance-admin role'
 }
 
 # Use a subshell so the EXIT trap still owns its local temporary path on failure.
 deploy() (
-  local rpc_url="$1" output="$2"
-  local partial_output
-  partial_output="$(mktemp "${output%.json}.partial.XXXXXX")"
-  trap 'rm -f -- "$partial_output"' EXIT
-  DEPLOYMENT_OUTPUT="$partial_output" forge script script/DeployAll.s.sol \
+  local rpc_url="$1" deployment_path="$2"
+  local partial_path
+  partial_path="$(mktemp "${deployment_path%.json}.partial.XXXXXX")"
+  trap 'rm -f -- "$partial_path"' EXIT
+  DEPLOYMENT_OUTPUT="$partial_path" forge script script/DeployAll.s.sol \
     --rpc-url "$rpc_url" --broadcast --non-interactive
-  verify_deployment "$rpc_url" "$partial_output"
+  verify_deployment "$rpc_url" "$partial_path"
   # A hard link publishes atomically and refuses a concurrent existing output.
-  ln "$partial_output" "$output"
-  printf 'Deployment artifact: %s/%s\n' "$SCRIPT_ROOT" "$output"
+  ln "$partial_path" "$deployment_path"
+  printf 'Deployment artifact: %s/%s\n' "$SCRIPT_ROOT" "$deployment_path"
 )
 
 main() {
-  local rpc_url='' output='' tool
+  local rpc_url='' deployment_path='' tool
   while (($#)); do
     case "$1" in
       --rpc-url) rpc_url="${2:?--rpc-url requires a value}"; shift 2 ;;
-      --output) output="${2:?--output requires a value}"; shift 2 ;;
+      --output) deployment_path="${2:?--output requires a value}"; shift 2 ;;
       -h|--help) usage; return ;;
       *) fail "Unknown option: $1" ;;
     esac
@@ -99,8 +99,8 @@ main() {
   for tool in forge cast jq; do command -v "$tool" >/dev/null || fail "Missing executable: $tool"; done
   cd "$SCRIPT_ROOT"
   validate_rpc "$rpc_url"
-  prepare_output_directory "$output"
-  deploy "$rpc_url" "$output"
+  prepare_output_directory "$deployment_path"
+  deploy "$rpc_url" "$deployment_path"
 }
 
 main "$@"

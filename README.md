@@ -240,3 +240,11 @@ owns receipt/selection/publication; this repository owns its contract interfaces
 and [ABI/calldata fixtures](docs/oracle-registry.md). `compliance-spec.json` is
 the Testing Studio input. Obsolete generated `manifest.json` has no role in setup
 or qualification.
+
+## Naming in code and tests
+
+Name the domain object and distinguish its representation. Use `attestation`
+for a `ComplianceAttestation`, `policyStatus` for a `PolicyStatus`,
+`deploymentJson` for serialized deployment metadata, and `deployment_path`
+for its filesystem destination. Keep the same vocabulary in fixtures and
+assertions; state qualifiers supplement the object name rather than replace it.

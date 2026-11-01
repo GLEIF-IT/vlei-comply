@@ -28,39 +28,39 @@ contract PolicyManagerTest is Test {
     function testAuditHashUsesWalletLookupInsteadOfSuppliedIdentityHints() public {
         manager.addPolicy(address(new TestPolicy(IPolicy.PolicyStatus.Pass)));
         IPolicy.TransactionEnvelope memory submitted = envelope();
-        IPolicy.ComplianceAttestation memory result = manager.runPolicies(submitted);
+        IPolicy.ComplianceAttestation memory attestation = manager.runPolicies(submitted);
         submitted.parties[0].identityRef = lookup.identityRef(address(1));
         submitted.parties[1].identityRef = lookup.identityRef(address(2));
-        assertEq(result.envelopeHash, keccak256(abi.encode(submitted)));
-        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Pass));
-        assertEq(result.policyResults.length, 1);
-        assertEq(result.policyResults[0].attestationProof, hex"01");
+        assertEq(attestation.envelopeHash, keccak256(abi.encode(submitted)));
+        assertEq(uint256(attestation.overallStatus), uint256(IPolicy.PolicyStatus.Pass));
+        assertEq(attestation.policyResults.length, 1);
+        assertEq(attestation.policyResults[0].attestationProof, hex"01");
     }
 
     function testUnavailableLookupCannotRestoreSuppliedIdentityHints() public {
         manager.addPolicy(address(new TestPolicy(IPolicy.PolicyStatus.Pass)));
         lookup.setUnavailable();
         IPolicy.TransactionEnvelope memory submitted = envelope();
-        IPolicy.ComplianceAttestation memory result = manager.runPolicies(submitted);
+        IPolicy.ComplianceAttestation memory attestation = manager.runPolicies(submitted);
         submitted.parties[0].identityRef = bytes32(0);
         submitted.parties[1].identityRef = bytes32(0);
-        assertEq(result.envelopeHash, keccak256(abi.encode(submitted)));
+        assertEq(attestation.envelopeHash, keccak256(abi.encode(submitted)));
     }
 
     function testZeroWalletHasNoAbstractIdentityFallback() public {
         manager.addPolicy(address(new TestPolicy(IPolicy.PolicyStatus.Pass)));
         IPolicy.TransactionEnvelope memory submitted = envelope();
         submitted.parties[0].wallet = address(0);
-        IPolicy.ComplianceAttestation memory result = manager.runPolicies(submitted);
+        IPolicy.ComplianceAttestation memory attestation = manager.runPolicies(submitted);
         submitted.parties[0].identityRef = bytes32(0);
         submitted.parties[1].identityRef = lookup.identityRef(address(2));
-        assertEq(result.envelopeHash, keccak256(abi.encode(submitted)));
+        assertEq(attestation.envelopeHash, keccak256(abi.encode(submitted)));
     }
 
     function testUnknownPolicyResultDoesNotBecomePass() public {
         manager.addPolicy(address(new TestPolicy(IPolicy.PolicyStatus.Unknown)));
-        IPolicy.ComplianceAttestation memory result = manager.runPolicies(envelope());
-        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
+        IPolicy.ComplianceAttestation memory attestation = manager.runPolicies(envelope());
+        assertEq(uint256(attestation.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
     }
 
     function testNonPassingPolicyDominatesInBothOrders() public {
@@ -68,13 +68,13 @@ contract PolicyManagerTest is Test {
         TestPolicy fail = new TestPolicy(IPolicy.PolicyStatus.Fail);
         manager.addPolicy(address(pass));
         manager.addPolicy(address(fail));
-        IPolicy.ComplianceAttestation memory result = manager.runPolicies(envelope());
-        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
-        assertEq(result.policyResults.length, 2);
+        IPolicy.ComplianceAttestation memory attestation = manager.runPolicies(envelope());
+        assertEq(uint256(attestation.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
+        assertEq(attestation.policyResults.length, 2);
         manager.removePolicy(address(pass));
         manager.addPolicy(address(pass));
-        result = manager.runPolicies(envelope());
-        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
+        attestation = manager.runPolicies(envelope());
+        assertEq(uint256(attestation.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
     }
 
     event PoliciesRun(address indexed caller, bytes32 indexed envelopeHash, IPolicy.PolicyStatus overallStatus);
@@ -88,19 +88,19 @@ contract PolicyManagerTest is Test {
 
         vm.expectEmit(true, true, false, true, address(manager));
         emit PoliciesRun(address(this), expectedHash, IPolicy.PolicyStatus.Fail);
-        IPolicy.ComplianceAttestation memory result = manager.runPolicies(submitted);
+        IPolicy.ComplianceAttestation memory attestation = manager.runPolicies(submitted);
 
-        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
-        assertEq(result.policyResults.length, 0);
-        assertEq(result.envelopeHash, expectedHash);
+        assertEq(uint256(attestation.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
+        assertEq(attestation.policyResults.length, 0);
+        assertEq(attestation.envelopeHash, expectedHash);
     }
 
     function testFreezingUnconfiguredManagerCannotEnableTransfers() public {
         manager.freezePolicies();
         lookup.setUnavailable();
-        IPolicy.ComplianceAttestation memory result = manager.runPolicies(envelope());
-        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
-        assertEq(result.policyResults.length, 0);
+        IPolicy.ComplianceAttestation memory attestation = manager.runPolicies(envelope());
+        assertEq(uint256(attestation.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
+        assertEq(attestation.policyResults.length, 0);
     }
 
     function testCannotRemoveLastPolicyOrChangeItsMembership() public {
@@ -127,9 +127,9 @@ contract PolicyManagerTest is Test {
         assertFalse(manager.isPolicy(address(previous)));
         assertTrue(manager.isPolicy(address(successor)));
         assertEq(manager.getPolicies()[0], address(successor));
-        IPolicy.ComplianceAttestation memory result = manager.runPolicies(envelope());
-        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
-        assertEq(result.policyResults.length, 1);
+        IPolicy.ComplianceAttestation memory attestation = manager.runPolicies(envelope());
+        assertEq(uint256(attestation.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
+        assertEq(attestation.policyResults.length, 1);
     }
 
 }

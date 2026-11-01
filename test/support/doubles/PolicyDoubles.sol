@@ -16,13 +16,13 @@ contract TestIdentityLookup is IGL1IdentityRegistry {
 }
 
 contract TestPolicy is IPolicy {
-    PolicyStatus private immutable result;
+    PolicyStatus private immutable policyStatus;
 
-    constructor(PolicyStatus status) { result = status; }
+    constructor(PolicyStatus status) { policyStatus = status; }
 
     function policyId() external pure returns (bytes32) { return keccak256("TEST_POLICY"); }
     function policyVersion() external pure returns (uint64) { return 1; }
     function evaluate(TransactionEnvelope calldata) external view returns (PolicyStatus, bytes memory) {
-        return (result, hex"01");
+        return (policyStatus, hex"01");
     }
 }
