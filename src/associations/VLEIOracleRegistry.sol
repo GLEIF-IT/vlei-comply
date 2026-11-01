@@ -7,6 +7,9 @@ import "./IVLEIOracleRegistry.sol";
 /// @notice Records the authorized oracle's current wallet association endorsement.
 /// @dev KERI, credential status, signatures and account type are verified off-chain.
 /// The deployment supplies chain scope. Consuming this result trusts the oracle.
+/// Updates flow from verifier status through the oracle's durable delivery phases.
+/// Transaction receipts acknowledge writes; these records do not send authority
+/// back to off-chain services or trigger automatic repair of independent writes.
 contract VLEIOracleRegistry is IVLEIOracleRegistry {
     struct Endorsement {
         bytes32 identityRef;

@@ -321,4 +321,24 @@ contract WalletAssociationComplianceTest is Test {
         assertEq(asset.balanceOf(bob), 0);
     }
 
+
+    /// @dev Each forward-delivery step is independently committed; no stale identity
+    /// or delayed retirement may authorize the wallet during an entity change.
+    function testSequentialEntityChangeRequiresFinalPublication() public {
+        _registerAndEndorse();
+        bytes32 successor = keccak256("successor entity");
+        assertTrue(oracleRegistry.withdrawEndorsement(alice, ALICE_SAID));
+        assertFalse(_transfer());
+        chainlinkIdentityRegistry.removeIdentity(aliceCcid, alice, "");
+        assertFalse(_transfer());
+        chainlinkIdentityRegistry.registerIdentity(successor, alice, "");
+        assertFalse(_transfer());
+        oracleRegistry.publishEndorsement(alice, successor, "successor-association");
+        assertFalse(oracleRegistry.withdrawEndorsement(alice, ALICE_SAID));
+        assertTrue(_transfer());
+        assertEq(asset.balanceOf(bob), 100 * UNIT);
+        assertTrue(oracleRegistry.withdrawEndorsement(alice, "successor-association"));
+        assertFalse(oracleRegistry.withdrawEndorsement(alice, "successor-association"));
+        assertFalse(_transfer());
+    }
 }
