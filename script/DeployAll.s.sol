@@ -41,21 +41,21 @@ contract DeployAll is Script {
         wUSDC wrapper = new wUSDC(address(asset), address(policyManager), address(adminControls));
         vm.stopBroadcast();
 
-        string memory addresses = "contracts";
-        vm.serializeAddress(addresses, "adminControls", address(adminControls));
-        vm.serializeAddress(addresses, "devPolicyEngine", address(devPolicyEngine));
-        vm.serializeAddress(addresses, "identityRegistry", address(identities));
-        vm.serializeAddress(addresses, "identityAdapter", address(adapter));
-        vm.serializeAddress(addresses, "policyManager", address(policyManager));
-        vm.serializeAddress(addresses, "oracleRegistry", address(oracleRegistry));
-        vm.serializeAddress(addresses, "endorsementChecker", address(checker));
-        vm.serializeAddress(addresses, "associationPolicy", address(policy));
-        vm.serializeAddress(addresses, "usdcToken", address(asset));
-        string memory contractsJson = vm.serializeAddress(addresses, "wrapper", address(wrapper));
-        string memory output = string.concat(
+        string memory contractsObjectKey = "contracts";
+        vm.serializeAddress(contractsObjectKey, "adminControls", address(adminControls));
+        vm.serializeAddress(contractsObjectKey, "devPolicyEngine", address(devPolicyEngine));
+        vm.serializeAddress(contractsObjectKey, "identityRegistry", address(identities));
+        vm.serializeAddress(contractsObjectKey, "identityAdapter", address(adapter));
+        vm.serializeAddress(contractsObjectKey, "policyManager", address(policyManager));
+        vm.serializeAddress(contractsObjectKey, "oracleRegistry", address(oracleRegistry));
+        vm.serializeAddress(contractsObjectKey, "endorsementChecker", address(checker));
+        vm.serializeAddress(contractsObjectKey, "associationPolicy", address(policy));
+        vm.serializeAddress(contractsObjectKey, "usdcToken", address(asset));
+        string memory contractsJson = vm.serializeAddress(contractsObjectKey, "wrapper", address(wrapper));
+        string memory deploymentJson = string.concat(
             '{"version":1,"chainId":', vm.toString(block.chainid),
             ',"deployer":"', vm.toString(deployer), '","contracts":', contractsJson, "}"
         );
-        vm.writeJson(output, vm.envString("DEPLOYMENT_OUTPUT"));
+        vm.writeJson(deploymentJson, vm.envString("DEPLOYMENT_OUTPUT"));
     }
 }
