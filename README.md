@@ -236,7 +236,7 @@ See [testing](docs/testing.md) for contract/function lookup and qualification.
 Protocol ownership: [Verifier](https://github.com/GLEIF-IT/eoa-verifier/tree/master/protocol)
 owns external-association-v1 and shared signed delivery;
 [Oracle](https://github.com/GLEIF-IT/vlei-oracle/blob/main/protocol/oracle-api-v1/README.md)
-owns receipt/selection/publication; this repository owns its contract interfaces
+owns authenticated status-event processing, selection and publication; this repository owns its contract interfaces
 and [ABI/calldata fixtures](docs/oracle-registry.md). `compliance-spec.json` is
 the Testing Studio input. Obsolete generated `manifest.json` has no role in setup
 or qualification.

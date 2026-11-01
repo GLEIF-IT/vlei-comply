@@ -13,7 +13,7 @@ It uses two installed CLIs, independent persistent stores/identities, witnessed
 GEDA/QVI/LE issuance, signed webhooks, lost-ACK redelivery, restart, replacement
 and exact-SAID withdrawal on Anvil. It checks actual sender/beneficiary token
 balances before/after allowed and rejected transfers. A policy rejection can
-return false in a successful transaction; receipt success alone proves no token
+return false in a successful transaction; transaction receipt success alone does not prove token
 movement. The separately funded Oracle writer has an explicitly granted role.
 
 Run the full system through the

@@ -3,7 +3,7 @@
 `VLEIOracleRegistry` records the authorized oracle's result for one wallet on the
 deployed chain. [EOA Verifier](https://github.com/GLEIF-IT/eoa-verifier/tree/master/protocol) owns
 credential/proof verification and association acceptance. [Oracle API v1](https://github.com/GLEIF-IT/vlei-oracle/blob/main/protocol/oracle-api-v1/README.md)
-owns trusted receipt, selection and publication. Solidity consumes their authorized
+owns authenticated status-event storage, selection and publication. Solidity consumes their authorized
 result; it does not receive credentials or association nonces.
 
 The wallet keys a current record containing only `identityRef` (the Keccak-256
