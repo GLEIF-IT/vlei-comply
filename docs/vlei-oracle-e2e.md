@@ -4,7 +4,7 @@ Verifier owns initial evidence/proof/account checks and application acceptance.
 Oracle durably receives authenticated status, selects a current association, then
 posts or withdraws the exact mapping. Comply consumes current wallet/entity
 endorsements for transfers through wUSDC. ACK, selection and confirmed contract
-state are separate milestones. Superseding Oracle selection does not retire
+state are separate milestones. Superseding Oracle selection does not revoke
 Verifier acceptance.
 
 The single maintained full-system scenario belongs to
