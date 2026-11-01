@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import "forge-std/Script.sol";
-import "forge-std/console.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "../src/admin/AdminControls.sol";
 import "../src/policy/PolicyManager.sol";
@@ -42,15 +41,21 @@ contract DeployAll is Script {
         wUSDC wrapper = new wUSDC(address(asset), address(policyManager), address(adminControls));
         vm.stopBroadcast();
 
-        // These labels are the oracle deploy-log parser's explicit address contract.
-        console.log("AdminControls:", address(adminControls));
-        console.log("AllowAllPolicyEngine:", address(devPolicyEngine));
-        console.log("Vendor IdentityRegistry:", address(identities));
-        console.log("IdentityRegistry (Adapter):", address(adapter));
-        console.log("PolicyManager:", address(policyManager));
-        console.log("VLEIOracleRegistry:", address(oracleRegistry));
-        console.log("VLEIEndorsementChecker:", address(checker));
-        console.log("Asset (USDC):", address(asset));
-        console.log("Wrapper (wUSDC):", address(wrapper));
+        string memory addresses = "contracts";
+        vm.serializeAddress(addresses, "adminControls", address(adminControls));
+        vm.serializeAddress(addresses, "devPolicyEngine", address(devPolicyEngine));
+        vm.serializeAddress(addresses, "identityRegistry", address(identities));
+        vm.serializeAddress(addresses, "identityAdapter", address(adapter));
+        vm.serializeAddress(addresses, "policyManager", address(policyManager));
+        vm.serializeAddress(addresses, "oracleRegistry", address(oracleRegistry));
+        vm.serializeAddress(addresses, "endorsementChecker", address(checker));
+        vm.serializeAddress(addresses, "associationPolicy", address(policy));
+        vm.serializeAddress(addresses, "usdcToken", address(asset));
+        string memory contractsJson = vm.serializeAddress(addresses, "wrapper", address(wrapper));
+        string memory output = string.concat(
+            '{"version":1,"chainId":', vm.toString(block.chainid),
+            ',"deployer":"', vm.toString(deployer), '","contracts":', contractsJson, "}"
+        );
+        vm.writeJson(output, vm.envString("DEPLOYMENT_OUTPUT"));
     }
 }
