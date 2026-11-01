@@ -57,3 +57,29 @@ For canonical entity AID `issuerAid`, encode `identityRef` as
 `associationSaid` is the exact credential SAID as a Solidity string, not a bytes32
 conversion. Chain scope comes from deployment. The authorized writer is trusted;
 contracts cannot establish credential validity or notice undelivered revocation.
+
+
+## Forward delivery contract
+
+The supported operating model has one Oracle writer per deployment and preserved
+Oracle storage. Association authority flows from EOA Verifier to Oracle to these
+registries. The Oracle records its own confirmed effects and completes each
+posting operation. It does not periodically read these mappings, discover changes
+made by other writers, or repair them automatically. Public contract reads remain
+available to policy consumers and observers.
+
+First publication registers identity before endorsement. A change of entity
+withdraws the previous endorsement, removes the old identity, registers the new
+identity, then publishes the new endorsement. Each is a separate transaction;
+intermediate states need not pass compliance. A same-entity replacement needs only
+publication of the new SAID. Revocation withdraws the exact SAID and can leave the
+identity hint intact. Repeated or delayed withdrawal cannot clear a successor.
+
+Oracle's GET `/v1/endorsements/{associationSaid}` reports local delivery progress
+and its last confirmed effect, not freshly queried chain truth. A failed or
+uncertain RPC does not erase a prior contract record or invalidate a credential.
+Bounded retries end in an off-chain dead letter for manual intervention. A signed
+transaction may still land after its caller times out; no second transaction may
+bypass an unresolved writer nonce. There is no compensating on-chain workflow,
+back-propagation, or automatic expiry. Deployment starts from known empty
+association state; preserving the Oracle store is part of this operating model.
