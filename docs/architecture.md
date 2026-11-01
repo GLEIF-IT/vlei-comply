@@ -36,6 +36,12 @@ trusted-issuer registry or credential-requirement validator is deployed here.
    emits `ComplianceCheckFailed` for rejection and executes the underlying token
    call only on Pass. Token transfer events establish actual movement.
 
+Pass requires at least one active policy and a Pass from every policy. An empty
+set follows the same audit path with Fail and no per-policy results. The wrapper
+records a rejection with zero policy ID and does not call the token. The manager
+starts unconfigured; deployment must add its intended policy before use.
+Administrators replace an only policy by adding its successor before removal.
+
 Both wrapper routes share this path. There is no pending queue, mediated abstract
 customer route or administrator settlement path. Shared emergency pause protects
 both routes. `AllowAllPolicyEngine` is retained only for local Chainlink registry

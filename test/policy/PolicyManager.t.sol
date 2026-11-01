@@ -76,4 +76,60 @@ contract PolicyManagerTest is Test {
         result = manager.runPolicies(envelope());
         assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
     }
+
+    event PoliciesRun(address indexed caller, bytes32 indexed envelopeHash, IPolicy.PolicyStatus overallStatus);
+
+    function testUnconfiguredManagerFailsWithAuditedEnvelope() public {
+        IPolicy.TransactionEnvelope memory submitted = envelope();
+        IPolicy.TransactionEnvelope memory enriched = envelope();
+        enriched.parties[0].identityRef = lookup.identityRef(address(1));
+        enriched.parties[1].identityRef = lookup.identityRef(address(2));
+        bytes32 expectedHash = keccak256(abi.encode(enriched));
+
+        vm.expectEmit(true, true, false, true, address(manager));
+        emit PoliciesRun(address(this), expectedHash, IPolicy.PolicyStatus.Fail);
+        IPolicy.ComplianceAttestation memory result = manager.runPolicies(submitted);
+
+        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
+        assertEq(result.policyResults.length, 0);
+        assertEq(result.envelopeHash, expectedHash);
+    }
+
+    function testFreezingUnconfiguredManagerCannotEnableTransfers() public {
+        manager.freezePolicies();
+        lookup.setUnavailable();
+        IPolicy.ComplianceAttestation memory result = manager.runPolicies(envelope());
+        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
+        assertEq(result.policyResults.length, 0);
+    }
+
+    function testCannotRemoveLastPolicyOrChangeItsMembership() public {
+        TestPolicy policy = new TestPolicy(IPolicy.PolicyStatus.Pass);
+        manager.addPolicy(address(policy));
+
+        vm.expectRevert("Cannot remove last policy");
+        manager.removePolicy(address(policy));
+
+        assertEq(manager.policyCount(), 1);
+        assertTrue(manager.isPolicy(address(policy)));
+        assertEq(manager.getPolicies()[0], address(policy));
+        assertEq(uint256(manager.runPolicies(envelope()).overallStatus), uint256(IPolicy.PolicyStatus.Pass));
+    }
+
+    function testReplaceOnlyPolicyByAddingSuccessorFirst() public {
+        TestPolicy previous = new TestPolicy(IPolicy.PolicyStatus.Pass);
+        TestPolicy successor = new TestPolicy(IPolicy.PolicyStatus.Fail);
+        manager.addPolicy(address(previous));
+        manager.addPolicy(address(successor));
+        manager.removePolicy(address(previous));
+
+        assertEq(manager.policyCount(), 1);
+        assertFalse(manager.isPolicy(address(previous)));
+        assertTrue(manager.isPolicy(address(successor)));
+        assertEq(manager.getPolicies()[0], address(successor));
+        IPolicy.ComplianceAttestation memory result = manager.runPolicies(envelope());
+        assertEq(uint256(result.overallStatus), uint256(IPolicy.PolicyStatus.Fail));
+        assertEq(result.policyResults.length, 1);
+    }
+
 }

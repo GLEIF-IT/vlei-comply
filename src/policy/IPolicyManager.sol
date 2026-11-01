@@ -12,7 +12,8 @@ import "./IPolicy.sol";
 interface IPolicyManager {
     /// @notice Runs every registered policy against a transaction envelope.
     /// @dev Implementations should enrich identity data before evaluation and aggregate results
-    /// into one status. This function may emit operational logs and is not necessarily `view`.
+    /// into one status. An empty set must return Fail with no per-policy results.
+    /// This function may emit operational logs and is not necessarily `view`.
     /// @param envelope Transaction envelope with party packets supplied by the wrapper.
     /// @return attestation Aggregated compliance attestation.
     function runPolicies(IPolicy.TransactionEnvelope calldata envelope) 

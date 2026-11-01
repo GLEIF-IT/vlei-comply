@@ -70,7 +70,7 @@ interface IPolicy {
     struct ComplianceAttestation {
         /// @notice Hash of the enriched transaction envelope evaluated by policies.
         bytes32 envelopeHash;
-        /// @notice Pass only when every configured policy returns Pass; otherwise Fail.
+        /// @notice Pass only for a nonempty policy set whose every policy returns Pass; otherwise Fail.
         PolicyStatus overallStatus;
         /// @notice Per-policy results in manager evaluation order.
         PolicyResult[] policyResults;

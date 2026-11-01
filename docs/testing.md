@@ -14,8 +14,9 @@ demo. Public ABI/publication vectors remain in abi/ for external consumers.
 
 Policy doubles live in test/support/doubles/PolicyDoubles.sol. The integration
 fixture and real topology remain together. Tests never import .t.sol files. The
-same 28 cases cover admin, identity, policy, registry and wrapper interactions.
-Behavior, selectors/events and stored fields are unchanged by this refactor.
+cases cover admin, identity, policy, registry and wrapper interactions. Empty-set
+failure tests assert the normal audit hash/result, both rejected transfer routes,
+unchanged balances/allowance, last-policy retention and add-before-remove replacement.
 
 Run `forge test` with Foundry 1.5.1. Contract CI needs no Python, Verifier or
 Oracle package. It also invokes [deploy-local](../scripts/README.md) against its

@@ -15,7 +15,7 @@ contract wUSDC {
     AdminControls public immutable adminControls;
 
     /// @notice Policy rejected the transfer; no underlying token call was made.
-    /// @param policyId First non-passing policy in evaluation order.
+    /// @param policyId First non-passing policy in evaluation order; zero when no policy is configured.
     /// @param reasonCode Aggregate policy status, distinct from per-policy proof reasons.
     event ComplianceCheckFailed(
         address indexed from,
