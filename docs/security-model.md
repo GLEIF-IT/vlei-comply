@@ -16,7 +16,7 @@ This repository is a production-preparation prototype. It demonstrates current c
 
 `AdminControls.COMPLIANCE_ADMIN_ROLE` can:
 
-- add/remove/freeze policy set,
+- add/remove/freeze policies while retaining at least one active policy after configuration,
 - publish, replace, and withdraw exact wallet associations.
 
 `AdminControls.EMERGENCY_ROLE` can pause and unpause the system.
@@ -54,5 +54,13 @@ queue or administrative approval that can execute a previously evaluated transfe
 Policy hashes bind the resolved wallet parties, asset, amount and timestamp.
 Failed identity lookups discard supplied hints; unknown policy results fail.
 
-The pre-existing zero-policy configuration currently returns Pass. The local deployment explicitly installs the wallet-association policy; absence
-of policies currently bypasses that protection.
+An unconfigured manager returns Fail with no per-policy results and emits the
+normal `PoliciesRun` audit event. Both wrapper routes return false and emit
+`ComplianceCheckFailed` with a zero policy ID; token balances and allowances
+remain unchanged. Freezing an empty set does not enable transfers.
+
+Administrators cannot remove the last active policy. To replace it, add the
+successor first, then remove the previous policy. The constructor remains
+unconfigured until the first policy is explicitly installed. Local deployment
+installs the wallet-association policy and validates that configuration before
+publishing its deployment artifact.

@@ -10,7 +10,7 @@ import "../admin/AdminControls.sol";
  * @title PolicyManager
  * @notice Orchestration layer for transaction-envelope policy evaluation.
  * @dev The manager enriches wrapper-supplied party packets from `IGL1IdentityRegistry`,
- * evaluates each registered policy, and requires every policy to return Pass.
+ * evaluates each registered policy, and requires a nonempty set with every policy returning Pass.
  * It deliberately catches identity-registry read failures during enrichment so missing or
  * unavailable identity data reaches policies as zero values and policies can fail closed.
  */
@@ -85,12 +85,14 @@ contract PolicyManager is IPolicyManager {
     }
     
     /// @notice Removes a policy from the evaluation set.
-    /// @dev Uses swap-and-pop, so policy order can change when removing a non-final entry.
+    /// @dev Retain at least one policy. Add a successor before removing the only active policy.
+    /// Uses swap-and-pop, so policy order can change when removing a non-final entry.
     /// @param policy Policy contract address to remove.
     function removePolicy(address policy) external onlyAdmin notFrozen {
         require(isPolicy[policy], "Not a policy");
         
         uint256 len = policies.length;
+        require(len > 1, "Cannot remove last policy");
         for (uint256 i = 0; i < len; i++) {
             if (policies[i] == policy) {
                 if (i != len - 1) {
@@ -123,7 +125,8 @@ contract PolicyManager is IPolicyManager {
      * @notice Runs all registered policies on a transaction envelope.
      * @dev Resolve identity from each exact wallet; caller-supplied identity hints
      * cannot replace the registry lookup. Missing data remains zero and fails the
-     * wallet association policy.
+     * wallet association policy. An unconfigured manager returns Fail with an empty
+     * policy result list and the normal enriched-envelope audit event.
      * @param envelope Wrapper-supplied transaction envelope.
      * @return attestation Aggregate compliance result and per-policy records.
      */
@@ -131,10 +134,6 @@ contract PolicyManager is IPolicyManager {
         external override returns (IPolicy.ComplianceAttestation memory attestation) {
         
         uint256 len = policies.length;
-        if (len == 0) {
-            attestation.overallStatus = IPolicy.PolicyStatus.Pass;
-            return attestation;
-        }
         
         // 1. Enrich party packets via IGL1IdentityRegistry
         IPolicy.PartyPacket[] memory enrichedParties = new IPolicy.PartyPacket[](envelope.parties.length);
@@ -148,7 +147,8 @@ contract PolicyManager is IPolicyManager {
         
         // 2. Evaluate all policies
         IPolicy.PolicyResult[] memory results = new IPolicy.PolicyResult[](len);
-        IPolicy.PolicyStatus overall = IPolicy.PolicyStatus.Pass;
+        // Passing requires at least one actual policy decision.
+        IPolicy.PolicyStatus overall = len == 0 ? IPolicy.PolicyStatus.Fail : IPolicy.PolicyStatus.Pass;
         
         for (uint256 i = 0; i < len; i++) {
             address policyAddr = policies[i];
@@ -169,7 +169,7 @@ contract PolicyManager is IPolicyManager {
             });
         }
         
-        // 3. Any non-passing result fails the aggregate
+        // 3. Bind the aggregate, including an empty-set failure, to the evaluated envelope
         bytes32 envHash = keccak256(abi.encode(enrichedEnvelope));
         
         // 4. Build ComplianceAttestation

@@ -61,6 +61,11 @@ transfers remain ordinary token transfers; asset-wide enforcement is not a goal.
 
 ## Policies
 
+A policy set must be nonempty to pass. An unconfigured manager produces an
+audited Fail; neither wrapper route moves tokens or consumes allowance.
+Administrators cannot remove the final policy: add its successor before removal.
+The local deployment explicitly installs the wallet-association policy.
+
 - **VLEIWalletAssociationPolicy**: policy requiring both originator and beneficiary customer parties to have current exact-wallet endorsements.
 
 ## Project Structure

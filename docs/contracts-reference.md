@@ -7,7 +7,7 @@
 
 ## Policy
 
-- `PolicyManager`: policy registry, identity enrichment orchestrator, and aggregate policy evaluator.
+- `PolicyManager`: policy registry, identity enrichment orchestrator, and aggregate policy evaluator; empty sets fail and the last policy cannot be removed.
 - `VLEIWalletAssociationPolicy`: policy requiring current exact-wallet endorsements for both customer roles.
 
 ## Identity

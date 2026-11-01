@@ -84,6 +84,14 @@ contract WalletAssociationComplianceTest is Test {
         return wrapper.transfer(bob, 100 * UNIT);
     }
 
+    /// @dev Expected audit envelope uses the known registry identities for both fixture wallets.
+    function _envelope(uint256 amount) internal view returns (IPolicy.TransactionEnvelope memory) {
+        IPolicy.PartyPacket[] memory parties = new IPolicy.PartyPacket[](2);
+        parties[0] = IPolicy.PartyPacket(IPolicy.PartyRole.OriginatorCustomer, alice, aliceCcid);
+        parties[1] = IPolicy.PartyPacket(IPolicy.PartyRole.BeneficiaryCustomer, bob, bobCcid);
+        return IPolicy.TransactionEnvelope(address(asset), amount, block.timestamp, parties);
+    }
+
     function testTransferRequiresBothExactWalletEndorsements() public {
         chainlinkIdentityRegistry.registerIdentity(aliceCcid, alice, "");
         chainlinkIdentityRegistry.registerIdentity(bobCcid, bob, "");
@@ -220,12 +228,7 @@ contract WalletAssociationComplianceTest is Test {
 
     function testPassAuditBindsBothResolvedWalletsAndTransfer() public {
         _registerAndEndorse();
-        IPolicy.PartyPacket[] memory parties = new IPolicy.PartyPacket[](2);
-        parties[0] = IPolicy.PartyPacket(IPolicy.PartyRole.OriginatorCustomer, alice, aliceCcid);
-        parties[1] = IPolicy.PartyPacket(IPolicy.PartyRole.BeneficiaryCustomer, bob, bobCcid);
-        IPolicy.TransactionEnvelope memory envelope = IPolicy.TransactionEnvelope(
-            address(asset), UNIT, block.timestamp, parties
-        );
+        IPolicy.TransactionEnvelope memory envelope = _envelope(UNIT);
         vm.expectEmit(true, true, false, true, address(manager));
         emit PoliciesRun(address(wrapper), keccak256(abi.encode(envelope)), IPolicy.PolicyStatus.Pass);
         vm.prank(alice);
@@ -279,6 +282,43 @@ contract WalletAssociationComplianceTest is Test {
         assertEq(settlementError.length, 0);
         assertEq(asset.balanceOf(bob), 0);
         assertEq(asset.balanceOf(alice), 1_000 * UNIT);
+    }
+
+    function testUnconfiguredManagerRejectsBothTransferRoutesWithAudit() public {
+        _registerAndEndorse();
+        manager = new PolicyManager(address(admin), address(identityRegistryAdapter));
+        wrapper = new wUSDC(address(asset), address(manager), address(admin));
+        vm.prank(alice);
+        asset.approve(address(wrapper), 2 * UNIT);
+        bytes32 expectedHash = keccak256(abi.encode(_envelope(UNIT)));
+
+        for (uint256 route = 0; route < 2; route++) {
+            vm.expectEmit(true, true, false, true, address(manager));
+            emit PoliciesRun(address(wrapper), expectedHash, IPolicy.PolicyStatus.Fail);
+            vm.expectEmit(true, true, false, true, address(wrapper));
+            emit ComplianceCheckFailed(alice, bob, UNIT, bytes32(0), uint8(IPolicy.PolicyStatus.Fail));
+            vm.prank(alice);
+            bool transferred = route == 0
+                ? wrapper.transfer(bob, UNIT)
+                : wrapper.transferFrom(alice, bob, UNIT);
+            assertFalse(transferred);
+            assertEq(asset.balanceOf(alice), 1_000 * UNIT);
+            assertEq(asset.balanceOf(bob), 0);
+            assertEq(asset.allowance(alice, address(wrapper)), 2 * UNIT);
+        }
+    }
+
+    function testLastPolicyRemovalCannotDisableWalletAssociationChecks() public {
+        _registerAndEndorse();
+        vm.expectRevert("Cannot remove last policy");
+        manager.removePolicy(address(policy));
+        assertEq(manager.policyCount(), 1);
+        assertTrue(manager.isPolicy(address(policy)));
+
+        oracleRegistry.withdrawEndorsement(bob, BOB_SAID);
+        assertFalse(_transfer());
+        assertEq(asset.balanceOf(alice), 1_000 * UNIT);
+        assertEq(asset.balanceOf(bob), 0);
     }
 
 }
