@@ -1,105 +1,28 @@
-# Local two-service infrastructure
+# Local infrastructure ownership
 
-Use independent test stores and a local Anvil chain. EOA Verifier performs initial
-credential/wallet/account verification; vLEI Oracle trusts its authenticated status
-and posts the selected mapping. Neither application refreshes accepted evidence.
+Comply owns Solidity construction, recorded submodules, contract tests and
+structured deployment output. It starts no KERI or Python application services.
 
-## Qualify the installed applications
-
-The following KERI/IPEX fixture uses the current independent-service model.
-Install the matching applications together in a fresh Python 3.12 environment.
-Select a reviewed exact Oracle revision as `ORACLE_REVISION`; use its
-`tests/requirements.txt` producer pin and the contract pin in its CI/demo manifest. From this comply checkout:
+For contract-only work:
 
 ```sh
-export WORK="$PWD/runs/qualification"
-mkdir -p "$WORK"
-gh repo clone GLEIF-IT/vlei-oracle "$WORK/oracle"
-: "${ORACLE_REVISION:?Select an exact compatible oracle commit}"
-git -C "$WORK/oracle" checkout --detach "$ORACLE_REVISION"
-python3.12 -m venv "$WORK/venv"
-"$WORK/venv/bin/pip" install "$WORK/oracle" \
-  -r "$WORK/oracle/tests/requirements.txt"
-export ORACLE_DIR="$WORK/oracle"
-export VLEI_ORACLE="$WORK/venv/bin/vlei-oracle"
-export EOA_VERIFIER="$WORK/venv/bin/eoa-verifier"
-export EOA_VERIFIER_PYTHON="$WORK/venv/bin/python"
-scripts/dev/init-local-vlei-fixture.sh
+./setup.sh
+forge build
+forge test
 ```
 
-Foundry 1.5.1 (`forge`, `cast`, `anvil`) must be on PATH and this checkout's
-submodules initialized. The pinned test requirements select EOA Verifier's merged
-artifact. The fixture owns its Anvil, witness, issuer stores and both CLI processes;
-it stops them on exit. Add pytest's `--basetemp <fresh-directory>` to retain test
-artifacts for inspection. It never shares a running operator's stores.
+Start a local Anvil separately and follow [deploy-local](../scripts/README.md).
+The command checks actual deployed code, configured policy and roles before
+publishing `deployments/RUN/contracts.json`. Existing outputs are refused.
 
-The scenario verifies source-chain issuance, IPEX intake of JSON messages with
-CESR attachments, authenticated delivery/lost ACK, two wallet endorsements,
-token balance changes,
-replacement, restart and revocation withdrawal. See [integration](vlei-oracle-e2e.md).
-On affected macOS hosts, copy inputs into a Linux container without host bind
-mounts; keep LMDB stores in that container.
+For the witnessed Verifier/Oracle/USDC environment use the
+[Oracle integration commands](https://github.com/GLEIF-IT/vlei-oracle/tree/main/scripts/integration).
+Oracle owns exact source selection, isolated wheel installation, native witness
+and schema hosting, service identities, peer introduction, chain, deployment,
+writer setup and lifecycle. Its run manifest records endpoints and artifacts.
 
-Use fresh demonstration application stores and contracts. Existing operator
-stores are neither migrated nor deleted by this procedure.
-
-## Persistent local services
-
-The existing `start-local-gl1-stack.sh start` command starts the witness demo,
-schema server and Anvil, deploys contracts, and writes `runs/<run-id>/stack.env`.
-It requires explicit `ORACLE_DIR`, `KERIPY_DIR` (witness demo assets),
-`VLEI_SCHEMA_TOOLS_DIR`, installed `KLI`/`VLEI_SERVER`, both application executables and `EOA_VERIFIER_PYTHON`,
-Foundry, `jq`, `curl` and `nc`. It does not infer sibling repository paths. The
-oracle dependency preparer can provide asset paths; use the selected application
-executables above. Schema bytes come directly from the explicitly selected
-installed Verifier resource, never an Oracle protocol checkout. The exported
-Python must belong to the same pinned environment as `EOA_VERIFIER`.
-
-```sh
-scripts/dev/start-local-gl1-stack.sh check
-scripts/dev/start-local-gl1-stack.sh start
-source runs/local-gl1-stack/stack.env
-```
-
-Provision two KERI service identities before starting either application. The
-following unencrypted single-key setup is for isolated local development:
-
-```sh
-export VERIFIER_BASE=local-gl1-stack-verifier
-export ORACLE_BASE=local-gl1-stack-oracle
-"$KLI" init --name verifier --base "$VERIFIER_BASE" --nopasscode
-"$KLI" incept --name verifier --base "$VERIFIER_BASE" --alias verifier \
-  --transferable --icount 1 --isith 1 --ncount 1 --nsith 1 --toad 0
-"$KLI" init --name oracle --base "$ORACLE_BASE" --nopasscode
-"$KLI" incept --name oracle --base "$ORACLE_BASE" --alias oracle \
-  --transferable --icount 1 --isith 1 --ncount 1 --nsith 1 --toad 0
-```
-
-Set `VERIFIER_AID` and `ORACLE_AID` to the identifiers printed by those commands,
-and `GEDA_AID` to the configured initial-verification trust root. Use a separate
-funded Ethereum key for `VLEI_ORACLE_POSTING_KEY`; grant its address the deployed
-`AdminControls.COMPLIANCE_ADMIN_ROLE` using the deployment administrator. Never
-share that writer's nonce stream with setup transactions. The local deployment's
-registry policy engine is permissive for demonstration; production governance is
-separate work.
-
-```sh
-scripts/dev/start-local-gl1-stack.sh services
-scripts/dev/start-local-gl1-stack.sh status
-```
-
-`services` starts verifier on 9724 and oracle on 9723, exports the verifier's public
-KEL to the oracle, then sends the oracle's public KEL to the verifier. Each peer
-AID is explicitly configured; fetched keys do not change that trust choice.
-KERIpy verifies each peer's KEL evidence before its keys can authenticate status or
-ACKs. The verifier sends to `/v1/status-events`; the oracle gets only its own
-posting secret. `verifier` and `oracle` commands can start them separately;
-`oracle` also requires `VERIFIER_KEL` naming the public CESR file.
-
-Present the association and its required KEL/TEL and credential evidence to
-EOA Verifier. Deliver revocation TEL evidence and its witnessed KEL anchor through
-the same CESR-stream transport for verification. Grant or credential bytes alone
-do not establish revocation. GET `/v1/associations/<said>/status` reads stored status only.
-
-Use `start-local-gl1-stack.sh stop` to stop processes recorded by this launcher.
-Persistent identities, accepted/revoked status and delivery records remain.
+The [maintained scenario](vlei-oracle-e2e.md) distinguishes verifier acceptance,
+authenticated storage ACK, Oracle selection and confirmed contract mapping. It
+checks token balances and exact-SAID withdrawal. A successful HTTP response or
+transaction receipt alone is insufficient. Stop preserves stores and chain;
+clean is explicit and restricted to a stopped run owned by that environment.

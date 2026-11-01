@@ -1,4 +1,4 @@
-name: Contracts and launcher
+name: Contracts and local deployment
 on:
   pull_request:
   push:
@@ -13,19 +13,31 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           submodules: recursive
-      - name: Install test tools
-        run: |
-          curl -LfsS https://github.com/foundry-rs/foundry/releases/download/v1.5.1/foundry_v1.5.1_linux_amd64.tar.gz | tar xz -C "$RUNNER_TEMP"
-          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
-          sudo apt-get update -qq
-          sudo apt-get install -y jq netcat-openbsd
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@dba66c27052e63476d886f22216e119ba7e615bf # v1
         with:
-          python-version: '3.12'
-      - name: Install schema owner for launcher tests
-        run: python -m pip install 'eoa-verifier @ git+https://github.com/GLEIF-IT/eoa-verifier.git@4e2b5c35818602576d307d02f6cb921382740766'
-      - name: Check launcher and contracts
+          version: v1.5.1
+          cache: false
+      - name: Test contracts
         run: |
-          bash -n scripts/dev/start-local-gl1-stack.sh scripts/dev/init-local-vlei-fixture.sh
-          python3 scripts/dev/test_startup.py
+          bash -n setup.sh scripts/deploy-local.sh
           forge test
+      - name: Qualify local deployment artifact
+        env:
+          PRIVATE_KEY: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+        run: |
+          set -euo pipefail
+          anvil --host 127.0.0.1 --port 18545 --silent > "$RUNNER_TEMP/anvil.log" 2>&1 &
+          chain_pid=$!
+          trap 'kill "$chain_pid" 2>/dev/null || true; wait "$chain_pid" || true' EXIT
+          ready=false
+          for attempt in {1..100}; do
+            kill -0 "$chain_pid"
+            if cast chain-id --rpc-url http://127.0.0.1:18545 >/dev/null 2>&1; then ready=true; break; fi
+            sleep 0.1
+          done
+          test "$ready" = true
+          scripts/deploy-local.sh --rpc-url http://127.0.0.1:18545 --output deployments/ci/contracts.json
+          # Reusing an artifact or a non-loopback target must fail before broadcast.
+          if scripts/deploy-local.sh --rpc-url http://127.0.0.1:18545 --output deployments/ci/contracts.json; then exit 1; fi
+          if scripts/deploy-local.sh --rpc-url http://localhost@remote.invalid:18545 --output deployments/ci/unsafe.json; then exit 1; fi
